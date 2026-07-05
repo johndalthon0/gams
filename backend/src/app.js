@@ -18,11 +18,8 @@ app.use('/api/mantenimientos',    require('./routes/mantenimiento.routes'));
 app.use('/api/catalogos',         require('./routes/catalogo.routes'));
 app.use('/api/bajas',             require('./routes/baja.routes'));       // ✅ nueva
 app.use('/api/repuestos-reporte', require('./routes/repuesto.routes'));   // ✅ nueva
-<<<<<<< HEAD
 app.use('/api/configuracion', require('./routes/configuracion.routes'));
-=======
 
->>>>>>> 56e24d21d6a03899f2a1b04099f4303a75129ffc
 // =============================
 // RUTA TEST
 // =============================

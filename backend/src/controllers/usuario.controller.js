@@ -169,8 +169,6 @@ exports.deleteUsuario = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
-<<<<<<< HEAD
-=======
 
 // =============================
 // GET PERFIL DEL ADMIN LOGUEADO
@@ -217,4 +215,3 @@ exports.updateMiPerfil = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
->>>>>>> 56e24d21d6a03899f2a1b04099f4303a75129ffc
