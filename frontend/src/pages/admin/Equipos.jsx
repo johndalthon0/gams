@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "../../components/layout/AdminLayout";
 import api from "../../services/api";
+import { useDialog } from "../../context/DialogContext";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { addSistemaLogo, getSistemaConfig } from "../../utils/sistemaConfig";
 
 const inputStyle = {
   width: "100%",
@@ -42,6 +44,8 @@ const Overlay = ({ children, onClose }) => (
 );
 
 function Equipos() {
+
+  const { avisar } = useDialog();
 
   const [equipos,     setEquipos]     = useState([]);
   const [mostrarForm, setMostrarForm] = useState(false);
@@ -92,7 +96,7 @@ function Equipos() {
   const save = async () => {
     try {
       if (!form.codigo || !form.nombre || !form.tipo_id) {
-        alert("Completa campos obligatorios");
+        await avisar("Completa los campos obligatorios.");
         return;
       }
       if (editando) {
@@ -103,14 +107,14 @@ function Equipos() {
       resetForm();
       loadData();
     } catch (err) {
-      alert(err.response?.data?.message || "Error");
+      await avisar(err.response?.data?.message || "No se pudo guardar el equipo.", "Error");
     }
   };
 
   // ✅ darBaja ahora manda informe_baja + detalle
   const darBaja = async () => {
     if (!informeBaja)
-      return alert("Selecciona el motivo de baja");
+      return avisar("Selecciona el motivo de baja.");
     try {
       await api.put(`/equipos/baja/${bajaId}`, {
         informe_baja: informeBaja,
@@ -121,17 +125,19 @@ function Equipos() {
       setDetalleBaja("");
       loadData();
     } catch (err) {
-      alert(err.response?.data?.message || "Error");
+      await avisar(err.response?.data?.message || "No se pudo registrar la baja.", "Error");
     }
   };
 
   const exportPDF = () => {
+    const sistema = getSistemaConfig();
     const doc = new jsPDF({ orientation: "landscape" });
     doc.setFillColor(108, 99, 255);
     doc.rect(0, 0, 297, 25, "F");
+    addSistemaLogo(doc, sistema, 8, 4, 17);
     doc.setTextColor(255, 255, 255);
     doc.setFont("helvetica", "bold"); doc.setFontSize(12);
-    doc.text("GOBIERNO AUTÓNOMO MUNICIPAL — INVENTARIO DE EQUIPOS TI", 148, 12, { align: "center" });
+    doc.text(`${sistema.nombre_institucion} — ${sistema.nombre_sistema}`, 148, 12, { align: "center" });
     doc.setFont("helvetica", "normal"); doc.setFontSize(8);
     doc.text(`Generado: ${new Date().toLocaleString("es-BO")} | Total: ${equiposFiltrados.length} equipos`, 148, 20, { align: "center" });
     doc.setTextColor(30, 30, 30);

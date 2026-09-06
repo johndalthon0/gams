@@ -7,7 +7,14 @@ const { generateToken } = require('../utils/jwt');
 // =============================================
 exports.register = async (req, res) => {
   try {
-    const { nombre, apellido, email, password, telefono } = req.body;
+    const nombre = String(req.body.nombre || '').trim();
+    const apellido = String(req.body.apellido || '').trim();
+    const email = String(req.body.email || '').trim().toLowerCase();
+    const password = String(req.body.password || '');
+    const telefono = req.body.telefono || null;
+
+    if (!nombre || !apellido || !email || !password)
+      return res.status(400).json({ message: 'Nombre, apellido, email y password son requeridos' });
 
     // Verificar duplicado
     const [existe] = await db.query(
@@ -51,7 +58,8 @@ exports.register = async (req, res) => {
 // =============================================
 exports.login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const email = String(req.body?.email || '').trim().toLowerCase();
+    const password = String(req.body?.password || '');
 
     if (!email || !password)
       return res.status(400).json({ message: 'Email y password requeridos' });
@@ -78,19 +86,21 @@ exports.login = async (req, res) => {
 
     const userRow = rows[0];
 
+    if (!userRow.password) {
+      return res.status(401).json({ message: 'Credenciales inválidas' });
+    }
+
     const valid = bcrypt.compareSync(password, userRow.password);
     if (!valid)
       return res.status(401).json({ message: 'Password incorrecto' });
 
-    // No devolver el hash al frontend
     const { password: _, ...user } = userRow;
-
-    const token = generateToken(user); // payload: { id, email, rol }
+    const token = generateToken(user);
 
     res.json({ token, user });
 
   } catch (error) {
-    console.log(error);
+    console.error('LOGIN_ERROR:', error);
     res.status(500).json({ message: 'Error al iniciar sesión' });
   }
 };

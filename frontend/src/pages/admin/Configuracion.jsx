@@ -25,6 +25,16 @@ const btnG = (c = "var(--text-secondary)") => ({
 });
 
 const SISTEMA_KEY = "gam_sistema_config";
+const SISTEMA_DEFAULT = {
+  nombre_institucion: "Gobierno Autónomo Municipal",
+  nombre_sistema: "Sistema de Registro de Equipos de Computación",
+  responsable: "",
+  cargo_responsable: "Jefe de Sistemas TI",
+  direccion: "",
+  telefono_inst: "",
+  logo_texto: "GAM",
+  logo_data: "",
+};
 
 function Configuracion() {
 
@@ -42,15 +52,7 @@ function Configuracion() {
   });
   const [loadingPass, setLoadingPass] = useState(false);
 
-  const [sistema, setSistema] = useState({
-    nombre_institucion: "Gobierno Autónomo Municipal",
-    nombre_sistema:     "Sistema de Registro de Equipos de Computación",
-    responsable:        "",
-    cargo_responsable:  "Jefe de Sistemas TI",
-    direccion:          "",
-    telefono_inst:      "",
-    logo_texto:         "GAM"
-  });
+  const [sistema, setSistema] = useState(SISTEMA_DEFAULT);
 
   const [tab, setTab] = useState("perfil");
   const [msg, setMsg] = useState({ type: "", text: "" });
@@ -113,18 +115,37 @@ function Configuracion() {
   };
 
   const guardarSistema = () => {
-    localStorage.setItem(SISTEMA_KEY, JSON.stringify(sistema));
+    try {
+      localStorage.setItem(SISTEMA_KEY, JSON.stringify(sistema));
+    } catch {
+      showMsg("error", "No se pudo guardar el logo. Usa una imagen más pequeña.");
+      return;
+    }
+    window.dispatchEvent(new Event("gams-sistema-actualizado"));
     showMsg("success", "✅ Configuración del sistema guardada");
+  };
+
+  const cargarLogo = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      showMsg("error", "Selecciona una imagen válida.");
+      return;
+    }
+    if (file.size > 1024 * 1024) {
+      showMsg("error", "El logo no puede superar 1 MB.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => setSistema((actual) => ({ ...actual, logo_data: reader.result }));
+    reader.readAsDataURL(file);
+    event.target.value = "";
   };
 
   const resetSistema = () => {
     localStorage.removeItem(SISTEMA_KEY);
-    setSistema({
-      nombre_institucion: "Gobierno Autónomo Municipal",
-      nombre_sistema:     "Sistema de Registro de Equipos de Computación",
-      responsable:        "", cargo_responsable: "Jefe de Sistemas TI",
-      direccion:          "", telefono_inst:     "", logo_texto: "GAM"
-    });
+    setSistema(SISTEMA_DEFAULT);
+    window.dispatchEvent(new Event("gams-sistema-actualizado"));
     showMsg("success", "Configuración restablecida");
   };
 
@@ -167,10 +188,10 @@ function Configuracion() {
         }}>{msg.text}</div>
       )}
 
-      <div style={{ display: "flex", gap: "20px", flexWrap: "wrap", alignItems: "flex-start" }}>
+      <div className="config-shell" style={{ display: "flex", gap: "20px", flexWrap: "wrap", alignItems: "flex-start" }}>
 
         {/* SIDEBAR */}
-        <div style={{
+        <div className="config-nav" style={{
           background: "var(--bg-surface)", border: "1px solid var(--border)",
           borderRadius: "16px", padding: "0.5rem",
           minWidth: "220px", flexShrink: 0
@@ -262,7 +283,7 @@ function Configuracion() {
                   }}>⚠️ Tienes cambios sin guardar</div>
                 )}
 
-                <div style={{ display: "flex", gap: "10px", marginTop: "1.25rem", justifyContent: "flex-end" }}>
+                <div className="config-actions" style={{ display: "flex", gap: "10px", marginTop: "1.25rem", justifyContent: "flex-end" }}>
                   <button onClick={() => setPerfil({ ...perfilOriginal })} style={btnG()}>
                     Descartar
                   </button>
@@ -401,7 +422,7 @@ function Configuracion() {
               <div style={{ padding: "1.25rem" }}>
 
                 {/* Preview */}
-                <div style={{
+                <div className="config-preview" style={{
                   background: "linear-gradient(135deg, #6c63ff, #a78bfa)",
                   borderRadius: "12px", padding: "1.25rem",
                   marginBottom: "1.5rem", display: "flex",
@@ -413,7 +434,9 @@ function Configuracion() {
                     display: "flex", alignItems: "center", justifyContent: "center",
                     fontSize: "18px", fontWeight: 700, color: "#fff"
                   }}>
-                    {sistema.logo_texto || "GAM"}
+                    {sistema.logo_data ? (
+                      <img src={sistema.logo_data} alt="Logo institucional" style={{ width: "100%", height: "100%", objectFit: "contain", borderRadius: "10px" }} />
+                    ) : sistema.logo_texto || "GAM"}
                   </div>
                   <div>
                     <p style={{ color: "#fff", fontWeight: 700, fontSize: "15px", margin: 0 }}>
@@ -428,6 +451,19 @@ function Configuracion() {
                       </p>
                     )}
                   </div>
+                </div>
+
+                <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap", marginBottom: "1.25rem" }}>
+                  <label htmlFor="logo-institucional" style={{ ...btnG(), cursor: "pointer", display: "inline-flex", alignItems: "center", minHeight: "42px" }}>
+                    Cargar logo
+                  </label>
+                  <input id="logo-institucional" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" onChange={cargarLogo} style={{ display: "none" }} />
+                  {sistema.logo_data && (
+                    <button type="button" onClick={() => setSistema((actual) => ({ ...actual, logo_data: "" }))} style={btnG("var(--danger)")}>
+                      Quitar logo
+                    </button>
+                  )}
+                  <span style={{ color: "var(--text-muted)", fontSize: "12px" }}>PNG, JPG, WEBP o SVG · máximo 1 MB</span>
                 </div>
 
                 <div style={{
@@ -468,7 +504,7 @@ function Configuracion() {
                   ℹ️ Esta configuración se guarda en este navegador. Se usa en los encabezados de todos los PDFs del sistema.
                 </div>
 
-                <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
+                <div className="config-actions" style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
                   <button onClick={resetSistema} style={btnG("var(--danger)")}>
                     🔄 Restablecer
                   </button>

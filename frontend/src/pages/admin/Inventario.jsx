@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import AdminLayout from "../../components/layout/AdminLayout";
 import api from "../../services/api";
+import { useDialog } from "../../context/DialogContext";
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 const fmtBs   = (n) => `Bs ${Number(n || 0).toFixed(2)}`;
@@ -473,6 +474,7 @@ function FormCategoria({ inicial, onClose, onSuccess, showMsg }) {
 
 // ── COMPONENTE PRINCIPAL ───────────────────────────────────────────────────
 export default function Inventario() {
+  const { confirmar } = useDialog();
   const [tab,           setTab]           = useState("productos");
   const [productos,     setProductos]     = useState([]);
   const [categorias,    setCategorias]    = useState([]);
@@ -521,7 +523,7 @@ export default function Inventario() {
   useEffect(() => { load(); }, [load]);
 
   const eliminarProducto = async (p) => {
-    if (!window.confirm(`¿Desactivar "${p.nombre}"?`)) return;
+    if (!(await confirmar(`Desactivar "${p.nombre}"?`, "Desactivar producto"))) return;
     try {
       await api.delete(`/inventario/${p.id}`);
       showMsg("success", "Producto desactivado");
@@ -530,7 +532,7 @@ export default function Inventario() {
   };
 
   const eliminarCategoria = async (c) => {
-    if (!window.confirm(`¿Eliminar categoría "${c.nombre}"?`)) return;
+    if (!(await confirmar(`Eliminar categoría "${c.nombre}"?`, "Eliminar categoría"))) return;
     try {
       await api.delete(`/inventario/categorias/${c.id}`);
       showMsg("success", "Categoría eliminada");

@@ -143,38 +143,28 @@ def _ya_tiene_orden_activa(equipo_id: int) -> bool:
 @router.get("/")
 async def get_ordenes(estado: str = None):
     try:
-        if estado:
-            rows = execute_query("""
-                SELECT o.id, o.equipo_id, o.prediccion_id,
-                       o.fecha_generada, o.fecha_sugerida,
-                       o.nivel_riesgo, o.probabilidad,
-                       o.motivo, o.estado,
-                       o.aprobada_por, o.fecha_accion,
-                       e.codigo AS equipo_codigo,
-                       e.nombre AS equipo_nombre,
-                       t.nombre AS equipo_tipo
-                FROM ia_ordenes o
-                JOIN equipos e ON e.id = o.equipo_id
-                LEFT JOIN tipos_equipo t ON t.id = e.tipo_id
-                WHERE o.estado = %s
-                ORDER BY o.fecha_generada DESC
-            """, (estado,))
-        else:
-            rows = execute_query("""
-                SELECT o.id, o.equipo_id, o.prediccion_id,
-                       o.fecha_generada, o.fecha_sugerida,
-                       o.nivel_riesgo, o.probabilidad,
-                       o.motivo, o.estado,
-                       o.aprobada_por, o.fecha_accion,
-                       e.codigo AS equipo_codigo,
-                       e.nombre AS equipo_nombre,
-                       t.nombre AS equipo_tipo
-                FROM ia_ordenes o
-                JOIN equipos e ON e.id = o.equipo_id
-                LEFT JOIN tipos_equipo t ON t.id = e.tipo_id
-                ORDER BY o.fecha_generada DESC
-                LIMIT 100
-            """)
+        filtro_estado = "AND o.estado = %s" if estado else ""
+        params = (estado,) if estado else ()
+        rows = execute_query(f"""
+            SELECT o.id, o.equipo_id, o.prediccion_id,
+                   o.fecha_generada, o.fecha_sugerida,
+                   o.nivel_riesgo, o.probabilidad,
+                   o.motivo, o.estado,
+                   o.aprobada_por, o.fecha_accion,
+                   e.codigo AS equipo_codigo,
+                   e.nombre AS equipo_nombre,
+                   t.nombre AS equipo_tipo
+            FROM ia_ordenes o
+            JOIN (
+                SELECT equipo_id, MAX(id) AS id
+                FROM ia_ordenes
+                GROUP BY equipo_id
+            ) vigente ON vigente.id = o.id
+            JOIN equipos e ON e.id = o.equipo_id
+            LEFT JOIN tipos_equipo t ON t.id = e.tipo_id
+            WHERE 1=1 {filtro_estado}
+            ORDER BY o.fecha_generada DESC
+        """, params)
         pendientes = sum(1 for r in rows if r.get("estado") == "PENDIENTE")
         return {"ordenes": _serializar(rows), "total": len(rows), "pendientes": pendientes}
     except Exception as e:
@@ -245,13 +235,14 @@ async def accionar_orden(data: PropuestaAccion):
             WHERE e.id = %s
         """, (equipo_id,))[0]
 
-        # Crear mantenimiento PROGRAMADO
+        # Crear mantenimiento en flujo de confirmación para que aparezca en Reparaciones
+        estado_mantenimiento = 'PENDIENTE_CONFIRMACION'
         mant_id = execute_insert("""
             INSERT INTO mantenimientos
                 (equipo_id, tipo, descripcion, descripcion_problema,
                  tecnico, tecnico_usuario_id,
                  fecha_programada, estado)
-            VALUES (%s, 'PREVENTIVO', %s, %s, %s, %s, %s, 'PROGRAMADO')
+            VALUES (%s, 'PREVENTIVO', %s, %s, %s, %s, %s, %s)
         """, (
             equipo_id,
             f"Mantenimiento preventivo programado por IA",
@@ -259,6 +250,7 @@ async def accionar_orden(data: PropuestaAccion):
             tecnico_nombre,
             tecnico_id,
             fecha_programada,
+            estado_mantenimiento,
         ))
 
         # Crear orden de trabajo
@@ -266,10 +258,11 @@ async def accionar_orden(data: PropuestaAccion):
             INSERT INTO ia_ordenes_trabajo
                 (orden_ia_id, mantenimiento_id, equipo_id,
                  tecnico_id, aprobada_por, fecha_programada, estado)
-            VALUES (%s, %s, %s, %s, %s, %s, 'PROGRAMADO')
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
         """, (
             data.orden_id, mant_id, equipo_id,
             tecnico_id, data.usuario_id, fecha_programada,
+            estado_mantenimiento,
         ))
 
          # Actualizar estado del equipo

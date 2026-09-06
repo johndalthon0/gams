@@ -1,10 +1,25 @@
 const express = require('express');
-const cors    = require('cors');
+const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
 
-app.use(cors());
+const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:3000,http://localhost:3001,http://localhost:3002')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+      return;
+    }
+
+    callback(new Error('Origen no permitido por CORS'));
+  },
+  credentials: true,
+}));
 app.use(express.json());
 
 // ── RUTAS ────────────────────────────────────────────────────
@@ -19,6 +34,7 @@ app.use('/api/inventario',     require('./routes/inventario.routes'));
 app.use('/api/compras',        require('./routes/compras.routes'));
 app.use('/api/bajas',          require('./routes/baja.routes'));
 app.use('/api/ia',             require('./routes/ia.routes'));
+app.use('/api/push',           require('./routes/push.routes'));
 
 app.get('/', (req, res) => res.json({ message: 'API GAMS TI 🚀', version: '2.0' }));
 

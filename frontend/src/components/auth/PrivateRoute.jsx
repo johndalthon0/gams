@@ -12,9 +12,9 @@ function PrivateRoute({ role }) {
 
   // Rol no coincide → redirigir según su rol
   if (user.rol !== role) {
-    if (user.rol === "ADMIN")     return <Navigate to="/admin/dashboard"          replace />;
-    if (user.rol === "EMPLEADO")  return <Navigate to="/empleado/reparaciones"    replace />;
-    if (user.rol === "PERSONAL")  return <Navigate to="/personal/dashboard"       replace />;
+    if (user.rol === "ADMIN") return <Navigate to="/admin/dashboard" replace />;
+    if (user.rol === "EMPLEADO") return <Navigate to="/empleado/dashboard" replace />;
+    if (user.rol === "PERSONAL") return <Navigate to="/personal/dashboard" replace />;
     return <Navigate to="/" replace />;
   }
 

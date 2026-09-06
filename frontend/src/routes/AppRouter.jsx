@@ -26,7 +26,7 @@ import PersonalDashboard   from "../pages/personal/Dashboard";
 import MiEquipo            from "../pages/personal/MiEquipo";
 import MisSolicitudes      from "../pages/personal/MisSolicitudes";
 import Solicitar           from "../pages/personal/Solicitar";
-
+import Notificaciones      from "../pages/personal/Notificaciones";
 import Perfil              from "../pages/personal/perfil";
 
 // ── Guard ─────────────────────────────────────────────────────
@@ -77,27 +77,34 @@ function AppRouter() {
         <Route element={<PrivateRoute role="EMPLEADO" />}>
 
           <Route path="/empleado" element={<Navigate to="/empleado/dashboard" replace />} />
-          <Route path="/empleado/dashboard"    element={<EmpleadoDashboard />} />
-          {/* El técnico también accede a reparaciones */}
-          <Route path="/admin/reparaciones"    element={<Reparaciones />} />
+          <Route path="/empleado/dashboard" element={<EmpleadoDashboard />} />
+          <Route path="/empleado/reparaciones" element={<Reparaciones />} />
+          <Route path="/admin/reparaciones" element={<Reparaciones />} />
 
         </Route>
 
-        {/* ═══════════════════════════════════════
-            PERSONAL
-        ═══════════════════════════════════════ */}
-        <Route element={<PrivateRoute role="PERSONAL" />}>
+       {/* ═══════════════════════════════════════
+    PERSONAL
+═══════════════════════════════════════ */}
+<Route element={<PrivateRoute role="PERSONAL" />}>
 
-          <Route path="/personal" element={<Navigate to="/personal/dashboard" replace />} />
-          <Route path="/personal/dashboard"      element={<PersonalDashboard />} />
-          <Route path="/personal/mi-equipo"      element={<MiEquipo />} />
-          <Route path="/personal/mis-solicitudes"element={<MisSolicitudes />} />
-          <Route path="/personal/solicitar"      element={<Solicitar />} />
-      
-          <Route path="/personal/perfil"         element={<Perfil />} />
+  <Route path="/personal" element={<Navigate to="/personal/dashboard" replace />} />
 
-        </Route>
+  <Route path="/personal/dashboard"       element={<PersonalDashboard />} />
 
+  {/* Ambas variantes para mi-equipo */}
+  <Route path="/personal/mi-equipo"       element={<MiEquipo />} />
+  <Route path="/personal/miequipo"        element={<MiEquipo />} />
+
+  {/* Ambas variantes para mis-solicitudes */}
+  <Route path="/personal/mis-solicitudes" element={<MisSolicitudes />} />
+  <Route path="/personal/missolicitudes"  element={<MisSolicitudes />} />
+
+  <Route path="/personal/solicitar"       element={<Solicitar />} />
+  <Route path="/personal/notificaciones"  element={<Notificaciones />} />
+  <Route path="/personal/perfil"          element={<Perfil />} />
+
+</Route>
         {/* ── 404 → Login ── */}
         <Route path="*" element={<Navigate to="/" replace />} />
 

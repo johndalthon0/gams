@@ -158,18 +158,9 @@ def extraer_equipos_activos() -> pd.DataFrame:
     return pd.DataFrame(rows) if rows else pd.DataFrame()
 
 
-def get_admins_y_responsable(equipo_id: int) -> list:
-    admins = execute_query("""
-        SELECT DISTINCT u.id FROM usuarios u
-        JOIN usuario_roles ur ON ur.usuario_id = u.id
-        JOIN roles r ON r.id = ur.rol_id
-        WHERE r.nombre = 'ADMIN' AND u.estado = 1
-    """)
+def get_responsable(equipo_id: int) -> int | None:
     responsable = execute_query("""
         SELECT usuario_id AS id FROM asignaciones
         WHERE equipo_id = %s AND estado = 1 LIMIT 1
     """, (equipo_id,))
-    ids = [r["id"] for r in admins]
-    if responsable:
-        ids.append(responsable[0]["id"])
-    return list(set(ids))
+    return responsable[0]["id"] if responsable else None

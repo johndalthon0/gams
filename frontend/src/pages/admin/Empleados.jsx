@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "../../components/layout/AdminLayout";
 import api from "../../services/api";
+import { useDialog } from "../../context/DialogContext";
 
 const inp = {
   width: "100%", background: "var(--bg-surface2)",
@@ -15,6 +16,8 @@ const lbl = {
 };
 
 function Empleados() {
+
+  const { confirmar, avisar } = useDialog();
 
   const [empleados,  setEmpleados]  = useState([]);
   const [sucursales, setSucursales] = useState([]);
@@ -58,7 +61,7 @@ function Empleados() {
 
   const crear = async () => {
     if (!form.nombre || !form.email || !form.password || !form.rol_id)
-      return alert("Nombre, email, password y rol son obligatorios");
+      return avisar("Nombre, email, password y rol son obligatorios.");
     setGuardando(true);
     try {
       await api.post("/empleados", form);
@@ -66,7 +69,7 @@ function Empleados() {
       setMostrarForm(false);
       getData();
     } catch (err) {
-      alert(err.response?.data?.message || "Error al crear");
+      avisar(err.response?.data?.message || "No se pudo crear el empleado.", "Error al crear empleado");
     } finally {
       setGuardando(false);
     }
@@ -74,22 +77,22 @@ function Empleados() {
 
   const toggleEstado = async (id, estadoActual, nombre) => {
     const accion = estadoActual === 1 ? "desactivar" : "activar";
-    if (!window.confirm(`¿${accion.charAt(0).toUpperCase() + accion.slice(1)} a ${nombre}?`)) return;
+    if (!(await confirmar(`${accion.charAt(0).toUpperCase() + accion.slice(1)} a ${nombre}?`, `${accion.charAt(0).toUpperCase() + accion.slice(1)} empleado`))) return;
     try {
       await api.put(`/empleados/toggle/${id}`);
       getData();
     } catch (err) {
-      alert(err.response?.data?.message || "Error");
+      avisar(err.response?.data?.message || "No se pudo cambiar el estado del empleado.", "Error");
     }
   };
 
   const eliminar = async (id, nombre) => {
-    if (!window.confirm(`¿Eliminar permanentemente a ${nombre}? Esta acción no se puede deshacer.`)) return;
+    if (!(await confirmar(`Eliminar permanentemente a ${nombre}? Esta acción no se puede deshacer.`, "Eliminar empleado"))) return;
     try {
       await api.delete(`/empleados/${id}`);
       getData();
     } catch (err) {
-      alert(err.response?.data?.message || "Error al eliminar");
+      avisar(err.response?.data?.message || "No se pudo eliminar el empleado.", "Error al eliminar");
     }
   };
 

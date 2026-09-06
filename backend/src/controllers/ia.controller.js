@@ -1,5 +1,6 @@
 const axios   = require('axios');
-const IA_URL  = process.env.IA_URL || 'http://localhost:5000';
+const push    = require('./push.controller');
+const IA_URL  = (process.env.IA_URL || 'http://127.0.0.1:5000').replace(/\/+$/, '');
 
 const handle = (err, res) => {
   if (err.code === 'ECONNREFUSED')
@@ -9,15 +10,23 @@ const handle = (err, res) => {
   const msg = err.response?.data?.detail || err.response?.data?.message || err.message;
   return res.status(500).json({ message: msg });
 };
-
 // ── predicción ──────────────────────────────────────────────────────────────
 exports.getEquiposRiesgo = async (req, res) => {
   try {
     const { data } = await axios.get(`${IA_URL}/ia/equipos-riesgo?guardar=true`);
+    for (const event of data.push_events || []) {
+      await push.enviarPushUsuario(event.usuario_id, {
+        titulo: event.titulo,
+        cuerpo: event.cuerpo,
+        url: event.url,
+        tag: event.tag,
+        icono: '/icon-192.png',
+      });
+    }
+    delete data.push_events;
     res.json(data);
   } catch (err) { handle(err, res); }
 };
-
 // ── estadísticas ────────────────────────────────────────────────────────────
 exports.getEstadisticas = async (req, res) => {
   try {

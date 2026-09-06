@@ -1,179 +1,86 @@
-import { useState } from "react";
-import axios from "axios";
+import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../../services/api";
+import { ThemeContext } from "../../context/ThemeContext";
+import { getSistemaConfig } from "../../utils/sistemaConfig";
 
 function Login() {
-
-  const [email,    setEmail]    = useState("");
-  const [password, setPassword] = useState("");
-  const [error,    setError]    = useState("");
-  const [loading,  setLoading]  = useState(false);
-
   const navigate = useNavigate();
+  const { theme, toggleTheme } = useContext(ThemeContext);
+  const sistema = getSistemaConfig();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const login = async (e) => {
-    e.preventDefault();
+  const login = async (event) => {
+    event.preventDefault();
     setError("");
     setLoading(true);
-
     try {
-      const res = await axios.post("http://localhost:3000/api/auth/login", {
-        email,
-        password
+      const res = await api.post("/auth/login", {
+        email: email.trim().toLowerCase(),
+        password,
       });
-
       localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user",  JSON.stringify(res.data.user));
-
+      localStorage.setItem("user", JSON.stringify(res.data.user));
       const rol = res.data.user.rol;
-
-      if (rol === "ADMIN")    navigate("/admin/dashboard");
-      if (rol === "EMPLEADO") navigate("/empleado/reparaciones"); // ✅ ruta propia
+      if (rol === "ADMIN") navigate("/admin/dashboard");
+      if (rol === "EMPLEADO") navigate("/empleado/dashboard");
       if (rol === "PERSONAL") navigate("/personal/dashboard");
-
     } catch (err) {
-      setError(
-        err.response?.data?.message || "Credenciales incorrectas"
-      );
+      setError(err.response?.data?.message || (err.response
+        ? `Error de acceso (${err.response.status})`
+        : "No se pudo conectar con el servidor"));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={{
-      minHeight: "100vh",
-      background: "var(--bg-page)",
-      display: "flex", alignItems: "center",
-      justifyContent: "center", padding: "1rem"
-    }}>
-      <div style={{
-        background: "var(--bg-surface)",
-        border: "1px solid var(--border)",
-        borderRadius: "16px",
-        padding: "2rem",
-        width: "100%", maxWidth: "400px",
-        boxShadow: "var(--shadow)"
-      }}>
-
-        {/* LOGO */}
-        <div style={{ textAlign: "center", marginBottom: "2rem" }}>
-          <div style={{
-            width: "56px", height: "56px",
-            background: "linear-gradient(135deg,#6c63ff,#a78bfa)",
-            borderRadius: "16px", margin: "0 auto 12px",
-            display: "flex", alignItems: "center",
-            justifyContent: "center", fontSize: "26px"
-          }}>💼</div>
-          <h2 style={{
-            fontWeight: 700, margin: 0,
-            color: "var(--text-primary)", fontSize: "22px"
-          }}>
-            GAMS TI
-          </h2>
-          <p style={{
-            color: "var(--text-secondary)",
-            fontSize: "13px", margin: "4px 0 0"
-          }}>
-            Sistema de Registro de Equipos — GAM
-          </p>
-        </div>
-
-        {/* ERROR */}
-        {error && (
-          <div style={{
-            background: "var(--danger-bg)",
-            border: "1px solid var(--danger)",
-            color: "var(--danger)",
-            borderRadius: "10px", padding: "10px 14px",
-            fontSize: "13px", marginBottom: "1.25rem"
-          }}>
-            ❌ {error}
+    <main className="auth-page">
+      <div className="auth-orbit auth-orbit-one" />
+      <div className="auth-orbit auth-orbit-two" />
+      <button className="auth-theme-toggle" type="button" onClick={toggleTheme} aria-label="Cambiar tema">
+        {theme === "dark" ? "☀️ Claro" : "🌙 Oscuro"}
+      </button>
+      <section className="auth-shell">
+        <aside className="auth-brand-panel">
+          <div className="auth-brand-mark">
+            {sistema.logo_data ? <img src={sistema.logo_data} alt="Logo institucional" /> : sistema.logo_texto || "GAM"}
+            <span className="auth-spark auth-spark-one" aria-hidden="true" />
+            <span className="auth-spark auth-spark-two" aria-hidden="true" />
+            <span className="auth-spark auth-spark-three" aria-hidden="true" />
           </div>
-        )}
-
-        {/* FORM */}
-        <form onSubmit={login}>
-
-          <div style={{ marginBottom: "14px" }}>
-            <label style={{
-              display: "block", color: "var(--text-secondary)",
-              fontSize: "13px", fontWeight: 500, marginBottom: "6px"
-            }}>
-              Email
-            </label>
-            <input
-              type="email"
-              required
-              placeholder="correo@gam.bo"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              style={{
-                width: "100%", background: "var(--bg-surface2)",
-                border: "1px solid var(--border)", borderRadius: "10px",
-                padding: "11px 16px", color: "var(--text-primary)",
-                fontSize: "14px", outline: "none",
-                fontFamily: "inherit", boxSizing: "border-box"
-              }}
-            />
+          <p className="auth-eyebrow">SISTEMA · TI / OPERACIONES</p>
+          <h1>{sistema.nombre_institucion || "Gobierno Autónomo Municipal"}</h1>
+          <p className="auth-brand-copy">{sistema.nombre_sistema || "Sistema de Registro de Equipos"}</p>
+          <div className="auth-brand-line" />
+          <p className="auth-brand-note">Control centralizado de activos, asignaciones y mantenimiento tecnológico.</p>
+          <div className="auth-system-grid">
+            <span><strong>01</strong> Inventario</span>
+            <span><strong>02</strong> Soporte TI</span>
+            <span><strong>03</strong> Seguridad</span>
           </div>
-
-          <div style={{ marginBottom: "1.5rem" }}>
-            <label style={{
-              display: "block", color: "var(--text-secondary)",
-              fontSize: "13px", fontWeight: 500, marginBottom: "6px"
-            }}>
-              Contraseña
-            </label>
-            <input
-              type="password"
-              required
-              placeholder="••••••••"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              style={{
-                width: "100%", background: "var(--bg-surface2)",
-                border: "1px solid var(--border)", borderRadius: "10px",
-                padding: "11px 16px", color: "var(--text-primary)",
-                fontSize: "14px", outline: "none",
-                fontFamily: "inherit", boxSizing: "border-box"
-              }}
-            />
+        </aside>
+        <section className="auth-form-panel">
+          <div className="auth-form-heading">
+            <p className="auth-kicker">MÓDULO DE ACCESO · SEGURO</p>
+            <h2>Bienvenido de nuevo</h2>
+            <p>Ingresa tus credenciales para continuar.</p>
           </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              width: "100%",
-              background: loading ? "var(--accent-light)" : "var(--accent)",
-              color: loading ? "var(--accent-text)" : "#fff",
-              border: "none", borderRadius: "10px",
-              padding: "13px", fontSize: "15px",
-              fontWeight: 600, cursor: loading ? "not-allowed" : "pointer",
-              fontFamily: "inherit", transition: "opacity 0.15s"
-            }}
-          >
-            {loading ? "Iniciando sesión..." : "Iniciar Sesión"}
-          </button>
-
-        </form>
-
-        <button
-          onClick={() => navigate("/register")}
-          style={{
-            width: "100%", background: "none",
-            border: "none", color: "var(--accent-text)",
-            fontSize: "13px", cursor: "pointer",
-            marginTop: "1rem", fontFamily: "inherit",
-            textDecoration: "underline"
-          }}
-        >
-          Crear cuenta nueva
-        </button>
-
-      </div>
-    </div>
+          {error && <div className="auth-error" role="alert">{error}</div>}
+          <form onSubmit={login} className="auth-form">
+            <label htmlFor="login-email">Correo electrónico</label>
+            <input id="login-email" type="email" required autoComplete="email" placeholder="correo@gam.bo" value={email} onChange={(e) => setEmail(e.target.value)} />
+            <label htmlFor="login-password">Contraseña</label>
+            <input id="login-password" type="password" required autoComplete="current-password" placeholder="Ingresa tu contraseña" value={password} onChange={(e) => setPassword(e.target.value)} />
+            <button className="auth-submit" type="submit" disabled={loading}>{loading ? "Verificando..." : "Iniciar sesión"}</button>
+          </form>
+          <div className="auth-switch">¿Aún no tienes una cuenta? <button type="button" onClick={() => navigate("/register")}>Crear cuenta</button></div>
+        </section>
+      </section>
+    </main>
   );
 }
 

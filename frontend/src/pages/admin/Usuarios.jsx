@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "../../components/layout/AdminLayout";
 import api from "../../services/api";
+import { useDialog } from "../../context/DialogContext";
 
 const inp = {
   width: "100%", background: "var(--bg-surface2)",
@@ -36,6 +37,8 @@ const Overlay = ({ children, onClose }) => (
 
 function Usuarios() {
 
+  const { confirmar, avisar } = useDialog();
+
   const [usuarios,    setUsuarios]    = useState([]);
   const [buscar,      setBuscar]      = useState("");
   const [mostrarForm, setMostrarForm] = useState(false);
@@ -66,60 +69,60 @@ function Usuarios() {
 
   const crear = async () => {
     if (!form.nombre || !form.email || !form.password)
-      return alert("Nombre, email y contraseña son obligatorios");
+      return avisar("Nombre, email y contraseña son obligatorios.");
     try {
       await api.post("/usuarios", form);
       setForm(emptyForm);
       setMostrarForm(false);
       getData();
     } catch (err) {
-      alert(err.response?.data?.message || "Error al crear");
+      avisar(err.response?.data?.message || "No se pudo crear el usuario.", "Error al crear usuario");
     }
   };
 
   const guardarEdicion = async () => {
     if (!modalEdit.nombre || !modalEdit.email)
-      return alert("Nombre y email son obligatorios");
+      return avisar("Nombre y email son obligatorios.");
     try {
       await api.put(`/usuarios/${modalEdit.id}`, modalEdit);
       setModalEdit(null);
       getData();
     } catch (err) {
-      alert(err.response?.data?.message || "Error al actualizar");
+      avisar(err.response?.data?.message || "No se pudo actualizar el usuario.", "Error al actualizar");
     }
   };
 
   const cambiarPassword = async () => {
     if (!nuevaPass || nuevaPass.length < 6)
-      return alert("La contraseña debe tener al menos 6 caracteres");
+      return avisar("La contraseña debe tener al menos 6 caracteres.");
     try {
       await api.put(`/usuarios/password/${modalPass.id}`, { password: nuevaPass });
       setModalPass(null);
       setNuevaPass("");
-      alert(`✅ Contraseña de ${modalPass.nombre} actualizada correctamente`);
+      avisar(`La contraseña de ${modalPass.nombre} se actualizó correctamente.`, "Contraseña actualizada");
     } catch (err) {
-      alert(err.response?.data?.message || "Error al cambiar contraseña");
+      avisar(err.response?.data?.message || "No se pudo cambiar la contraseña.", "Error de contraseña");
     }
   };
 
   const toggleEstado = async (id, estado, nombre) => {
     const accion = estado === 1 ? "desactivar" : "activar";
-    if (!window.confirm(`¿${accion.charAt(0).toUpperCase() + accion.slice(1)} a ${nombre}?`)) return;
+    if (!(await confirmar(`${accion.charAt(0).toUpperCase() + accion.slice(1)} a ${nombre}?`, `${accion.charAt(0).toUpperCase() + accion.slice(1)} usuario`))) return;
     try {
       await api.put(`/usuarios/toggle/${id}`);
       getData();
     } catch (err) {
-      alert(err.response?.data?.message || "Error");
+      avisar(err.response?.data?.message || "No se pudo cambiar el estado del usuario.", "Error");
     }
   };
 
   const eliminar = async (id, nombre) => {
-    if (!window.confirm(`¿Eliminar permanentemente a ${nombre}? Esta acción no se puede deshacer.`)) return;
+    if (!(await confirmar(`Eliminar permanentemente a ${nombre}? Esta acción no se puede deshacer.`, "Eliminar usuario"))) return;
     try {
       await api.delete(`/usuarios/${id}`);
       getData();
     } catch (err) {
-      alert(err.response?.data?.message || "Error al eliminar");
+      avisar(err.response?.data?.message || "No se pudo eliminar el usuario.", "Error al eliminar");
     }
   };
 
@@ -151,7 +154,7 @@ function Usuarios() {
       </div>
 
       {/* STATS */}
-      <div style={{
+      <div className="users-toolbar" style={{
         display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
         gap: "12px", marginBottom: "1.5rem"
       }}>
@@ -194,7 +197,7 @@ function Usuarios() {
 
       {/* FORMULARIO NUEVO */}
       {mostrarForm && (
-        <div style={{
+        <div className="users-form-card" style={{
           background: "var(--bg-surface)", border: "1px solid var(--border)",
           borderRadius: "16px", overflow: "hidden", marginBottom: "1.25rem"
         }}>
@@ -244,7 +247,7 @@ function Usuarios() {
               ℹ️ El usuario se creará con rol <strong>PERSONAL</strong> — podrá acceder al portal de solicitudes.
             </div>
 
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "1.25rem" }}>
+            <div className="users-form-actions" style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "1.25rem" }}>
               <button onClick={() => setMostrarForm(false)} style={btnG()}>Cancelar</button>
               <button onClick={crear} style={btnP}>✅ Crear Usuario</button>
             </div>
@@ -253,7 +256,7 @@ function Usuarios() {
       )}
 
       {/* TABLA */}
-      <div style={{
+      <div className="users-table-card" style={{
         background: "var(--bg-surface)", border: "1px solid var(--border)",
         borderRadius: "16px", overflow: "hidden"
       }}>
@@ -269,7 +272,7 @@ function Usuarios() {
           </span>
         </div>
 
-        <div style={{ overflowX: "auto" }}>
+        <div className="users-table-wrap" style={{ overflowX: "auto" }}>
           <table className="table-base">
             <thead>
               <tr>
@@ -304,7 +307,7 @@ function Usuarios() {
                     </span>
                   </td>
                   <td>
-                    <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                    <div className="users-row-actions" style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
 
                       {/* EDITAR */}
                       <button
@@ -365,7 +368,7 @@ function Usuarios() {
       {/* ══ MODAL EDITAR ══ */}
       {modalEdit && (
         <Overlay onClose={() => setModalEdit(null)}>
-          <div style={{
+          <div className="users-modal users-edit-modal" style={{
             background: "var(--bg-surface)", border: "1px solid var(--border)",
             borderRadius: "16px", width: "520px", maxWidth: "95vw",
             overflow: "hidden"
@@ -419,7 +422,7 @@ function Usuarios() {
                 💡 Para cambiar la contraseña usa el botón <strong>🔑 Contraseña</strong> desde la tabla.
               </div>
 
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "1.25rem" }}>
+              <div className="users-form-actions" style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "1.25rem" }}>
                 <button onClick={() => setModalEdit(null)} style={btnG()}>Cancelar</button>
                 <button onClick={guardarEdicion} style={btnP}>✅ Guardar Cambios</button>
               </div>
@@ -431,7 +434,7 @@ function Usuarios() {
       {/* ══ MODAL CAMBIAR CONTRASEÑA ══ */}
       {modalPass && (
         <Overlay onClose={() => { setModalPass(null); setNuevaPass(""); }}>
-          <div style={{
+          <div className="users-modal users-password-modal" style={{
             background: "var(--bg-surface)", border: "1px solid var(--border)",
             borderRadius: "16px", width: "440px", maxWidth: "95vw", padding: "1.75rem"
           }}>
@@ -502,7 +505,7 @@ function Usuarios() {
               )}
             </div>
 
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "1.25rem" }}>
+            <div className="users-form-actions" style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "1.25rem" }}>
               <button onClick={() => { setModalPass(null); setNuevaPass(""); }} style={btnG()}>
                 Cancelar
               </button>

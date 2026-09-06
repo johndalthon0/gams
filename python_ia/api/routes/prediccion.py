@@ -4,7 +4,7 @@ import logging
 from datetime import date, timedelta
 from fastapi import APIRouter, HTTPException
 
-from pipeline.data.extractor       import extraer_equipos_activos, get_admins_y_responsable
+from pipeline.data.extractor       import extraer_equipos_activos, get_responsable
 from pipeline.features.engineer    import construir_features_desde_resumen, FEATURE_COLS
 from pipeline.explainability.explainer import calcular_shap_equipo, generar_explicacion_texto
 from pipeline.registry.model_registry import cargar_modelo, modelo_existe, get_version_activa
@@ -58,9 +58,17 @@ def _insertar_prediccion(
 def _crear_orden(
     equipo_id: int, prediccion_id: int, nivel_riesgo: str,
     probabilidad: float, dias_estimados: int, motivo: str
-) -> int:
+) -> tuple[int, bool]:
+    existente = execute_query("""
+        SELECT id FROM ia_ordenes
+        WHERE equipo_id = %s AND estado IN ('PENDIENTE', 'APROBADA')
+        ORDER BY id DESC LIMIT 1
+    """, (equipo_id,))
+    if existente:
+        return int(existente[0]["id"]), False
+
     fecha_sugerida = (date.today() + timedelta(days=max(dias_estimados, 3))).isoformat()
-    return execute_insert("""
+    orden_id = execute_insert("""
         INSERT INTO ia_ordenes
             (equipo_id, prediccion_id, fecha_sugerida,
              nivel_riesgo, probabilidad, motivo)
@@ -69,6 +77,7 @@ def _crear_orden(
         equipo_id, prediccion_id, fecha_sugerida,
         nivel_riesgo, round(probabilidad * 100, 2), motivo[:1000]
     ))
+    return orden_id, True
 
 
 def _crear_notificacion(
@@ -141,6 +150,7 @@ async def get_equipos_riesgo(guardar: bool = True):
         resultado          = []
         ordenes_generadas  = 0
         notificaciones_env = 0
+        push_events         = []
 
         for i, (_, row_eq) in enumerate(df_equipos.iterrows()):
             prob               = float(probs[i])
@@ -200,18 +210,18 @@ async def get_equipos_riesgo(guardar: bool = True):
                     (prob >= UMBRAL_ORDEN_AUTO or (anomalia_detectada and prob >= 0.5))):
                 try:
                     motivo   = explicacion.get("conclusion", "")
-                    orden_id = _crear_orden(
+                    orden_id, orden_nueva = _crear_orden(
                         equipo_id, prediccion_id, nivel_riesgo, prob, dias_estimados, motivo
                     )
-                    ordenes_generadas += 1
+                    ordenes_generadas += int(orden_nueva)
                     item["orden_id"] = orden_id
 
-                    if prob >= UMBRAL_NOTIFICACION:
-                        uids      = get_admins_y_responsable(equipo_id)
+                    if orden_nueva and prob >= UMBRAL_NOTIFICACION:
+                        responsable_id = get_responsable(equipo_id)
                         fecha_sug = (date.today() + timedelta(days=max(dias_estimados, 3))).isoformat()
-                        for uid in uids:
+                        if responsable_id:
                             _crear_notificacion(
-                                usuario_id = uid,
+                                usuario_id = responsable_id,
                                 titulo     = f"Riesgo {nivel_riesgo} — {row_eq['equipo_codigo']}",
                                 mensaje    = (
                                     f"IA detectó riesgo {nivel_riesgo} "
@@ -228,6 +238,16 @@ async def get_equipos_riesgo(guardar: bool = True):
                                 }
                             )
                             notificaciones_env += 1
+                            push_events.append({
+                                "usuario_id": responsable_id,
+                                "titulo": f"⚠️ Riesgo {nivel_riesgo} — {row_eq['equipo_codigo']}",
+                                "cuerpo": (
+                                    f"IA detectó riesgo {nivel_riesgo} ({probabilidad_falla}%) "
+                                    f"en tu equipo {row_eq['equipo_codigo']}."
+                                ),
+                                "url": "/personal/mi-equipo",
+                                "tag": f"ia-riesgo-{orden_id}",
+                            })
                 except Exception as e:
                     logger.warning(f"Error orden/notif equipo {equipo_id}: {e}")
 
@@ -245,6 +265,7 @@ async def get_equipos_riesgo(guardar: bool = True):
             "anomalias":               sum(1 for r in resultado if r["anomalia_detectada"]),
             "ordenes_generadas":       ordenes_generadas,
             "notificaciones_enviadas": notificaciones_env,
+            "push_events":            push_events,
             "modelo_version":          version,
             "modelo":                  nombre_modelo,
         }

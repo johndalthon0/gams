@@ -1,26 +1,24 @@
 {
+  "name": "GAMS TI — Sistema de Inventario",
   "short_name": "GAMS TI",
-  "name": "Sistema Inventario TI - GAMS",
+  "description": "Sistema de gestión de equipos TI del Gobierno Municipal",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f0f1a",
+  "theme_color": "#6c63ff",
+  "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "favicon.ico",
-      "sizes": "64x64",
-      "type": "image/x-icon"
-    },
-    {
-      "src": "logo192.png",
+      "src": "/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "maskable any"
     },
     {
-      "src": "logo512.png",
+      "src": "/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "maskable any"
     }
-  ],
-  "start_url": ".",
-  "display": "standalone",
-  "theme_color": "#6c63ff",
-  "background_color": "#0f1117",
-  "orientation": "portrait-primary"
+  ]
 }

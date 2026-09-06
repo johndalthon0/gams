@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import PersonalLayout from "../../components/layout/PersonalLayout";
 import api from "../../services/api";
+import { useDialog } from "../../context/DialogContext";
 
 const inp = {
   background: "var(--bg-surface2)",
@@ -180,6 +181,7 @@ function ModalEditar({ solicitud, onClose, onGuardado }) {
 
 // ── COMPONENTE PRINCIPAL ──────────────────────
 export default function MisSolicitudes() {
+  const { confirmar } = useDialog();
   const [solicitudes, setSolicitudes] = useState([]);
   const [loading,     setLoading]     = useState(true);
   const [editando,    setEditando]    = useState(null);
@@ -342,8 +344,8 @@ export default function MisSolicitudes() {
 
                           {/* 🔁 Reenviar — solo RECHAZADO */}
                           {reenviar_ && (
-                            <button onClick={() => {
-                              if (window.confirm("¿Reenviar esta solicitud al administrador?")) reenviar(s.id);
+                            <button onClick={async () => {
+                              if (await confirmar("La solicitud volverá a enviarse al administrador.", "Reenviar solicitud")) reenviar(s.id);
                             }} style={{
                               background:"var(--warning-bg)", border:"1px solid var(--warning)",
                               color:"var(--warning)", borderRadius:"8px",

@@ -138,6 +138,18 @@ async def responder_notificacion(data: RespuestaNotif):
         """)
 
         if data.respuesta == "APROBADA":
+            if orden_trab_id:
+                execute_update("""
+                    UPDATE ia_ordenes_trabajo
+                    SET estado='PROGRAMADO'
+                    WHERE id=%s
+                """, (orden_trab_id,))
+                execute_update("""
+                    UPDATE mantenimientos
+                    SET estado='PROGRAMADO'
+                    WHERE id=(SELECT mantenimiento_id FROM ia_ordenes_trabajo WHERE id=%s)
+                """, (orden_trab_id,))
+
             for admin in admins:
                 execute_insert("""
                     INSERT INTO notificaciones
@@ -155,6 +167,20 @@ async def responder_notificacion(data: RespuestaNotif):
                 ))
 
         else:
+            if orden_trab_id:
+                execute_update("""
+                    UPDATE ia_ordenes_trabajo
+                    SET estado='PAUSADO',
+                        observaciones=CONCAT(COALESCE(observaciones,''),
+                            ' | Rechazado por responsable: ', %s)
+                    WHERE id=%s
+                """, (nombre_usuario, orden_trab_id))
+                execute_update("""
+                    UPDATE mantenimientos
+                    SET estado='REPROGRAMAR', motivo_reprogramar=%s
+                    WHERE id=(SELECT mantenimiento_id FROM ia_ordenes_trabajo WHERE id=%s)
+                """, (f"Rechazado por {nombre_usuario}", orden_trab_id))
+
             for admin in admins:
                 execute_insert("""
                     INSERT INTO notificaciones
@@ -170,16 +196,6 @@ async def responder_notificacion(data: RespuestaNotif):
                     json.dumps(datos, default=str),
                     orden_trab_id
                 ))
-
-            # Si hay orden de trabajo activa, ponerla en PAUSADO para revisión
-            if orden_trab_id:
-                execute_update("""
-                    UPDATE ia_ordenes_trabajo
-                    SET estado='PAUSADO',
-                        observaciones=CONCAT(COALESCE(observaciones,''),
-                            ' | Rechazado por responsable: ', %s)
-                    WHERE id=%s AND estado='PROGRAMADO'
-                """, (nombre_usuario, orden_trab_id))
 
         return {
             "message":  f"Respuesta registrada: {data.respuesta}",

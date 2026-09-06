@@ -2,8 +2,10 @@ import { useEffect, useState, useContext } from "react";
 import AdminLayout from "../../components/layout/AdminLayout";
 import api from "../../services/api";
 import { ThemeContext } from "../../context/ThemeContext";
+import { useDialog } from "../../context/DialogContext";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { addSistemaLogo, getSistemaConfig } from "../../utils/sistemaConfig";
 
 const surface = {
   background: "var(--bg-surface)", border: "1px solid var(--border)",
@@ -29,6 +31,7 @@ const Overlay = ({ children, onClose }) => (
 
 function Bajas() {
   const { theme } = useContext(ThemeContext);
+  const { avisar } = useDialog();
 
   const [bajas,     setBajas]     = useState([]);
   const [stats,     setStats]     = useState({});
@@ -75,13 +78,15 @@ function Bajas() {
   });
 
   const generarPDFBaja = (b) => {
+    const sistema = getSistemaConfig();
     const doc = new jsPDF();
+    addSistemaLogo(doc, sistema, 8, 5, 18);
     doc.setFillColor(220, 38, 38); doc.rect(0, 0, 210, 42, "F");
     doc.setTextColor(255, 255, 255);
     doc.setFont("helvetica", "bold"); doc.setFontSize(11);
-    doc.text("GOBIERNO AUTÓNOMO MUNICIPAL", 105, 13, { align: "center" });
+    doc.text(sistema.nombre_institucion, 105, 13, { align: "center" });
     doc.setFont("helvetica", "normal"); doc.setFontSize(8);
-    doc.text("Sistema de Registro de Equipos de Computación TI", 105, 21, { align: "center" });
+    doc.text(sistema.nombre_sistema, 105, 21, { align: "center" });
     doc.setFont("helvetica", "bold"); doc.setFontSize(13);
     doc.text("INFORME DE BAJA DE EQUIPO", 105, 33, { align: "center" });
     doc.setTextColor(30, 30, 30);
@@ -147,11 +152,13 @@ function Bajas() {
   };
 
   const pdfGeneral = () => {
+    const sistema = getSistemaConfig();
     const doc = new jsPDF({ orientation: "landscape" });
+    addSistemaLogo(doc, sistema, 8, 5, 18);
     doc.setFillColor(220, 38, 38); doc.rect(0, 0, 297, 28, "F");
     doc.setTextColor(255, 255, 255);
     doc.setFont("helvetica", "bold"); doc.setFontSize(12);
-    doc.text("GOBIERNO AUTÓNOMO MUNICIPAL — REPORTE DE BAJAS DE EQUIPOS", 148, 12, { align: "center" });
+    doc.text(`${sistema.nombre_institucion} — REPORTE DE BAJAS DE EQUIPOS`, 148, 12, { align: "center" });
     doc.setFont("helvetica", "normal"); doc.setFontSize(8);
     doc.text(`Generado: ${new Date().toLocaleString("es-BO")} | Total: ${filtradas.length}`, 148, 21, { align: "center" });
     doc.setTextColor(30, 30, 30);
@@ -373,7 +380,7 @@ function Bajas() {
                           try {
                             const res = await api.get(`/bajas/${b.id}`);
                             setModalVer(res.data);
-                          } catch (e) { alert("Error al cargar detalle"); }
+                            } catch (e) { await avisar("No se pudo cargar el detalle de la baja.", "Error"); }
                         }} style={{
                           background: "var(--accent-light)", border: "1px solid var(--accent)",
                           color: "var(--accent-text)", borderRadius: "8px",

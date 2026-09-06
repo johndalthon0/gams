@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "../../components/layout/AdminLayout";
 import api from "../../services/api";
+import { useDialog } from "../../context/DialogContext";
 
 const inp = {
   width: "100%", background: "var(--bg-surface2)",
@@ -35,6 +36,8 @@ const Overlay = ({ children, onClose }) => (
 );
 
 function Asignaciones() {
+
+  const { avisar } = useDialog();
 
   const [asignaciones, setAsignaciones] = useState([]);
   const [usuarios,     setUsuarios]     = useState([]);
@@ -78,14 +81,14 @@ function Asignaciones() {
 
   const crear = async () => {
     if (!form.usuario_id || !form.equipo_id)
-      return alert("Selecciona usuario y equipo");
+      return avisar("Selecciona un usuario y un equipo antes de continuar.");
     try {
       await api.post("/asignaciones", form);
       setForm(emptyForm);
       setMostrarForm(false);
       loadAll();
     } catch (err) {
-      alert(err.response?.data?.message || "Error al asignar");
+      avisar(err.response?.data?.message || "No se pudo realizar la asignación.", "Error de asignación");
     }
   };
 
@@ -96,13 +99,13 @@ function Asignaciones() {
 
   const confirmarDevolucion = async () => {
     if (!devForm.condicion)
-      return alert("Selecciona la condición del equipo al devolver");
+      return avisar("Selecciona la condición del equipo al devolver.");
     try {
       await api.put(`/asignaciones/devolver/${modalDev.id}`, devForm);
       setModalDev(null);
       loadAll();
     } catch (err) {
-      alert(err.response?.data?.message || "Error al devolver");
+      avisar(err.response?.data?.message || "No se pudo registrar la devolución.", "Error de devolución");
     }
   };
 

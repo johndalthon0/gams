@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 // ── Links por rol ──────────────────────────────────────────────────────────
@@ -45,6 +46,17 @@ function Sidebar({ open, onClose }) {
 
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const rol  = user.rol;
+  const [sistema, setSistema] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("gam_sistema_config") || "{}"); } catch { return {}; }
+  });
+
+  useEffect(() => {
+    const actualizar = () => {
+      try { setSistema(JSON.parse(localStorage.getItem("gam_sistema_config") || "{}")); } catch {}
+    };
+    window.addEventListener("gams-sistema-actualizado", actualizar);
+    return () => window.removeEventListener("gams-sistema-actualizado", actualizar);
+  }, []);
 
   const isActive = (path) => location.pathname === path;
 
@@ -64,9 +76,9 @@ function Sidebar({ open, onClose }) {
     fontSize:       "14px",
     fontWeight:     500,
     marginBottom:   "2px",
-    color:          isActive(path) ? "#fff" : "rgba(255,255,255,0.55)",
-    background:     isActive(path) ? "rgba(108,99,255,0.35)" : "transparent",
-    borderLeft:     isActive(path) ? "3px solid #6c63ff" : "3px solid transparent",
+    color:          isActive(path) ? "#fff" : "rgba(255,255,255,0.92)",
+    background:     isActive(path) ? "rgba(108,99,255,0.72)" : "transparent",
+    borderLeft:     isActive(path) ? "3px solid #a78bfa" : "3px solid transparent",
     transition:     "all 0.15s",
   });
 
@@ -78,7 +90,7 @@ function Sidebar({ open, onClose }) {
   };
   const hoverOff = (e, path) => {
     if (!isActive(path)) {
-      e.currentTarget.style.color      = "rgba(255,255,255,0.55)";
+      e.currentTarget.style.color      = "rgba(255,255,255,0.92)";
       e.currentTarget.style.background = "transparent";
     }
   };
@@ -98,7 +110,7 @@ function Sidebar({ open, onClose }) {
 
   const SectionLabel = ({ label }) => (
     <p style={{
-      color:          "rgba(255,255,255,0.28)",
+      color:          "rgba(255,255,255,0.72)",
       fontSize:       "10px",
       fontWeight:     700,
       textTransform:  "uppercase",
@@ -112,7 +124,7 @@ function Sidebar({ open, onClose }) {
   );
 
   const Divider = () => (
-    <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", margin: "10px 0" }} />
+    <div style={{ borderTop: "1px solid rgba(255,255,255,0.16)", margin: "10px 0" }} />
   );
 
   // Determinar qué menú mostrar
@@ -133,7 +145,7 @@ function Sidebar({ open, onClose }) {
         {/* ── LOGO ── */}
         <div style={{
           padding:      "1.1rem 1.1rem 0.9rem",
-          borderBottom: "1px solid rgba(255,255,255,0.08)",
+          borderBottom: "1px solid rgba(255,255,255,0.16)",
           display:      "flex",
           alignItems:   "center",
           gap:          "10px",
@@ -149,14 +161,14 @@ function Sidebar({ open, onClose }) {
             fontSize:       "18px",
             flexShrink:     0,
           }}>
-            {isEmpleado ? "🔧" : isPersonal ? "👤" : "💼"}
+            {sistema.logo_data ? <img src={sistema.logo_data} alt="Logo institucional" style={{ width: "100%", height: "100%", objectFit: "contain", borderRadius: "10px" }} /> : (sistema.logo_texto || (isEmpleado ? "🔧" : isPersonal ? "👤" : "💼"))}
           </div>
           <div>
             <p style={{ color: "#fff", fontWeight: 700, fontSize: "15px", margin: 0 }}>
-              GAMS TI
+              {sistema.nombre_institucion || "GAMS TI"}
             </p>
             <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "11px", margin: 0 }}>
-              {isEmpleado ? "Portal Técnico" : isPersonal ? "Portal Personal" : "Panel Admin"}
+              {sistema.nombre_sistema || (isEmpleado ? "Portal Técnico" : isPersonal ? "Portal Personal" : "Panel Admin")}
             </p>
           </div>
         </div>

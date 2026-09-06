@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "../../components/layout/AdminLayout";
 import api from "../../services/api";
+import { useDialog } from "../../context/DialogContext";
 
 const inp = {
   width: "100%",
@@ -41,6 +42,8 @@ const colBox = {
 };
 
 function Catalogos() {
+
+  const { confirmar } = useDialog();
 
   const [sucursales, setSucursales] = useState([]);
   const [areas,      setAreas]      = useState([]);
@@ -128,7 +131,7 @@ function Catalogos() {
 
   /* ── ELIMINAR ── */
   const eliminar = async (ruta, id) => {
-    if (!window.confirm("¿Eliminar registro?")) return;
+    if (!(await confirmar("Se eliminará este registro del catálogo. Esta acción no se puede deshacer.", "Eliminar registro"))) return;
     await api.delete(`/catalogos/${ruta}/${id}`);
     load();
   };

@@ -33,7 +33,7 @@ router.put('/reasignar/:id',               auth, role('ADMIN'), ctrl.reasignarTe
 router.get('/',                            auth, ctrl.getMantenimientos);
 router.post('/',                           auth, ctrl.createMantenimiento);
 
-// ── Acciones con /:id ─────────────────────────────────────────
+// ── Acciones con /:id — DESPUÉS del CRUD ─────────────────────
 router.get('/:id/historial',               auth, ctrl.getHistorialMant);
 router.put('/:id/confirmar',               auth, ctrl.confirmarDisponibilidad);
 router.put('/:id/reprogramar-admin',       auth, role('ADMIN'), ctrl.reprogramarAdmin);

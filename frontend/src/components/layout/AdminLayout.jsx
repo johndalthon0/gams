@@ -1,6 +1,8 @@
 import { useContext, useState } from "react";
 import { ThemeContext } from "../../context/ThemeContext";
 import Sidebar from "../ui/Sidebar";
+import BotonPush from "../ui/BotonPush";
+import ToastNotificaciones from "../ui/ToastNotificaciones";
 import { useWindowSize } from "../../hooks/useWindowSize";
 
 function AdminLayout({ children }) {
@@ -105,6 +107,8 @@ function AdminLayout({ children }) {
             gap: "10px", flexShrink: 0
           }}>
 
+            <BotonPush />
+
             <span style={{ fontSize: "16px" }}>
               {theme === "dark" ? "🌙" : "☀️"}
             </span>
@@ -153,11 +157,13 @@ function AdminLayout({ children }) {
         </div>
 
         {/* CONTENT */}
-        <div style={{ padding: "1.5rem", flex: 1 }}>
+        <div className="admin-main" style={{ padding: "1.5rem", flex: 1 }}>
           {children}
         </div>
 
       </div>
+
+      <ToastNotificaciones />
 
     </div>
   );

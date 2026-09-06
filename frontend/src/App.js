@@ -1,7 +1,12 @@
 import AppRouter from "./routes/AppRouter";
+import { DialogProvider } from "./context/DialogContext";
 
 function App() {
-  return <AppRouter />;
+  return (
+    <DialogProvider>
+      <AppRouter />
+    </DialogProvider>
+  );
 }
 
 export default App;

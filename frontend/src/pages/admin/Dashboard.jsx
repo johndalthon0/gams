@@ -142,7 +142,7 @@ function Dashboard() {
         </div>
 
         <div style={{
-          background: "var(--bg-surface)", border: "1px solid var(--border)",
+            background: "var(--bg-surface)", border: "1px solid var(--border)",
           borderRadius: "16px", padding: "1.25rem"
         }}>
           <h5 style={{ fontWeight: 600, margin: "0 0 1rem", color: "var(--text-primary)" }}>

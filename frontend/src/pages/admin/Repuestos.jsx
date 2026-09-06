@@ -3,6 +3,7 @@ import AdminLayout from "../../components/layout/AdminLayout";
 import api from "../../services/api";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { addSistemaLogo, getSistemaConfig } from "../../utils/sistemaConfig";
 
 const surface = {
   background: "var(--bg-surface)", border: "1px solid var(--border)",
@@ -78,11 +79,13 @@ function Repuestos() {
   const totalStockUsado     = stockFiltrado.reduce((a, r) => a + Number(r.total_usado || 0), 0);
 
   const pdfMasUsados = () => {
+    const sistema = getSistemaConfig();
     const doc = new jsPDF({ orientation: "landscape" });
+    addSistemaLogo(doc, sistema, 8, 5, 18);
     doc.setFillColor(108, 99, 255); doc.rect(0, 0, 297, 28, "F");
     doc.setTextColor(255, 255, 255);
     doc.setFont("helvetica", "bold"); doc.setFontSize(12);
-    doc.text("GOBIERNO AUTÓNOMO MUNICIPAL — REPORTE DE REPUESTOS", 148, 12, { align: "center" });
+    doc.text(`${sistema.nombre_institucion} — REPORTE DE REPUESTOS`, 148, 12, { align: "center" });
     doc.setFont("helvetica", "normal"); doc.setFontSize(8);
     doc.text(`Generado: ${new Date().toLocaleString("es-BO")}`, 148, 21, { align: "center" });
     doc.setTextColor(30, 30, 30);
@@ -102,11 +105,13 @@ function Repuestos() {
   };
 
   const pdfPorEquipo = () => {
+    const sistema = getSistemaConfig();
     const doc = new jsPDF({ orientation: "landscape" });
+    addSistemaLogo(doc, sistema, 8, 5, 18);
     doc.setFillColor(108, 99, 255); doc.rect(0, 0, 297, 28, "F");
     doc.setTextColor(255, 255, 255);
     doc.setFont("helvetica", "bold"); doc.setFontSize(12);
-    doc.text("GOBIERNO AUTÓNOMO MUNICIPAL — REPUESTOS POR EQUIPO", 148, 12, { align: "center" });
+    doc.text(`${sistema.nombre_institucion} — REPUESTOS POR EQUIPO`, 148, 12, { align: "center" });
     doc.setFont("helvetica", "normal"); doc.setFontSize(8);
     doc.text(`Generado: ${new Date().toLocaleString("es-BO")}`, 148, 21, { align: "center" });
     doc.setTextColor(30, 30, 30);
