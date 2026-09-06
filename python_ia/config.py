@@ -11,6 +11,16 @@ DB_CONFIG = {
     "port":     int(os.getenv("DB_PORT", 3306)),
 }
 
+# SSL: DB_SSL=true para MySQL en la nube (Aiven, TiDB). Railway proxy público = sin SSL.
+if os.getenv("DB_SSL", "false").lower() == "true":
+    DB_CONFIG["ssl_disabled"] = False
+    _ca = os.getenv("DB_SSL_CA_PATH")
+    if _ca:
+        DB_CONFIG["ssl_ca"] = _ca
+        DB_CONFIG["ssl_verify_cert"] = True
+else:
+    DB_CONFIG["ssl_disabled"] = True
+
 PORT       = int(os.getenv("PORT", 5000))
 MODELS_DIR = os.path.join(os.path.dirname(__file__), "trained_models")
 LOGS_DIR   = os.path.join(os.path.dirname(__file__), "logs")

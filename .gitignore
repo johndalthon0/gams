@@ -5,5 +5,8 @@ dist/
 .env
 *.log
 
+# dump con datos reales (hashes de contraseña, etc.) — ya está cargado en Railway
+database/gams_full.sql
+
 .vscode/
 .idea/
