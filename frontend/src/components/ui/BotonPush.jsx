@@ -15,7 +15,11 @@ export default function BotonPush() {
   useEffect(() => {
     const fuera = (e) => { if (ref.current && !ref.current.contains(e.target)) setAbierto(false); };
     document.addEventListener("mousedown", fuera);
-    return () => document.removeEventListener("mousedown", fuera);
+    document.addEventListener("touchstart", fuera);
+    return () => {
+      document.removeEventListener("mousedown", fuera);
+      document.removeEventListener("touchstart", fuera);
+    };
   }, []);
 
   if (estado === "cargando" || estado === "no-soportado") return null;
@@ -50,8 +54,10 @@ export default function BotonPush() {
 
       {abierto && (
         <div style={{
-          position: "absolute", right: 0, top: "calc(100% + 8px)", zIndex: 200,
-          width: "300px", background: "var(--bg-surface)", border: "1px solid var(--border)",
+          position: "fixed", right: "10px", left: "auto", top: "68px", zIndex: 200,
+          width: "min(320px, calc(100vw - 20px))",
+          maxHeight: "calc(100vh - 84px)", overflowY: "auto",
+          background: "var(--bg-surface)", border: "1px solid var(--border)",
           borderRadius: "14px", boxShadow: "0 16px 40px rgba(0,0,0,0.28)", padding: "16px",
         }}>
           <p style={{ margin: "0 0 4px", fontWeight: 700, fontSize: "13px", color: "var(--text-primary)" }}>
