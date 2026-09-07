@@ -1,11 +1,14 @@
-fastapi
-uvicorn[standard]
-mysql-connector-python
-python-dotenv
-pandas
-numpy
-scikit-learn
-joblib
-xgboost
-lightgbm
-imbalanced-learn
+# ── Producción (Render free) ───────────────────────────────────────────
+# xgboost, lightgbm, imbalanced-learn y shap son OPCIONALES: solo agregan
+# modelos candidatos extra al entrenar. El modelo activo es sklearn
+# RandomForest, así que aquí se omiten para que el build entre en 512 MB.
+# Entrenamiento completo en local:  pip install -r requirements-full.txt
+
+fastapi>=0.115,<1
+uvicorn[standard]>=0.30,<1
+mysql-connector-python>=9,<10
+python-dotenv>=1,<2
+pandas>=2.2,<4
+numpy>=2,<3
+scikit-learn>=1.9,<2
+joblib>=1.3,<2

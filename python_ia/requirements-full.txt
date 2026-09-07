@@ -1,0 +1,9 @@
+# Set completo para desarrollo / entrenamiento con todos los modelos.
+# En producción (Render free) se usa requirements.txt (sin estos pesados).
+
+-r requirements.txt
+
+xgboost>=2,<4
+lightgbm>=4,<5
+imbalanced-learn>=0.12,<1
+shap>=0.44,<1
