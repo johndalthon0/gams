@@ -9,6 +9,9 @@ DB_CONFIG = {
     "password": os.getenv("DB_PASSWORD", ""),
     "database": os.getenv("DB_NAME",     "gams_mantenimiento"),
     "port":     int(os.getenv("DB_PORT", 3306)),
+    # MySQL 8 (Railway) trae ONLY_FULL_GROUP_BY; MariaDB local no. Se relaja
+    # para no romper los GROUP BY de las consultas.
+    "sql_mode": "STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION",
 }
 
 # SSL: DB_SSL=true para MySQL en la nube (Aiven, TiDB). Railway proxy público = sin SSL.

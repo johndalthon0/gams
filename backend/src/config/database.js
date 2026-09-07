@@ -30,4 +30,12 @@ const pool = mysql.createPool({
   charset: 'utf8mb4',
 });
 
+// MySQL 8 (Railway) trae ONLY_FULL_GROUP_BY; MariaDB local no. Se relaja
+// por sesión en cada conexión nueva del pool para no romper los GROUP BY.
+pool.on('connection', (conn) => {
+  conn.query(
+    "SET SESSION sql_mode = 'STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION'"
+  );
+});
+
 module.exports = pool.promise();
