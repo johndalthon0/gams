@@ -472,6 +472,59 @@ function FormCategoria({ inicial, onClose, onSuccess, showMsg }) {
   );
 }
 
+// ── FORMULARIO REPUESTO ────────────────────────────────────────────────────
+function FormRepuesto({ inicial, onClose, onSuccess, showMsg }) {
+  const [form, setForm] = useState(inicial || { nombre: "", tipo: "", stock: "", precio: "" });
+  const [busy, setBusy] = useState(false);
+
+  const guardar = async () => {
+    if (!form.nombre.trim()) return showMsg("error", "Nombre requerido");
+    setBusy(true);
+    try {
+      if (form.id) await api.put(`/catalogos/repuestos/${form.id}`, form);
+      else         await api.post("/catalogos/repuestos", form);
+      onSuccess("✅ Repuesto guardado");
+      onClose();
+    } catch { showMsg("error", "Error al guardar"); }
+    finally { setBusy(false); }
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+      <div>
+        <label style={S.lbl}>Nombre *</label>
+        <input style={S.inp} value={form.nombre} autoFocus
+          onChange={e => setForm(f => ({ ...f, nombre: e.target.value }))}
+          placeholder="Ej: Memoria RAM DDR4" />
+      </div>
+      <div>
+        <label style={S.lbl}>Tipo / Especificación</label>
+        <input style={S.inp} value={form.tipo || ""}
+          onChange={e => setForm(f => ({ ...f, tipo: e.target.value }))}
+          placeholder="Ej: 8GB / 780W / etc." />
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: "12px" }}>
+        <div>
+          <label style={S.lbl}>Stock inicial</label>
+          <input type="number" min={0} style={S.inp} value={form.stock}
+            onChange={e => setForm(f => ({ ...f, stock: e.target.value }))} placeholder="0" />
+        </div>
+        <div>
+          <label style={S.lbl}>Precio (Bs)</label>
+          <input type="number" min={0} step="0.01" style={S.inp} value={form.precio}
+            onChange={e => setForm(f => ({ ...f, precio: e.target.value }))} placeholder="0.00" />
+        </div>
+      </div>
+      <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", flexWrap: "wrap" }}>
+        <button style={btn(C.ghost)} onClick={onClose}>Cancelar</button>
+        <button style={{ ...btn(C.primary), opacity: busy ? 0.6 : 1 }} disabled={busy} onClick={guardar}>
+          {busy ? "Guardando..." : "✅ Guardar repuesto"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ── COMPONENTE PRINCIPAL ───────────────────────────────────────────────────
 export default function Inventario() {
   const { confirmar } = useDialog();
@@ -479,6 +532,7 @@ export default function Inventario() {
   const [productos,     setProductos]     = useState([]);
   const [categorias,    setCategorias]    = useState([]);
   const [movimientos,   setMovimientos]   = useState([]);
+  const [repuestos,     setRepuestos]     = useState([]);
   const [resumen,       setResumen]       = useState({});
   const [loading,       setLoading]       = useState(true);
   const [buscar,        setBuscar]        = useState("");
@@ -489,6 +543,7 @@ export default function Inventario() {
   const [modalProducto, setModalProducto] = useState(null);
   const [modalCategoria,setModalCategoria]= useState(null);
   const [modalMovim,    setModalMovim]    = useState(null);
+  const [modalRepuesto, setModalRepuesto] = useState(null);
 
   const showMsg = (type, text) => {
     setMsg({ type, text });
@@ -503,16 +558,18 @@ export default function Inventario() {
       if (filtroAlerta) params.set("alerta",    "1");
       if (filtroCateg)  params.set("categoria", filtroCateg);
 
-      const [p, c, m, r] = await Promise.all([
+      const [p, c, m, r, rep] = await Promise.all([
         api.get(`/inventario?${params}`),
         api.get("/inventario/categorias"),
         api.get("/inventario/movimientos/historial"),
         api.get("/inventario/resumen"),
+        api.get("/catalogos/repuestos"),
       ]);
       setProductos(p.data   || []);
       setCategorias(c.data  || []);
       setMovimientos(m.data || []);
       setResumen(r.data     || {});
+      setRepuestos(rep.data || []);
     } catch {
       showMsg("error", "Error al cargar el inventario");
     } finally {
@@ -540,12 +597,22 @@ export default function Inventario() {
     } catch { showMsg("error", "Error al eliminar"); }
   };
 
+  const eliminarRepuesto = async (r) => {
+    if (!(await confirmar(`Eliminar repuesto "${r.nombre}"?`, "Eliminar repuesto"))) return;
+    try {
+      await api.delete(`/catalogos/repuestos/${r.id}`);
+      showMsg("success", "Repuesto eliminado");
+      load();
+    } catch { showMsg("error", "Error al eliminar"); }
+  };
+
   const movFiltrados = filtroMov
     ? movimientos.filter(m => m.tipo === filtroMov)
     : movimientos;
 
   const TABS = [
     { key: "productos",   label: "📦 Productos",    badge: resumen.alertas > 0 ? resumen.alertas : null },
+    { key: "repuestos",   label: "🔩 Repuestos",    badge: null },
     { key: "categorias",  label: "🏷️ Categorías",   badge: null },
     { key: "movimientos", label: "📋 Movimientos",  badge: null },
   ];
@@ -831,6 +898,54 @@ export default function Inventario() {
         </div>
       )}
 
+      {/* ════ TAB REPUESTOS ════ */}
+      {tab === "repuestos" && (
+        <div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", gap: "10px", flexWrap: "wrap" }}>
+            <button style={btn(C.primary)} onClick={() => setModalRepuesto("nuevo")}>+ Nuevo repuesto</button>
+            <span style={{ color: "var(--text-muted)", fontSize: "13px" }}>{repuestos.length} repuestos</span>
+          </div>
+
+          <div style={S.surface}>
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
+                <thead>
+                  <tr style={{ background: "var(--bg-surface2)", borderBottom: "2px solid var(--border)" }}>
+                    {["#","Nombre","Tipo / Especificación","Stock","Precio","Acciones"].map(h => (
+                      <th key={h} style={{ padding: "11px 14px", textAlign: "left", color: "var(--text-secondary)", fontWeight: 600, fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.5px", whiteSpace: "nowrap" }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {repuestos.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} style={{ padding: "4rem", textAlign: "center", color: "var(--text-secondary)" }}>
+                        <div style={{ fontSize: "48px", marginBottom: "12px" }}>🔩</div>
+                        <p style={{ margin: 0, fontWeight: 600 }}>Sin repuestos</p>
+                      </td>
+                    </tr>
+                  ) : repuestos.map(r => (
+                    <tr key={r.id} style={{ borderBottom: "1px solid var(--border)" }}>
+                      <td style={{ padding: "12px 14px", color: "var(--text-muted)", fontSize: "12px" }}>#{r.id}</td>
+                      <td style={{ padding: "12px 14px", fontWeight: 600, color: "var(--text-primary)" }}>{r.nombre}</td>
+                      <td style={{ padding: "12px 14px", color: "var(--text-secondary)" }}>{r.tipo || "—"}</td>
+                      <td style={{ padding: "12px 14px", fontWeight: 700, color: Number(r.stock) > 0 ? "#22c55e" : "#ef4444" }}>{r.stock ?? 0}</td>
+                      <td style={{ padding: "12px 14px", color: "var(--text-primary)" }}>{fmtBs(r.precio)}</td>
+                      <td style={{ padding: "12px 14px" }}>
+                        <div style={{ display: "flex", gap: "8px" }}>
+                          <button style={{ ...btn(C.ghost, { padding: "5px 12px", fontSize: "12px" }) }} onClick={() => setModalRepuesto(r)}>✏️ Editar</button>
+                          <button style={{ background: "rgba(239,68,68,0.1)", color: "#ef4444", border: "1px solid #ef4444", borderRadius: "8px", padding: "5px 12px", cursor: "pointer", fontSize: "12px", fontWeight: 600 }} onClick={() => eliminarRepuesto(r)}>🗑️ Eliminar</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ════ TAB MOVIMIENTOS ════ */}
       {tab === "movimientos" && (
         <div>
@@ -945,6 +1060,21 @@ export default function Inventario() {
           <FormCategoria
             inicial={modalCategoria === "nuevo" ? null : modalCategoria}
             onClose={() => setModalCategoria(null)}
+            onSuccess={(m) => { showMsg("success", m); load(); }}
+            showMsg={showMsg}
+          />
+        </Modal>
+      )}
+
+      {modalRepuesto && (
+        <Modal
+          title={modalRepuesto === "nuevo" ? "Nuevo repuesto" : "Editar repuesto"}
+          subtitle={modalRepuesto !== "nuevo" ? modalRepuesto.nombre : "Repuestos usados en mantenimientos"}
+          onClose={() => setModalRepuesto(null)}
+        >
+          <FormRepuesto
+            inicial={modalRepuesto === "nuevo" ? null : modalRepuesto}
+            onClose={() => setModalRepuesto(null)}
             onSuccess={(m) => { showMsg("success", m); load(); }}
             showMsg={showMsg}
           />

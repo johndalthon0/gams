@@ -20,25 +20,45 @@ const inp = {
 const sectionCard = {
   background: "var(--bg-surface)",
   border: "1px solid var(--border)",
-  borderRadius: "16px",
+  borderRadius: "18px",
   overflow: "hidden",
   marginBottom: "1.5rem"
 };
 
 const sectionHeader = (color = "var(--accent)") => ({
-  background: color,
-  padding: "0.9rem 1.25rem",
+  padding: "1rem 1.25rem",
   display: "flex",
   alignItems: "center",
-  gap: "10px"
+  gap: "12px",
+  borderBottom: "1px solid var(--border)",
+  borderLeft: `3px solid ${color}`,
 });
 
 const colBox = {
   background: "var(--bg-surface2)",
   border: "1px solid var(--border)",
-  borderRadius: "12px",
-  padding: "1.25rem",
-  height: "100%"
+  borderRadius: "14px",
+  padding: "1.1rem",
+  height: "100%",
+  display: "flex",
+  flexDirection: "column",
+};
+
+const colHead = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  marginBottom: "12px",
+};
+
+const countPill = {
+  background: "var(--bg-surface)",
+  border: "1px solid var(--border)",
+  color: "var(--text-secondary)",
+  borderRadius: "999px",
+  padding: "1px 9px",
+  fontSize: "11px",
+  fontWeight: 700,
 };
 
 function Catalogos() {
@@ -50,7 +70,6 @@ function Catalogos() {
   const [cargos,     setCargos]     = useState([]);
   const [tipos,      setTipos]      = useState([]);
   const [lugares,    setLugares]    = useState([]);
-  const [repuestos,  setRepuestos]  = useState([]);
 
   const [editingId,   setEditingId]   = useState(null);
   const [editingType, setEditingType] = useState("");
@@ -62,29 +81,22 @@ function Catalogos() {
   const [tipo,     setTipo]     = useState("");
   const [lugar,    setLugar]    = useState("");
 
-  // ✅ precio agregado
-  const [repuesto, setRepuesto] = useState({
-    nombre: "", tipo: "", stock: "", precio: ""
-  });
-
   useEffect(() => { load(); }, []);
 
   const load = async () => {
     try {
-      const [s, a, c, t, l, r] = await Promise.all([
+      const [s, a, c, t, l] = await Promise.all([
         api.get("/catalogos/sucursales"),
         api.get("/catalogos/areas"),
         api.get("/catalogos/cargos"),
         api.get("/catalogos/tipos"),
         api.get("/catalogos/lugares"),
-        api.get("/catalogos/repuestos")
       ]);
       setSucursales(s.data);
       setAreas(a.data);
       setCargos(c.data);
       setTipos(t.data);
       setLugares(l.data);
-      setRepuestos(r.data);
     } catch (e) {
       console.log(e);
     }
@@ -122,13 +134,6 @@ function Catalogos() {
     setLugar(""); load();
   };
 
-  const crearRepuesto = async () => {
-    if (!repuesto.nombre.trim()) return;
-    await api.post("/catalogos/repuestos", repuesto);
-    setRepuesto({ nombre: "", tipo: "", stock: "", precio: "" });
-    load();
-  };
-
   /* ── ELIMINAR ── */
   const eliminar = async (ruta, id) => {
     if (!(await confirmar("Se eliminará este registro del catálogo. Esta acción no se puede deshacer.", "Eliminar registro"))) return;
@@ -153,15 +158,34 @@ function Catalogos() {
   /* ── BTN helpers ── */
   const BtnAdd = ({ onClick, color = "var(--accent)" }) => (
     <button onClick={onClick} style={{
-      width: "100%", background: color,
-      color: "#fff", border: "none",
-      borderRadius: "10px", padding: "10px",
-      fontSize: "14px", fontWeight: 600,
+      width: "100%", background: "transparent",
+      color, border: `1px dashed ${color}`,
+      borderRadius: "10px", padding: "9px",
+      fontSize: "13px", fontWeight: 700,
       cursor: "pointer", fontFamily: "inherit",
       marginBottom: "1rem"
     }}>
       + Agregar
     </button>
+  );
+
+  /* ── Columna de catálogo ── */
+  const CatCol = ({ icon, title, count, children }) => (
+    <div style={colBox}>
+      <div style={colHead}>
+        <h6 style={{ color: "var(--text-primary)", fontWeight: 700, margin: 0, fontSize: "14px" }}>
+          {icon} {title}
+        </h6>
+        <span style={countPill}>{count}</span>
+      </div>
+      {children}
+    </div>
+  );
+
+  const Vacio = () => (
+    <p style={{ color: "var(--text-muted)", fontSize: "12px", textAlign: "center", padding: "1rem 0", margin: 0 }}>
+      Sin registros
+    </p>
   );
 
   /* ── RENDER ITEM ── */
@@ -284,273 +308,114 @@ function Catalogos() {
   };
 
   /* ── SECTION TITLE ── */
-  const SectionTitle = ({ icon, text, color = "var(--accent)" }) => (
+  const SectionTitle = ({ icon, text, sub, color = "var(--accent)" }) => (
     <div style={sectionHeader(color)}>
-      <span style={{ fontSize: "18px" }}>{icon}</span>
-      <h5 style={{ color: "#fff", fontWeight: 700, margin: 0, fontSize: "15px" }}>
-        {text}
-      </h5>
+      <span style={{
+        fontSize: "16px", width: "34px", height: "34px", flexShrink: 0,
+        display: "grid", placeItems: "center", borderRadius: "10px",
+        background: "var(--bg-surface2)", border: "1px solid var(--border)",
+      }}>{icon}</span>
+      <div>
+        <h5 style={{ color: "var(--text-primary)", fontWeight: 700, margin: 0, fontSize: "14px" }}>{text}</h5>
+        {sub && <p style={{ color: "var(--text-muted)", margin: "1px 0 0", fontSize: "12px" }}>{sub}</p>}
+      </div>
     </div>
   );
+
+  const gridWrap = {
+    padding: "1.25rem",
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+    gap: "14px",
+  };
+  const lista = { flex: 1, overflowY: "auto", maxHeight: "320px" };
 
   return (
     <AdminLayout>
 
       {/* HEADER */}
-      <div style={{ marginBottom: "1.75rem" }}>
-        <h2 style={{ fontWeight: 700, margin: 0, color: "var(--text-primary)" }}>
-          ⚙️ Gestión de Catálogos
+      <div style={{ marginBottom: "1.5rem" }}>
+        <h2 style={{ fontWeight: 700, margin: 0, color: "var(--text-primary)", fontSize: "22px" }}>
+          Catálogos
         </h2>
-        <p style={{ color: "var(--text-secondary)", margin: "4px 0 0", fontSize: "14px" }}>
-          Configuración general del sistema
+        <p style={{ color: "var(--text-secondary)", margin: "3px 0 0", fontSize: "13px" }}>
+          Listas base del sistema — sucursales, áreas, cargos, tipos de equipo y lugares
         </p>
       </div>
 
       {/* ══ ASIGNACIONES ══ */}
       <div style={sectionCard}>
-        <SectionTitle icon="⚙️" text="Configuración de Asignaciones" color="#6c63ff" />
+        <SectionTitle icon="🏢" text="Organización" sub="Datos de sucursales, áreas y cargos" color="#6c63ff" />
+        <div style={gridWrap}>
 
-        <div style={{
-          padding: "1.25rem",
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-          gap: "16px"
-        }}>
-
-          {/* SUCURSALES */}
-          <div style={colBox}>
-            <h6 style={{ color: "var(--text-primary)", fontWeight: 700, marginBottom: "12px" }}>
-              🏢 Sucursales
-            </h6>
+          <CatCol icon="🏢" title="Sucursales" count={sucursales.length}>
             <input style={inp} placeholder="Nombre"
               value={sucursal.nombre}
-              onChange={e => setSucursal({ ...sucursal, nombre: e.target.value })}
-            />
+              onChange={e => setSucursal({ ...sucursal, nombre: e.target.value })} />
             <input style={inp} placeholder="Dirección"
               value={sucursal.direccion}
-              onChange={e => setSucursal({ ...sucursal, direccion: e.target.value })}
-            />
-            <BtnAdd onClick={crearSucursal} />
-            <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+              onChange={e => setSucursal({ ...sucursal, direccion: e.target.value })} />
+            <BtnAdd onClick={crearSucursal} color="#6c63ff" />
+            <div style={lista}>
               {sucursales.map(s => renderItem(s, "sucursal", "sucursales", ["nombre", "direccion"]))}
-              {sucursales.length === 0 && (
-                <p style={{ color: "var(--text-muted)", fontSize: "13px", textAlign: "center" }}>
-                  Sin registros
-                </p>
-              )}
+              {sucursales.length === 0 && <Vacio />}
             </div>
-          </div>
+          </CatCol>
 
-          {/* ÁREAS */}
-          <div style={colBox}>
-            <h6 style={{ color: "var(--text-primary)", fontWeight: 700, marginBottom: "12px" }}>
-              🧩 Áreas
-            </h6>
+          <CatCol icon="🧩" title="Áreas" count={areas.length}>
             <input style={inp} placeholder="Nueva área"
-              value={area}
-              onChange={e => setArea(e.target.value)}
-            />
+              value={area} onChange={e => setArea(e.target.value)} />
             <BtnAdd onClick={crearArea} color="#22c55e" />
-            <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+            <div style={lista}>
               {areas.map(a => renderItem(a, "area", "areas"))}
-              {areas.length === 0 && (
-                <p style={{ color: "var(--text-muted)", fontSize: "13px", textAlign: "center" }}>
-                  Sin registros
-                </p>
-              )}
+              {areas.length === 0 && <Vacio />}
             </div>
-          </div>
+          </CatCol>
 
-          {/* CARGOS */}
-          <div style={colBox}>
-            <h6 style={{ color: "var(--text-primary)", fontWeight: 700, marginBottom: "12px" }}>
-              👨‍💼 Cargos
-            </h6>
+          <CatCol icon="👨‍💼" title="Cargos" count={cargos.length}>
             <input style={inp} placeholder="Nuevo cargo"
-              value={cargo}
-              onChange={e => setCargo(e.target.value)}
-            />
+              value={cargo} onChange={e => setCargo(e.target.value)} />
             <BtnAdd onClick={crearCargo} color="#f59e0b" />
-            <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+            <div style={lista}>
               {cargos.map(c => renderItem(c, "cargo", "cargos"))}
-              {cargos.length === 0 && (
-                <p style={{ color: "var(--text-muted)", fontSize: "13px", textAlign: "center" }}>
-                  Sin registros
-                </p>
-              )}
+              {cargos.length === 0 && <Vacio />}
             </div>
-          </div>
+          </CatCol>
 
         </div>
       </div>
 
       {/* ══ EQUIPOS ══ */}
       <div style={sectionCard}>
-        <SectionTitle icon="💻" text="Configuración de Equipos" color="#1e2140" />
+        <SectionTitle icon="💻" text="Equipos" sub="Tipos de equipo y ubicaciones físicas" color="#3b82f6" />
+        <div style={gridWrap}>
 
-        <div style={{
-          padding: "1.25rem",
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-          gap: "16px"
-        }}>
-
-          {/* TIPOS */}
-          <div style={colBox}>
-            <h6 style={{ color: "var(--text-primary)", fontWeight: 700, marginBottom: "12px" }}>
-              💻 Tipos de Equipo
-            </h6>
+          <CatCol icon="💻" title="Tipos de Equipo" count={tipos.length}>
             <input style={inp} placeholder="Laptop / PC / Impresora..."
-              value={tipo}
-              onChange={e => setTipo(e.target.value)}
-            />
-            <BtnAdd onClick={crearTipo} color="#1e2140" />
-            <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+              value={tipo} onChange={e => setTipo(e.target.value)} />
+            <BtnAdd onClick={crearTipo} color="#3b82f6" />
+            <div style={lista}>
               {tipos.map(t => renderItem(t, "tipo", "tipos"))}
-              {tipos.length === 0 && (
-                <p style={{ color: "var(--text-muted)", fontSize: "13px", textAlign: "center" }}>
-                  Sin registros
-                </p>
-              )}
+              {tipos.length === 0 && <Vacio />}
             </div>
-          </div>
+          </CatCol>
 
-          {/* LUGARES */}
-          <div style={colBox}>
-            <h6 style={{ color: "var(--text-primary)", fontWeight: 700, marginBottom: "12px" }}>
-              📍 Lugares
-            </h6>
+          <CatCol icon="📍" title="Lugares" count={lugares.length}>
             <input style={inp} placeholder="Oficina Alcalde..."
-              value={lugar}
-              onChange={e => setLugar(e.target.value)}
-            />
+              value={lugar} onChange={e => setLugar(e.target.value)} />
             <BtnAdd onClick={crearLugar} color="#64748b" />
-            <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+            <div style={lista}>
               {lugares.map(l => renderItem(l, "lugar", "lugares"))}
-              {lugares.length === 0 && (
-                <p style={{ color: "var(--text-muted)", fontSize: "13px", textAlign: "center" }}>
-                  Sin registros
-                </p>
-              )}
+              {lugares.length === 0 && <Vacio />}
             </div>
-          </div>
+          </CatCol>
 
         </div>
       </div>
 
-      {/* ══ REPARACIONES / REPUESTOS ══ */}
-      <div style={sectionCard}>
-        <SectionTitle icon="🛠" text="Configuración de Reparaciones — Inventario de Repuestos" color="#16a34a" />
-
-        <div style={{
-          padding: "1.25rem",
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-          gap: "16px"
-        }}>
-
-          {/* FORM NUEVO REPUESTO */}
-          <div style={colBox}>
-            <h6 style={{ color: "var(--text-primary)", fontWeight: 700, marginBottom: "14px" }}>
-              ➕ Nuevo Repuesto
-            </h6>
-
-            <label style={{ color: "var(--text-secondary)", fontSize: "12px", display: "block", marginBottom: "4px" }}>
-              Nombre *
-            </label>
-            <input style={inp} placeholder="Ej: Memoria RAM DDR4"
-              value={repuesto.nombre}
-              onChange={e => setRepuesto({ ...repuesto, nombre: e.target.value })}
-            />
-
-            <label style={{ color: "var(--text-secondary)", fontSize: "12px", display: "block", marginBottom: "4px" }}>
-              Tipo / Especificación
-            </label>
-            <input style={inp} placeholder="Ej: 8GB / 780W / etc."
-              value={repuesto.tipo}
-              onChange={e => setRepuesto({ ...repuesto, tipo: e.target.value })}
-            />
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-              <div>
-                <label style={{ color: "var(--text-secondary)", fontSize: "12px", display: "block", marginBottom: "4px" }}>
-                  Stock inicial
-                </label>
-                <input
-                  type="number" min={0}
-                  style={inp}
-                  placeholder="0"
-                  value={repuesto.stock}
-                  onChange={e => setRepuesto({ ...repuesto, stock: e.target.value })}
-                />
-              </div>
-              <div>
-                <label style={{ color: "var(--text-secondary)", fontSize: "12px", display: "block", marginBottom: "4px" }}>
-                  Precio (Bs) *
-                </label>
-                <input
-                  type="number" min={0} step="0.01"
-                  style={inp}
-                  placeholder="0.00"
-                  value={repuesto.precio}
-                  onChange={e => setRepuesto({ ...repuesto, precio: e.target.value })}
-                />
-              </div>
-            </div>
-
-            <button
-              onClick={crearRepuesto}
-              style={{
-                width: "100%",
-                background: "#16a34a",
-                color: "#fff", border: "none",
-                borderRadius: "10px", padding: "11px",
-                fontSize: "14px", fontWeight: 600,
-                cursor: "pointer", fontFamily: "inherit",
-                marginTop: "4px"
-              }}
-            >
-              + Agregar Repuesto
-            </button>
-          </div>
-
-          {/* LISTA REPUESTOS */}
-          <div style={{ ...colBox, gridColumn: "span 1" }}>
-            <div style={{
-              display: "flex", justifyContent: "space-between",
-              alignItems: "center", marginBottom: "14px"
-            }}>
-              <h6 style={{ color: "var(--text-primary)", fontWeight: 700, margin: 0 }}>
-                📦 Inventario de Repuestos
-              </h6>
-              <span style={{
-                background: "var(--accent-light)",
-                color: "var(--accent-text)",
-                borderRadius: "6px", padding: "3px 10px",
-                fontSize: "12px", fontWeight: 600
-              }}>
-                {repuestos.length} items
-              </span>
-            </div>
-
-            <div style={{ maxHeight: "400px", overflowY: "auto" }}>
-              {repuestos.map(r =>
-                renderItem(r, "repuesto", "repuestos", ["nombre", "tipo", "stock", "precio"])
-              )}
-              {repuestos.length === 0 && (
-                <div style={{
-                  textAlign: "center", padding: "2rem",
-                  color: "var(--text-muted)"
-                }}>
-                  <div style={{ fontSize: "32px", marginBottom: "8px" }}>📦</div>
-                  <p style={{ margin: 0, fontSize: "13px" }}>Sin repuestos registrados</p>
-                </div>
-              )}
-            </div>
-          </div>
-
-        </div>
-      </div>
+      <p style={{ color: "var(--text-muted)", fontSize: "12px", margin: "0.5rem 0 0" }}>
+        🔩 Los repuestos ahora se gestionan en el módulo <strong>Inventario → Repuestos</strong>.
+      </p>
 
     </AdminLayout>
   );
