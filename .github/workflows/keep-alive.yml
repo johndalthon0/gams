@@ -1,0 +1,19 @@
+name: keep-alive
+
+# Mantiene despiertos los servicios de Render (plan free duerme a los 15 min).
+# GitHub cron no es exacto (puede tardar 5-15 min extra) pero suele bastar.
+# Se puede lanzar a mano desde la pestaña Actions -> keep-alive -> Run workflow.
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping backend
+        run: curl -sS --max-time 90 -o /dev/null -w "backend %{http_code}\n" https://gams-backend-tlpi.onrender.com/ || true
+      - name: Ping IA
+        run: curl -sS --max-time 90 -o /dev/null -w "ia %{http_code}\n" https://gams-ia.onrender.com/ || true

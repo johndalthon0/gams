@@ -3,7 +3,8 @@ const push     = require('./push.controller');
 const IA_URL   = (process.env.IA_URL || 'http://127.0.0.1:5000').replace(/\/+$/, '');
 
 // Cliente hacia el servicio de IA con reintentos: en Render free el servicio
-// se duerme y la primera petición devuelve 502/503/504 mientras arranca.
+// se duerme y tarda ~50-60s en arrancar (mientras devuelve 502/503/504).
+const IA_MAX_RETRY = 9;
 const axios = axiosLib.create({ timeout: 120000 });
 axios.interceptors.response.use(null, async (error) => {
   const cfg = error.config;
@@ -13,9 +14,9 @@ axios.interceptors.response.use(null, async (error) => {
     [502, 503, 504].includes(status) ||
     ['ECONNABORTED', 'ECONNRESET', 'ECONNREFUSED', 'ETIMEDOUT'].includes(error.code);
   cfg.__retry = cfg.__retry || 0;
-  if (reintentable && cfg.__retry < 3) {
+  if (reintentable && cfg.__retry < IA_MAX_RETRY) {
     cfg.__retry += 1;
-    await new Promise((r) => setTimeout(r, 4000 * cfg.__retry));
+    await new Promise((r) => setTimeout(r, Math.min(8000, 3000 * cfg.__retry)));
     return axios(cfg);
   }
   return Promise.reject(error);
