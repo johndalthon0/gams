@@ -28,7 +28,7 @@ def _serializar(rows: list) -> list:
 
 
 @router.get("/{usuario_id}")
-async def get_notificaciones(usuario_id: int, limit: int = 30):
+def get_notificaciones(usuario_id: int, limit: int = 30):
     try:
         rows = execute_query("""
             SELECT id, usuario_id, tipo, titulo, mensaje,
@@ -55,7 +55,7 @@ async def get_notificaciones(usuario_id: int, limit: int = 30):
 
 
 @router.put("/{notif_id}/leer")
-async def marcar_leida(notif_id: int):
+def marcar_leida(notif_id: int):
     try:
         execute_update(
             "UPDATE notificaciones SET leida=1 WHERE id=%s", (notif_id,)
@@ -66,7 +66,7 @@ async def marcar_leida(notif_id: int):
 
 
 @router.put("/leer-todas/{usuario_id}")
-async def leer_todas(usuario_id: int):
+def leer_todas(usuario_id: int):
     try:
         execute_update(
             "UPDATE notificaciones SET leida=1 WHERE usuario_id=%s", (usuario_id,)
@@ -77,7 +77,7 @@ async def leer_todas(usuario_id: int):
 
 
 @router.put("/responder")
-async def responder_notificacion(data: RespuestaNotif):
+def responder_notificacion(data: RespuestaNotif):
     """
     El personal aprueba o rechaza una solicitud de mantenimiento.
     Si aprueba: actualiza la orden/mantenimiento relacionado.

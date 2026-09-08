@@ -1,7 +1,6 @@
 import logging
 import numpy as np
 from fastapi import APIRouter, HTTPException
-from starlette.concurrency import run_in_threadpool
 from sklearn.model_selection import train_test_split
 
 from pipeline.data.extractor    import extraer_dataset_historial
@@ -144,17 +143,17 @@ def _entrenar_sintetico() -> dict:
 
 
 @router.post("/entrenar")
-async def entrenar(forzar: bool = False):
+def entrenar(forzar: bool = False):
+    # Handler sync => FastAPI lo corre en su threadpool, así el entrenamiento
+    # (CPU-bound) no bloquea el event loop ni deja sin responder al resto.
     try:
-        # En threadpool: el entrenamiento es CPU-bound y bloquearía el event
-        # loop (dejando sin responder al resto de la app) si corriera inline.
-        return await run_in_threadpool(_pipeline_completo, forzar)
+        return _pipeline_completo(forzar)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get("/versiones")
-async def get_versiones(limit: int = 10):
+def get_versiones(limit: int = 10):
     try:
         rows = get_historial_versiones(limit)
         for r in rows:
@@ -167,7 +166,7 @@ async def get_versiones(limit: int = 10):
 
 
 @router.get("/estado")
-async def estado_entrenamiento():
+def estado_entrenamiento():
     return {
         "entrenando": _estado["entrenando"],
         "version_activa": get_version_activa()

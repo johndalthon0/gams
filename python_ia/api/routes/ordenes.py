@@ -1,4 +1,5 @@
 import json
+import time
 import logging
 from datetime import datetime, date, timedelta
 from fastapi import APIRouter, HTTPException
@@ -141,7 +142,7 @@ def _ya_tiene_orden_activa(equipo_id: int) -> bool:
 # ── Endpoints órdenes IA ──────────────────────────────────────────────────────
 
 @router.get("/")
-async def get_ordenes(estado: str = None):
+def get_ordenes(estado: str = None):
     try:
         filtro_estado = "AND o.estado = %s" if estado else ""
         params = (estado,) if estado else ()
@@ -173,7 +174,7 @@ async def get_ordenes(estado: str = None):
 
 
 @router.put("/accion")
-async def accionar_orden(data: PropuestaAccion):
+def accionar_orden(data: PropuestaAccion):
     """
     Aprueba o rechaza una orden IA.
     Si APROBADA: crea mantenimiento PROGRAMADO + orden de trabajo + notificaciones.
@@ -351,7 +352,7 @@ async def accionar_orden(data: PropuestaAccion):
 # ── Bandeja del técnico ───────────────────────────────────────────────────────
 
 @router.get("/mis-ordenes/{usuario_id}")
-async def mis_ordenes(usuario_id: int):
+def mis_ordenes(usuario_id: int):
     try:
         rows = execute_query("""
             SELECT
@@ -404,7 +405,7 @@ async def mis_ordenes(usuario_id: int):
 
 
 @router.put("/trabajo/accion")
-async def accion_orden_trabajo(data: AccionOrdenTrabajo):
+def accion_orden_trabajo(data: AccionOrdenTrabajo):
     """
     El técnico inicia, pausa o finaliza una orden de trabajo.
     Al finalizar: actualiza mantenimiento, registra feedback y notifica.
@@ -506,7 +507,7 @@ async def accion_orden_trabajo(data: AccionOrdenTrabajo):
 
 
 @router.post("/trabajo/repuesto")
-async def agregar_repuesto(data: RepuestoOrden):
+def agregar_repuesto(data: RepuestoOrden):
     try:
         # Verificar stock
         stock = execute_query(
@@ -611,8 +612,13 @@ def _registrar_feedback(orden: dict, costo_real: float, observaciones: str):
 
 # ── Panel del administrador ───────────────────────────────────────────────────
 
+_panel_cache = {"ts": 0.0, "data": None}
+
+
 @router.get("/panel-admin")
-async def panel_admin():
+def panel_admin():
+    if _panel_cache["data"] is not None and time.time() - _panel_cache["ts"] < 120:
+        return _panel_cache["data"]
     try:
         # Órdenes de trabajo por estado
         estados_ot = execute_query("""
@@ -677,7 +683,7 @@ async def panel_admin():
             ORDER BY v.fecha DESC LIMIT 5
         """)
 
-        return {
+        data = {
             "ordenes_trabajo": {
                 "programadas": por_estado.get("PROGRAMADO", 0),
                 "en_proceso":  por_estado.get("EN_PROCESO", 0),
@@ -699,6 +705,9 @@ async def panel_admin():
             },
             "precision_por_version": _serializar(por_version),
         }
+        _panel_cache["ts"] = time.time()
+        _panel_cache["data"] = data
+        return data
 
     except Exception as e:
         logger.exception(e)

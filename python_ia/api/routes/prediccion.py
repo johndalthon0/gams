@@ -4,7 +4,6 @@ import numpy as np
 import logging
 from datetime import date, timedelta
 from fastapi import APIRouter, HTTPException
-from starlette.concurrency import run_in_threadpool
 
 from pipeline.data.extractor       import extraer_equipos_activos, get_responsable
 from pipeline.features.engineer    import construir_features_desde_resumen, FEATURE_COLS
@@ -115,17 +114,16 @@ def _serializar_fechas(rows: list) -> list:
 # ── endpoints ───────────────────────────────────────────────────────────────
 
 _riesgo_cache = {"ts": 0.0, "data": None}
-_RIESGO_TTL = 180  # seg — evita recalcular en cada carga del dashboard
+_RIESGO_TTL = 600  # seg — evita recalcular en cada carga del dashboard
 
 
 @router.get("/equipos-riesgo")
-async def get_equipos_riesgo(guardar: bool = True, refrescar: bool = False):
+def get_equipos_riesgo(guardar: bool = True, refrescar: bool = False):
     ahora = time.time()
     if (not refrescar and _riesgo_cache["data"] is not None
             and ahora - _riesgo_cache["ts"] < _RIESGO_TTL):
         return _riesgo_cache["data"]
-    # CPU-bound (modelo + SHAP + inserts): fuera del event loop.
-    data = await run_in_threadpool(_calcular_equipos_riesgo, guardar)
+    data = _calcular_equipos_riesgo(guardar)
     _riesgo_cache["ts"] = time.time()
     _riesgo_cache["data"] = data
     return data
@@ -295,8 +293,14 @@ def _calcular_equipos_riesgo(guardar: bool = True):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+_stats_cache = {"ts": 0.0, "data": None}
+
+
 @router.get("/estadisticas")
-async def get_estadisticas():
+def get_estadisticas():
+    ahora = time.time()
+    if _stats_cache["data"] is not None and ahora - _stats_cache["ts"] < 120:
+        return _stats_cache["data"]
     try:
         df = extraer_equipos_activos()
 
@@ -337,7 +341,7 @@ async def get_estadisticas():
         _serializar_fechas(versiones)
         _serializar_fechas(predicciones_recientes)
 
-        return {
+        data = {
             "total_equipos":             int(len(df)) if not df.empty else 0,
             "equipos_sin_mantenimiento": int((df["total_mantenimientos"] == 0).sum())
                                          if not df.empty else 0,
@@ -350,13 +354,16 @@ async def get_estadisticas():
             "resumen_niveles":           resumen_niveles,
             "version_activa":            get_version_activa(),
         }
+        _stats_cache["ts"] = time.time()
+        _stats_cache["data"] = data
+        return data
     except Exception as e:
         logger.exception(f"Error estadísticas: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get("/historial")
-async def get_historial(equipo_id: int = None, limit: int = 50):
+def get_historial(equipo_id: int = None, limit: int = 50):
     try:
         if equipo_id:
             rows = execute_query("""

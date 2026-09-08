@@ -14,7 +14,7 @@ def get_pool():
     if _pool is None:
         _pool = pooling.MySQLConnectionPool(
             pool_name="gam_pool",
-            pool_size=5,
+            pool_size=10,
             **DB_CONFIG
         )
     return _pool
@@ -23,8 +23,9 @@ def get_connection():
     try:
         return get_pool().get_connection()
     except Exception as e:
-        logger.error(f"Error conexión BD: {e}")
-        raise
+        # Pool agotado bajo carga concurrente → conexión directa temporal.
+        logger.warning(f"Pool no disponible ({e}) — conexión directa")
+        return mysql.connector.connect(**DB_CONFIG)
 
 # ✅ Conversión centralizada de tipos MySQL → Python nativo
 def _convertir_valor(v):

@@ -34,9 +34,11 @@ const handle = (err, res) => {
 // ── predicción ──────────────────────────────────────────────────────────────
 exports.getEquiposRiesgo = async (req, res) => {
   try {
+    // Solo persistimos predicciones/órdenes/notificaciones en un refresh
+    // explícito (botón "Actualizar" o tras entrenar), no en cada carga.
     const refrescar = req.query.refrescar === 'true';
     const { data } = await axios.get(
-      `${IA_URL}/ia/equipos-riesgo?guardar=true&refrescar=${refrescar}`
+      `${IA_URL}/ia/equipos-riesgo?guardar=${refrescar}&refrescar=${refrescar}`
     );
     for (const event of data.push_events || []) {
       await push.enviarPushUsuario(event.usuario_id, {
