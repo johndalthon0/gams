@@ -413,10 +413,6 @@ function Catalogos() {
         </div>
       </div>
 
-      <p style={{ color: "var(--text-muted)", fontSize: "12px", margin: "0.5rem 0 0" }}>
-        🔩 Los repuestos ahora se gestionan en el módulo <strong>Inventario → Repuestos</strong>.
-      </p>
-
     </AdminLayout>
   );
 }
