@@ -697,3 +697,42 @@ table {
     flex-wrap: wrap;
   }
 }
+/* ── Toque "IA": glow y pulso para el módulo predictivo ── */
+@keyframes iaPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.4; transform: scale(1.35); }
+}
+@keyframes iaSheen {
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 0.75; }
+}
+.ia-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #22d3ee;
+  box-shadow: 0 0 10px 2px rgba(34, 211, 238, 0.7);
+  animation: iaPulse 1.8s ease-in-out infinite;
+}
+.ia-hero {
+  position: relative;
+  overflow: hidden;
+}
+.ia-hero::before {
+  content: "";
+  position: absolute;
+  top: -60%;
+  left: -10%;
+  width: 420px;
+  height: 420px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.22), transparent 70%);
+  pointer-events: none;
+  animation: iaSheen 5s ease-in-out infinite;
+}
+.ia-title {
+  background: linear-gradient(90deg, var(--text-primary), #818cf8 60%, #22d3ee);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}

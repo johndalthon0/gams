@@ -145,20 +145,37 @@ function Barra({ valor }) {
 }
 
 function StatCard({ label, value, color, icon }) {
+  const hex = color && color.startsWith("#") ? color : null;
+  const active = hex && Number(value) > 0;
   return (
     <div
       style={{
-        background:
-          "linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01))",
-        border: "1px solid var(--border)",
+        position: "relative",
+        overflow: "hidden",
+        background: "linear-gradient(160deg, var(--bg-surface), var(--bg-surface2))",
+        border: `1px solid ${active ? hex + "55" : "var(--border)"}`,
         borderRadius: "14px",
         padding: "1rem 1.1rem",
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
-        boxShadow: "0 8px 16px rgba(15, 23, 42, 0.03)",
+        boxShadow: active
+          ? `0 0 26px -8px ${hex}66, inset 0 1px 0 rgba(255,255,255,0.05)`
+          : "0 8px 18px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.03)",
+        transition: "box-shadow .2s, border-color .2s",
       }}
     >
+      <span
+        style={{
+          position: "absolute",
+          left: 0,
+          top: 0,
+          bottom: 0,
+          width: "3px",
+          background: hex || "var(--accent)",
+          opacity: active ? 0.9 : 0.35,
+        }}
+      />
       <div>
         <p
           style={{
@@ -177,6 +194,7 @@ function StatCard({ label, value, color, icon }) {
             fontSize: "22px",
             fontWeight: 700,
             margin: 0,
+            textShadow: active ? `0 0 18px ${hex}55` : "none",
           }}
         >
           {value}
@@ -190,8 +208,9 @@ function StatCard({ label, value, color, icon }) {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "var(--bg-surface2)",
-          border: "1px solid var(--border)",
+          background: active ? `${hex}1f` : "var(--bg-surface2)",
+          border: `1px solid ${active ? hex + "55" : "var(--border)"}`,
+          color: hex || "var(--text-secondary)",
           fontSize: "18px",
           flexShrink: 0,
         }}
@@ -1767,7 +1786,8 @@ function IA() {
       badge: (resumen.criticos || 0) + (resumen.alto_riesgo || 0),
     },
     { key: "ordenes", label: "Órdenes", badge: ordPendientes },
-    { key: "mis-ordenes", label: "Mis órdenes", badge: misActivas },
+    // "Mis órdenes" es la cola personal del técnico: solo para no-admins.
+    ...(!esAdmin ? [{ key: "mis-ordenes", label: "Mis órdenes", badge: misActivas }] : []),
     { key: "historial", label: "Historial", badge: 0 },
     { key: "notif", label: "Notificaciones", badge: noLeidas + pendRespuesta },
     ...(esAdmin ? [{ key: "panel", label: "Panel", badge: 0 }] : []),
@@ -1786,17 +1806,38 @@ function IA() {
     <AdminLayout>
       {/* HEADER */}
       <div
+        className="ia-hero"
         style={{
           display: "flex",
           justifyContent: "space-between",
           flexWrap: "wrap",
           gap: "12px",
           marginBottom: "1.5rem",
+          padding: "1.1rem 1.25rem",
+          borderRadius: "16px",
+          border: "1px solid var(--border)",
+          background:
+            "linear-gradient(135deg, var(--bg-surface), var(--bg-surface2))",
         }}
       >
         <div>
+          <div style={{ display: "flex", alignItems: "center", gap: "9px" }}>
+            <span className="ia-dot" />
+            <span
+              style={{
+                color: "var(--text-secondary)",
+                fontSize: "11px",
+                fontWeight: 700,
+                letterSpacing: "0.14em",
+                textTransform: "uppercase",
+              }}
+            >
+              IA predictiva activa
+            </span>
+          </div>
           <h2
-            style={{ fontWeight: 700, margin: 0, color: "var(--text-primary)" }}
+            className="ia-title"
+            style={{ fontWeight: 800, margin: "6px 0 0", fontSize: "26px" }}
           >
             Centro de mantenimiento predictivo
           </h2>
@@ -1804,19 +1845,20 @@ function IA() {
             style={{
               color: "var(--text-secondary)",
               margin: "6px 0 0",
-              fontSize: "14px",
+              fontSize: "13px",
             }}
           >
             Monitor de riesgo, programación de mantenimientos y seguimiento
-            operativo del equipo técnico
+            operativo
             {resumen.version && resumen.version !== "—" && (
               <span
                 style={{
                   marginLeft: "10px",
-                  background: "var(--accent-light)",
-                  color: "var(--accent-text)",
-                  borderRadius: "6px",
-                  padding: "2px 8px",
+                  background: "rgba(34,211,238,0.12)",
+                  color: "#22d3ee",
+                  border: "1px solid rgba(34,211,238,0.35)",
+                  borderRadius: "999px",
+                  padding: "2px 10px",
                   fontSize: "11px",
                   fontWeight: 600,
                 }}
@@ -1826,7 +1868,7 @@ function IA() {
             )}
           </p>
         </div>
-        <div style={{ display: "flex", gap: "10px" }}>
+        <div style={{ display: "flex", gap: "10px", alignItems: "flex-start" }}>
           <button
             onClick={() => loadAll(true)}
             disabled={loading}
@@ -1850,9 +1892,12 @@ function IA() {
                 color: entrenando ? "var(--text-muted)" : "#fff",
                 padding: "10px 20px",
                 opacity: entrenando ? 0.7 : 1,
+                boxShadow: entrenando
+                  ? "none"
+                  : "0 0 22px -4px rgba(99,102,241,0.75)",
               }}
             >
-              {entrenando ? "Entrenando..." : "Reentrenar IA"}
+              {entrenando ? "⏳ Entrenando..." : "✨ Reentrenar IA"}
             </button>
           )}
         </div>
@@ -2020,9 +2065,14 @@ function IA() {
             style={{
               padding: "9px 16px",
               borderRadius: "10px",
-              border: tab === t.key ? "none" : "1px solid var(--border)",
+              border:
+                tab === t.key
+                  ? "1px solid rgba(129,140,248,0.6)"
+                  : "1px solid var(--border)",
               background: tab === t.key ? "var(--accent)" : "var(--bg-surface)",
               color: tab === t.key ? "#fff" : "var(--text-secondary)",
+              boxShadow:
+                tab === t.key ? "0 0 20px -4px rgba(99,102,241,0.7)" : "none",
               fontWeight: 600,
               fontSize: "13px",
               cursor: "pointer",
@@ -2030,6 +2080,7 @@ function IA() {
               display: "flex",
               alignItems: "center",
               gap: "6px",
+              transition: "box-shadow .2s, background .2s",
             }}
           >
             {t.label}
