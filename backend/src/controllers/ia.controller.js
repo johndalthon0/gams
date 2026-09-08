@@ -1,11 +1,32 @@
-const axios   = require('axios');
-const push    = require('./push.controller');
-const IA_URL  = (process.env.IA_URL || 'http://127.0.0.1:5000').replace(/\/+$/, '');
+const axiosLib = require('axios');
+const push     = require('./push.controller');
+const IA_URL   = (process.env.IA_URL || 'http://127.0.0.1:5000').replace(/\/+$/, '');
+
+// Cliente hacia el servicio de IA con reintentos: en Render free el servicio
+// se duerme y la primera petición devuelve 502/503/504 mientras arranca.
+const axios = axiosLib.create({ timeout: 120000 });
+axios.interceptors.response.use(null, async (error) => {
+  const cfg = error.config;
+  if (!cfg) return Promise.reject(error);
+  const status = error.response?.status;
+  const reintentable =
+    [502, 503, 504].includes(status) ||
+    ['ECONNABORTED', 'ECONNRESET', 'ECONNREFUSED', 'ETIMEDOUT'].includes(error.code);
+  cfg.__retry = cfg.__retry || 0;
+  if (reintentable && cfg.__retry < 3) {
+    cfg.__retry += 1;
+    await new Promise((r) => setTimeout(r, 4000 * cfg.__retry));
+    return axios(cfg);
+  }
+  return Promise.reject(error);
+});
 
 const handle = (err, res) => {
-  if (err.code === 'ECONNREFUSED')
+  const status = err.response?.status;
+  if (err.code === 'ECONNREFUSED' || [502, 503, 504].includes(status) ||
+      ['ECONNABORTED', 'ECONNRESET', 'ETIMEDOUT'].includes(err.code))
     return res.status(503).json({
-      message: 'Servicio IA no disponible — ejecuta: cd python_ia && python main.py'
+      message: 'El servicio de IA está iniciándose. Espera unos segundos y vuelve a intentar.'
     });
   const msg = err.response?.data?.detail || err.response?.data?.message || err.message;
   return res.status(500).json({ message: msg });
