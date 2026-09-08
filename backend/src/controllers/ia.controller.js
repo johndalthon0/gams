@@ -34,7 +34,10 @@ const handle = (err, res) => {
 // ── predicción ──────────────────────────────────────────────────────────────
 exports.getEquiposRiesgo = async (req, res) => {
   try {
-    const { data } = await axios.get(`${IA_URL}/ia/equipos-riesgo?guardar=true`);
+    const refrescar = req.query.refrescar === 'true';
+    const { data } = await axios.get(
+      `${IA_URL}/ia/equipos-riesgo?guardar=true&refrescar=${refrescar}`
+    );
     for (const event of data.push_events || []) {
       await push.enviarPushUsuario(event.usuario_id, {
         titulo: event.titulo,

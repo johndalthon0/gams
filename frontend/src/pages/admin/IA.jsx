@@ -1594,12 +1594,12 @@ function IA() {
     setTimeout(() => setMsg({ type: "", text: "" }), 5000);
   };
 
-  const loadAll = useCallback(async () => {
+  const loadAll = useCallback(async (force = false) => {
     setLoading(true);
     setError("");
     try {
       const calls = [
-        api.get("/ia/equipos-riesgo"),
+        api.get("/ia/equipos-riesgo" + (force ? "?refrescar=true" : "")),
         api.get("/ia/estadisticas"),
         api.get("/ia/ordenes"),
         api.get("/ia/historial"),
@@ -1681,7 +1681,7 @@ function IA() {
           ? "Modelo creado con datos sintéticos — mejorará con más historial"
           : `Modelo ${est.modelo || ""} entrenado — ${est.version || ""}`,
       );
-      await loadAll();
+      await loadAll(true);
     } catch (e) {
       showMsg("error", e.response?.data?.message || "Error al entrenar");
     } finally {
@@ -1828,7 +1828,7 @@ function IA() {
         </div>
         <div style={{ display: "flex", gap: "10px" }}>
           <button
-            onClick={loadAll}
+            onClick={() => loadAll(true)}
             disabled={loading}
             style={{
               ...S.btn,
@@ -3816,7 +3816,7 @@ function IA() {
           orden={modalOrden}
           repuestos={repuestosCat}
           onClose={() => setModalOrden(null)}
-          onRefresh={loadAll}
+          onRefresh={() => loadAll()}
         />
       )}
       {confirmarEntrenamiento && (

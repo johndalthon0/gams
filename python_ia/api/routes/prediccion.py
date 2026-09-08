@@ -1,8 +1,10 @@
 import json
+import time
 import numpy as np
 import logging
 from datetime import date, timedelta
 from fastapi import APIRouter, HTTPException
+from starlette.concurrency import run_in_threadpool
 
 from pipeline.data.extractor       import extraer_equipos_activos, get_responsable
 from pipeline.features.engineer    import construir_features_desde_resumen, FEATURE_COLS
@@ -112,8 +114,24 @@ def _serializar_fechas(rows: list) -> list:
 
 # ── endpoints ───────────────────────────────────────────────────────────────
 
+_riesgo_cache = {"ts": 0.0, "data": None}
+_RIESGO_TTL = 180  # seg — evita recalcular en cada carga del dashboard
+
+
 @router.get("/equipos-riesgo")
-async def get_equipos_riesgo(guardar: bool = True):
+async def get_equipos_riesgo(guardar: bool = True, refrescar: bool = False):
+    ahora = time.time()
+    if (not refrescar and _riesgo_cache["data"] is not None
+            and ahora - _riesgo_cache["ts"] < _RIESGO_TTL):
+        return _riesgo_cache["data"]
+    # CPU-bound (modelo + SHAP + inserts): fuera del event loop.
+    data = await run_in_threadpool(_calcular_equipos_riesgo, guardar)
+    _riesgo_cache["ts"] = time.time()
+    _riesgo_cache["data"] = data
+    return data
+
+
+def _calcular_equipos_riesgo(guardar: bool = True):
     try:
         if not modelo_existe():
             res = _pipeline_completo(forzar=True)
