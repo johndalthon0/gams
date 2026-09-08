@@ -10,3 +10,8 @@ database/gams_full.sql
 
 .vscode/
 .idea/
+
+# Python
+__pycache__/
+*.pyc
+python_ia/logs/
