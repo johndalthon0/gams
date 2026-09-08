@@ -418,11 +418,12 @@ function Asignaciones() {
         <Overlay onClose={() => setModalDev(null)}>
           <div style={{
             background: "var(--bg-surface)", border: "1px solid var(--border)",
-            borderRadius: "16px", width: "100%", overflow: "hidden"
+            borderRadius: "16px", width: "100%", overflow: "hidden",
+            maxHeight: "88vh", display: "flex", flexDirection: "column"
           }}>
             <div style={{
-              background: "var(--warning)", padding: "1rem 1.25rem",
-              display: "flex", justifyContent: "space-between", alignItems: "center"
+              background: "var(--warning)", padding: "1rem 1.25rem", flexShrink: 0,
+              display: "flex", justifyContent: "space-between", alignItems: "center", gap: "10px"
             }}>
               <div>
                 <h4 style={{ color: "#fff", fontWeight: 700, margin: 0 }}>
@@ -439,7 +440,7 @@ function Asignaciones() {
               }}>✖</button>
             </div>
 
-            <div style={{ padding: "1.25rem" }}>
+            <div style={{ padding: "1.25rem", overflowY: "auto" }}>
 
               {/* Info asignación */}
               <div style={{
@@ -500,7 +501,7 @@ function Asignaciones() {
                 />
               </div>
 
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", flexWrap: "wrap" }}>
                 <button onClick={() => setModalDev(null)} style={btnG()}>Cancelar</button>
                 <button
                   onClick={confirmarDevolucion}
@@ -525,11 +526,12 @@ function Asignaciones() {
         <Overlay onClose={() => setModalVer(null)}>
           <div style={{
             background: "var(--bg-surface)", border: "1px solid var(--border)",
-            borderRadius: "16px", width: "100%", overflow: "hidden"
+            borderRadius: "16px", width: "100%", overflow: "hidden",
+            maxHeight: "88vh", display: "flex", flexDirection: "column"
           }}>
             <div style={{
-              background: "var(--accent)", padding: "1rem 1.25rem",
-              display: "flex", justifyContent: "space-between", alignItems: "center"
+              background: "var(--accent)", padding: "1rem 1.25rem", flexShrink: 0,
+              display: "flex", justifyContent: "space-between", alignItems: "center", gap: "10px"
             }}>
               <div>
                 <h4 style={{ color: "#fff", fontWeight: 700, margin: 0 }}>
@@ -546,7 +548,7 @@ function Asignaciones() {
               }}>✖</button>
             </div>
 
-            <div style={{ padding: "1.25rem" }}>
+            <div style={{ padding: "1.25rem", overflowY: "auto" }}>
               <div style={{
                 display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))",
                 gap: "10px", marginBottom: "1.25rem"
