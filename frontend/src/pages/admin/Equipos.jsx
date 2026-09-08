@@ -390,7 +390,7 @@ function Equipos() {
                   <td style={{ color: "var(--text-secondary)" }}>{e.fecha_adquisicion || "—"}</td>
                   <td><span className={badgeClass(e.estado)}>{e.estado}</span></td>
                   <td>
-                    <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                    <div style={{ display: "flex", gap: "6px", flexWrap: "nowrap", whiteSpace: "nowrap" }}>
                       <button onClick={() => setEquipoView(e)} style={{
                         background: "var(--accent-light)", border: "1px solid var(--accent)",
                         color: "var(--accent-text)", borderRadius: "8px",

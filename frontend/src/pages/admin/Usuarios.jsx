@@ -309,7 +309,7 @@ function Usuarios() {
                     </span>
                   </td>
                   <td>
-                    <div className="users-row-actions" style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                    <div className="users-row-actions" style={{ display: "flex", gap: "6px", flexWrap: "nowrap", whiteSpace: "nowrap" }}>
 
                       {/* EDITAR */}
                       <button

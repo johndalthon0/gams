@@ -359,7 +359,7 @@ function Empleados() {
                     </span>
                   </td>
                   <td>
-                    <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                    <div style={{ display: "flex", gap: "6px", flexWrap: "nowrap", whiteSpace: "nowrap" }}>
                       {/* ACTIVAR / DESACTIVAR */}
                       <button
                         onClick={() => toggleEstado(e.id, e.emp_estado, `${e.nombre} ${e.apellido || ""}`)}
