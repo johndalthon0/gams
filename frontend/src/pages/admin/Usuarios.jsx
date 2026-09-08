@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import AdminLayout from "../../components/layout/AdminLayout";
 import api from "../../services/api";
 import { useDialog } from "../../context/DialogContext";
+import { useIsNarrow } from "../../hooks/useIsNarrow";
 
 const inp = {
   width: "100%", background: "var(--bg-surface2)",
@@ -38,6 +39,7 @@ const Overlay = ({ children, onClose }) => (
 function Usuarios() {
 
   const { confirmar, avisar } = useDialog();
+  const narrow = useIsNarrow();  // móvil: botones de acción solo con icono
 
   const [usuarios,    setUsuarios]    = useState([]);
   const [buscar,      setBuscar]      = useState("");
@@ -318,7 +320,7 @@ function Usuarios() {
                           color: "var(--warning)", borderRadius: "8px",
                           padding: "5px 10px", cursor: "pointer", fontSize: "13px"
                         }}
-                      >✏ Editar</button>
+                      >{narrow ? "✏" : "✏ Editar"}</button>
 
                       {/* CAMBIAR CONTRASEÑA */}
                       <button
@@ -329,7 +331,7 @@ function Usuarios() {
                           color: "var(--accent-text)", borderRadius: "8px",
                           padding: "5px 10px", cursor: "pointer", fontSize: "13px"
                         }}
-                      >🔑 Contraseña</button>
+                      >{narrow ? "🔑" : "🔑 Contraseña"}</button>
 
                       {/* ACTIVAR / DESACTIVAR */}
                       <button
@@ -343,7 +345,9 @@ function Usuarios() {
                           cursor: "pointer", fontSize: "13px", fontFamily: "inherit"
                         }}
                       >
-                        {u.estado === 1 ? "⏸ Desactivar" : "▶ Activar"}
+                        {u.estado === 1
+                          ? (narrow ? "⏸" : "⏸ Desactivar")
+                          : (narrow ? "▶" : "▶ Activar")}
                       </button>
 
                       {/* ELIMINAR */}

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import AdminLayout from "../../components/layout/AdminLayout";
 import api from "../../services/api";
 import { useDialog } from "../../context/DialogContext";
+import { useIsNarrow } from "../../hooks/useIsNarrow";
 
 const inp = {
   width: "100%", background: "var(--bg-surface2)",
@@ -40,6 +41,7 @@ const Overlay = ({ children, onClose }) => (
 function Asignaciones() {
 
   const { avisar } = useDialog();
+  const narrow = useIsNarrow();
 
   const [asignaciones, setAsignaciones] = useState([]);
   const [usuarios,     setUsuarios]     = useState([]);
@@ -395,7 +397,7 @@ function Asignaciones() {
                         fontSize: "13px", fontWeight: 600, fontFamily: "inherit",
                         whiteSpace: "nowrap"
                       }}>
-                        📦 Devolver
+                        {narrow ? "📦" : "📦 Devolver"}
                       </button>
                     )}
                     {a.estado === 0 && (
@@ -403,7 +405,7 @@ function Asignaciones() {
                         background: "var(--accent-light)", border: "1px solid var(--accent)",
                         color: "var(--accent-text)", borderRadius: "8px",
                         padding: "5px 10px", cursor: "pointer", fontSize: "13px"
-                      }}>👁 Ver</button>
+                      }}>{narrow ? "👁" : "👁 Ver"}</button>
                     )}
                   </td>
                 </tr>
