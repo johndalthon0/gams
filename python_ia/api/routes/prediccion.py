@@ -124,8 +124,11 @@ def get_equipos_riesgo(guardar: bool = True, refrescar: bool = False):
             and ahora - _riesgo_cache["ts"] < _RIESGO_TTL):
         return _riesgo_cache["data"]
     data = _calcular_equipos_riesgo(guardar)
-    _riesgo_cache["ts"] = time.time()
-    _riesgo_cache["data"] = data
+    # Solo cacheamos resultados válidos: un total 0 casi siempre es un fallo
+    # transitorio (BD/arranque) y no queremos servirlo 10 min.
+    if data.get("total", 0) > 0:
+        _riesgo_cache["ts"] = time.time()
+        _riesgo_cache["data"] = data
     return data
 
 
@@ -354,8 +357,9 @@ def get_estadisticas():
             "resumen_niveles":           resumen_niveles,
             "version_activa":            get_version_activa(),
         }
-        _stats_cache["ts"] = time.time()
-        _stats_cache["data"] = data
+        if data["total_equipos"] > 0:
+            _stats_cache["ts"] = time.time()
+            _stats_cache["data"] = data
         return data
     except Exception as e:
         logger.exception(f"Error estadísticas: {e}")

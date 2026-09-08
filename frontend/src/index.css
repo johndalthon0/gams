@@ -697,23 +697,20 @@ table {
     flex-wrap: wrap;
   }
 }
-/* ── Toque "IA": glow y pulso para el módulo predictivo ── */
+
+/* ── Módulo IA predictiva: acento sobrio ── */
 @keyframes iaPulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50%      { opacity: 0.4; transform: scale(1.35); }
-}
-@keyframes iaSheen {
-  0%, 100% { opacity: 0.35; }
-  50%      { opacity: 0.75; }
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.35; }
 }
 .ia-dot {
   display: inline-block;
-  width: 9px;
-  height: 9px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background: #22d3ee;
-  box-shadow: 0 0 10px 2px rgba(34, 211, 238, 0.7);
-  animation: iaPulse 1.8s ease-in-out infinite;
+  background: #22c55e;
+  box-shadow: 0 0 6px 1px rgba(34, 197, 94, 0.55);
+  animation: iaPulse 2.4s ease-in-out infinite;
 }
 .ia-hero {
   position: relative;
@@ -722,17 +719,10 @@ table {
 .ia-hero::before {
   content: "";
   position: absolute;
-  top: -60%;
-  left: -10%;
-  width: 420px;
-  height: 420px;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.22), transparent 70%);
+  top: -40%;
+  right: -5%;
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.10), transparent 70%);
   pointer-events: none;
-  animation: iaSheen 5s ease-in-out infinite;
-}
-.ia-title {
-  background: linear-gradient(90deg, var(--text-primary), #818cf8 60%, #22d3ee);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
 }

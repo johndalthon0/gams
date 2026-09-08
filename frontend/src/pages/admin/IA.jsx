@@ -153,15 +153,15 @@ function StatCard({ label, value, color, icon }) {
         position: "relative",
         overflow: "hidden",
         background: "linear-gradient(160deg, var(--bg-surface), var(--bg-surface2))",
-        border: `1px solid ${active ? hex + "55" : "var(--border)"}`,
+        border: `1px solid ${active ? hex + "40" : "var(--border)"}`,
         borderRadius: "14px",
         padding: "1rem 1.1rem",
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
         boxShadow: active
-          ? `0 0 26px -8px ${hex}66, inset 0 1px 0 rgba(255,255,255,0.05)`
-          : "0 8px 18px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.03)",
+          ? `0 0 16px -10px ${hex}, inset 0 1px 0 rgba(255,255,255,0.03)`
+          : "inset 0 1px 0 rgba(255,255,255,0.03)",
         transition: "box-shadow .2s, border-color .2s",
       }}
     >
@@ -173,7 +173,7 @@ function StatCard({ label, value, color, icon }) {
           bottom: 0,
           width: "3px",
           background: hex || "var(--accent)",
-          opacity: active ? 0.9 : 0.35,
+          opacity: active ? 0.75 : 0.25,
         }}
       />
       <div>
@@ -194,7 +194,6 @@ function StatCard({ label, value, color, icon }) {
             fontSize: "22px",
             fontWeight: 700,
             margin: 0,
-            textShadow: active ? `0 0 18px ${hex}55` : "none",
           }}
         >
           {value}
@@ -1616,35 +1615,29 @@ function IA() {
   const loadAll = useCallback(async (force = false) => {
     setLoading(true);
     setError("");
+    const ok = (r) => r.status === "fulfilled";
+    const val = (r) => r.value?.data;
+
+    // ── Fase 1: lo esencial para "Vista general" — desbloquea la UI ──
     try {
-      const calls = [
+      const base = await Promise.allSettled([
         api.get("/ia/equipos-riesgo" + (force ? "?refrescar=true" : "")),
         api.get("/ia/estadisticas"),
         api.get("/ia/ordenes"),
-        api.get("/ia/historial"),
-        api.get("/ia/notificaciones"),
-        api.get("/ia/mis-ordenes"),
-        api.get("/catalogos/repuestos"),
-      ];
-      if (esAdmin) calls.push(api.get("/ia/panel-admin"));
+      ]);
 
-      const res = await Promise.allSettled(calls);
-      const ok = (r) => r.status === "fulfilled";
-      const val = (r) => r.value?.data;
-      const fulfilled = res.filter(ok);
-
-      if (fulfilled.length === 0) {
-        const firstErr = res[0]?.reason;
-        const message =
+      if (!base.some(ok)) {
+        const firstErr = base[0]?.reason;
+        setError(
           firstErr?.response?.data?.message ||
-          firstErr?.message ||
-          "No se pudo conectar con el servicio de IA";
-        setError(message);
+            firstErr?.message ||
+            "No se pudo conectar con el servicio de IA",
+        );
         return;
       }
 
-      if (ok(res[0])) {
-        const d = val(res[0]);
+      if (ok(base[0])) {
+        const d = val(base[0]);
         setEquipos(d.equipos || []);
         setResumen({
           total: d.total || 0,
@@ -1657,10 +1650,10 @@ function IA() {
           modelo: d.modelo || "—",
         });
       }
-      if (ok(res[1])) setEstadisticas(val(res[1]) || {});
-      if (ok(res[2])) {
+      if (ok(base[1])) setEstadisticas(val(base[1]) || {});
+      if (ok(base[2])) {
         const ordenesUnicas = new Map();
-        (val(res[2])?.ordenes || [])
+        (val(base[2])?.ordenes || [])
           .sort((a, b) => Number(b.id || 0) - Number(a.id || 0))
           .forEach((orden) => {
             if (!ordenesUnicas.has(orden.equipo_id))
@@ -1668,20 +1661,31 @@ function IA() {
           });
         setOrdenes(Array.from(ordenesUnicas.values()));
       }
-      if (ok(res[3])) setHistorial(val(res[3])?.historial || []);
-      if (ok(res[4])) setNotificaciones(val(res[4])?.notificaciones || []);
-      if (ok(res[5])) setMisOrdenes(val(res[5])?.ordenes || []);
-      if (ok(res[6])) setRepuestosCat(val(res[6]) || []);
-      if (esAdmin && res[7] && ok(res[7])) setPanelAdmin(val(res[7]) || {});
     } catch (e) {
       setError(
         e.response?.data?.message ||
           e.message ||
           "No se pudo conectar con el servicio de IA",
       );
+      return;
     } finally {
       setLoading(false);
     }
+
+    // ── Fase 2: el resto, en segundo plano (no bloquea la vista) ──
+    const extra = [
+      api.get("/ia/historial"),
+      api.get("/ia/notificaciones"),
+      api.get("/ia/mis-ordenes"),
+      api.get("/catalogos/repuestos"),
+    ];
+    if (esAdmin) extra.push(api.get("/ia/panel-admin"));
+    const r2 = await Promise.allSettled(extra);
+    if (ok(r2[0])) setHistorial(val(r2[0])?.historial || []);
+    if (ok(r2[1])) setNotificaciones(val(r2[1])?.notificaciones || []);
+    if (ok(r2[2])) setMisOrdenes(val(r2[2])?.ordenes || []);
+    if (ok(r2[3])) setRepuestosCat(val(r2[3]) || []);
+    if (esAdmin && r2[4] && ok(r2[4])) setPanelAdmin(val(r2[4]) || {});
   }, [esAdmin]);
 
   useEffect(() => {
@@ -1821,23 +1825,27 @@ function IA() {
         }}
       >
         <div>
-          <div style={{ display: "flex", alignItems: "center", gap: "9px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <span className="ia-dot" />
             <span
               style={{
                 color: "var(--text-secondary)",
-                fontSize: "11px",
+                fontSize: "10.5px",
                 fontWeight: 700,
-                letterSpacing: "0.14em",
+                letterSpacing: "0.12em",
                 textTransform: "uppercase",
               }}
             >
-              IA predictiva activa
+              IA predictiva · en línea
             </span>
           </div>
           <h2
-            className="ia-title"
-            style={{ fontWeight: 800, margin: "6px 0 0", fontSize: "26px" }}
+            style={{
+              fontWeight: 700,
+              margin: "6px 0 0",
+              fontSize: "22px",
+              color: "var(--text-primary)",
+            }}
           >
             Centro de mantenimiento predictivo
           </h2>
@@ -1854,9 +1862,9 @@ function IA() {
               <span
                 style={{
                   marginLeft: "10px",
-                  background: "rgba(34,211,238,0.12)",
-                  color: "#22d3ee",
-                  border: "1px solid rgba(34,211,238,0.35)",
+                  background: "var(--bg-surface2)",
+                  color: "var(--text-secondary)",
+                  border: "1px solid var(--border)",
                   borderRadius: "999px",
                   padding: "2px 10px",
                   fontSize: "11px",
@@ -1892,12 +1900,9 @@ function IA() {
                 color: entrenando ? "var(--text-muted)" : "#fff",
                 padding: "10px 20px",
                 opacity: entrenando ? 0.7 : 1,
-                boxShadow: entrenando
-                  ? "none"
-                  : "0 0 22px -4px rgba(99,102,241,0.75)",
               }}
             >
-              {entrenando ? "⏳ Entrenando..." : "✨ Reentrenar IA"}
+              {entrenando ? "Entrenando..." : "Reentrenar IA"}
             </button>
           )}
         </div>
@@ -2067,12 +2072,11 @@ function IA() {
               borderRadius: "10px",
               border:
                 tab === t.key
-                  ? "1px solid rgba(129,140,248,0.6)"
+                  ? "1px solid transparent"
                   : "1px solid var(--border)",
               background: tab === t.key ? "var(--accent)" : "var(--bg-surface)",
               color: tab === t.key ? "#fff" : "var(--text-secondary)",
-              boxShadow:
-                tab === t.key ? "0 0 20px -4px rgba(99,102,241,0.7)" : "none",
+              boxShadow: "none",
               fontWeight: 600,
               fontSize: "13px",
               cursor: "pointer",
