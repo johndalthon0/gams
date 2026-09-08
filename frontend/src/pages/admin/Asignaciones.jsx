@@ -28,10 +28,12 @@ const btnG = (c = "var(--text-secondary)") => ({
 const Overlay = ({ children, onClose }) => (
   <div onClick={onClose} style={{
     position: "fixed", inset: 0, background: "rgba(0,0,0,0.65)",
-    zIndex: 9999, display: "flex", alignItems: "center",
-    justifyContent: "center", padding: "1rem"
+    zIndex: 9999, padding: "1rem", overflowY: "auto",
+    display: "flex", flexDirection: "column", alignItems: "center"
   }}>
-    <div onClick={e => e.stopPropagation()}>{children}</div>
+    <div onClick={e => e.stopPropagation()} style={{
+      width: "min(560px, 100%)", margin: "auto"
+    }}>{children}</div>
   </div>
 );
 
@@ -416,8 +418,7 @@ function Asignaciones() {
         <Overlay onClose={() => setModalDev(null)}>
           <div style={{
             background: "var(--bg-surface)", border: "1px solid var(--border)",
-            borderRadius: "16px", width: "560px", maxWidth: "95vw",
-            overflow: "hidden"
+            borderRadius: "16px", width: "100%", overflow: "hidden"
           }}>
             <div style={{
               background: "var(--warning)", padding: "1rem 1.25rem",
@@ -444,7 +445,7 @@ function Asignaciones() {
               <div style={{
                 background: "var(--bg-surface2)", border: "1px solid var(--border)",
                 borderRadius: "12px", padding: "12px 16px", marginBottom: "1.25rem",
-                display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px"
+                display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: "10px"
               }}>
                 {[
                   { l: "Equipo",     v: `${modalDev.equipo_codigo} — ${modalDev.equipo}` },
@@ -524,8 +525,7 @@ function Asignaciones() {
         <Overlay onClose={() => setModalVer(null)}>
           <div style={{
             background: "var(--bg-surface)", border: "1px solid var(--border)",
-            borderRadius: "16px", width: "520px", maxWidth: "95vw",
-            overflow: "hidden"
+            borderRadius: "16px", width: "100%", overflow: "hidden"
           }}>
             <div style={{
               background: "var(--accent)", padding: "1rem 1.25rem",
@@ -548,7 +548,7 @@ function Asignaciones() {
 
             <div style={{ padding: "1.25rem" }}>
               <div style={{
-                display: "grid", gridTemplateColumns: "1fr 1fr",
+                display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))",
                 gap: "10px", marginBottom: "1.25rem"
               }}>
                 {[
