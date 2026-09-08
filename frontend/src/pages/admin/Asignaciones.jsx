@@ -28,11 +28,11 @@ const btnG = (c = "var(--text-secondary)") => ({
 const Overlay = ({ children, onClose }) => (
   <div onClick={onClose} style={{
     position: "fixed", inset: 0, background: "rgba(0,0,0,0.65)",
-    zIndex: 9999, padding: "1rem", overflowY: "auto",
-    display: "flex", flexDirection: "column", alignItems: "center"
+    zIndex: 9999, padding: "1.5rem 1rem", overflowY: "auto",
+    display: "flex", alignItems: "flex-start", justifyContent: "center"
   }}>
     <div onClick={e => e.stopPropagation()} style={{
-      width: "min(560px, 100%)", margin: "auto"
+      width: "min(560px, 100%)", margin: "auto 0"
     }}>{children}</div>
   </div>
 );
@@ -418,11 +418,10 @@ function Asignaciones() {
         <Overlay onClose={() => setModalDev(null)}>
           <div style={{
             background: "var(--bg-surface)", border: "1px solid var(--border)",
-            borderRadius: "16px", width: "100%", overflow: "hidden",
-            maxHeight: "88vh", display: "flex", flexDirection: "column"
+            borderRadius: "16px", width: "100%", overflow: "hidden"
           }}>
             <div style={{
-              background: "var(--warning)", padding: "1rem 1.25rem", flexShrink: 0,
+              background: "var(--warning)", padding: "1rem 1.25rem",
               display: "flex", justifyContent: "space-between", alignItems: "center", gap: "10px"
             }}>
               <div>
@@ -440,7 +439,7 @@ function Asignaciones() {
               }}>✖</button>
             </div>
 
-            <div style={{ padding: "1.25rem", overflowY: "auto" }}>
+            <div style={{ padding: "1.25rem" }}>
 
               {/* Info asignación */}
               <div style={{
@@ -526,11 +525,10 @@ function Asignaciones() {
         <Overlay onClose={() => setModalVer(null)}>
           <div style={{
             background: "var(--bg-surface)", border: "1px solid var(--border)",
-            borderRadius: "16px", width: "100%", overflow: "hidden",
-            maxHeight: "88vh", display: "flex", flexDirection: "column"
+            borderRadius: "16px", width: "100%", overflow: "hidden"
           }}>
             <div style={{
-              background: "var(--accent)", padding: "1rem 1.25rem", flexShrink: 0,
+              background: "var(--accent)", padding: "1rem 1.25rem",
               display: "flex", justifyContent: "space-between", alignItems: "center", gap: "10px"
             }}>
               <div>
@@ -548,7 +546,7 @@ function Asignaciones() {
               }}>✖</button>
             </div>
 
-            <div style={{ padding: "1.25rem", overflowY: "auto" }}>
+            <div style={{ padding: "1.25rem" }}>
               <div style={{
                 display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))",
                 gap: "10px", marginBottom: "1.25rem"
