@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import AdminLayout from "../../components/layout/AdminLayout";
 import api from "../../services/api";
 import { useDialog } from "../../context/DialogContext";
+import TdToggle from "../../components/ui/TdToggle";
 
 // ─────────────────────────────────────────────
 // ESTILOS BASE
@@ -1217,6 +1218,7 @@ function ModalOrden({ orden, repuestos, onClose, onRefresh }) {
             Repuestos utilizados
           </p>
           <table
+            className="rtable"
             style={{
               width: "100%",
               borderCollapse: "collapse",
@@ -1246,6 +1248,7 @@ function ModalOrden({ orden, repuestos, onClose, onRefresh }) {
               {orden.repuestos.map((r, i) => (
                 <tr key={i} style={{ borderBottom: "1px solid var(--border)" }}>
                   <td
+                    data-label="Repuesto"
                     style={{
                       padding: "8px 10px",
                       color: "var(--text-primary)",
@@ -1255,6 +1258,7 @@ function ModalOrden({ orden, repuestos, onClose, onRefresh }) {
                     {r.nombre}
                   </td>
                   <td
+                    data-label="Tipo"
                     style={{
                       padding: "8px 10px",
                       color: "var(--text-secondary)",
@@ -1263,6 +1267,7 @@ function ModalOrden({ orden, repuestos, onClose, onRefresh }) {
                     {r.tipo || "—"}
                   </td>
                   <td
+                    data-label="Cant."
                     style={{
                       padding: "8px 10px",
                       color: "var(--text-secondary)",
@@ -1271,6 +1276,7 @@ function ModalOrden({ orden, repuestos, onClose, onRefresh }) {
                     {r.cantidad}
                   </td>
                   <td
+                    data-label="P.Unit."
                     style={{
                       padding: "8px 10px",
                       color: "var(--text-secondary)",
@@ -1279,6 +1285,7 @@ function ModalOrden({ orden, repuestos, onClose, onRefresh }) {
                     Bs {Number(r.precio_unit).toFixed(2)}
                   </td>
                   <td
+                    data-label="Subtotal"
                     style={{
                       padding: "8px 10px",
                       color: "var(--success)",
@@ -2426,8 +2433,8 @@ function IA() {
               {/* Próximos mantenimientos */}
               <div style={S.surface}>
                 <SectionHeader title="⏰ Próximos mantenimientos (60 días)" />
-                <div style={{ overflowX: "auto" }}>
-                  <table className="table-base">
+                <div className="rtable-wrap" style={{ overflowX: "auto" }}>
+                  <table className="table-base rtable">
                     <thead>
                       <tr>
                         {[
@@ -2452,7 +2459,7 @@ function IA() {
                             style={{ cursor: "pointer" }}
                             onClick={() => setModalAnalisis(e)}
                           >
-                            <td>
+                            <td data-label="Equipo">
                               <p
                                 style={{
                                   margin: 0,
@@ -2474,6 +2481,7 @@ function IA() {
                               </p>
                             </td>
                             <td
+                              data-label="Tipo"
                               style={{
                                 color: "var(--text-secondary)",
                                 fontSize: "12px",
@@ -2481,7 +2489,7 @@ function IA() {
                             >
                               {e.equipo_tipo || "—"}
                             </td>
-                            <td>
+                            <td data-label="Días">
                               <span
                                 style={{
                                   color:
@@ -2496,13 +2504,14 @@ function IA() {
                                 {e.dias_estimados}d
                               </span>
                             </td>
-                            <td style={{ minWidth: "130px" }}>
+                            <td data-label="Probabilidad" style={{ minWidth: "130px" }}>
                               <Barra valor={e.probabilidad_falla} />
                             </td>
-                            <td>
+                            <td data-label="Riesgo">
                               <Pill nivel={e.nivel_riesgo} />
                             </td>
                             <td
+                              data-label="Recomendación"
                               style={{
                                 color: "var(--text-secondary)",
                                 fontSize: "12px",
@@ -2538,8 +2547,8 @@ function IA() {
               {/* Predicciones recientes */}
               <div style={S.surface}>
                 <SectionHeader title="🕐 Predicciones recientes" />
-                <div style={{ overflowX: "auto" }}>
-                  <table className="table-base">
+                <div className="rtable-wrap" style={{ overflowX: "auto" }}>
+                  <table className="table-base rtable">
                     <thead>
                       <tr>
                         {[
@@ -2560,6 +2569,8 @@ function IA() {
                         (h, i) => (
                           <tr key={i}>
                             <td
+                              className="td-sec"
+                              data-label="Fecha"
                               style={{
                                 color: "var(--text-muted)",
                                 fontSize: "12px",
@@ -2568,7 +2579,7 @@ function IA() {
                             >
                               {fmtFull(h.fecha_prediccion)}
                             </td>
-                            <td>
+                            <td data-label="Equipo">
                               <p
                                 style={{
                                   margin: 0,
@@ -2589,13 +2600,14 @@ function IA() {
                                 {h.equipo_nombre}
                               </p>
                             </td>
-                            <td style={{ minWidth: "120px" }}>
+                            <td className="td-sec" data-label="Probabilidad" style={{ minWidth: "120px" }}>
                               <Barra valor={parseFloat(h.probabilidad_falla)} />
                             </td>
-                            <td>
+                            <td data-label="Nivel">
                               <Pill nivel={h.nivel_riesgo} />
                             </td>
                             <td
+                              data-label="Días"
                               style={{
                                 color: "var(--text-secondary)",
                                 fontSize: "13px",
@@ -2603,7 +2615,7 @@ function IA() {
                             >
                               {h.dias_estimados}d
                             </td>
-                            <td style={{ textAlign: "center" }}>
+                            <td className="td-sec" data-label="Anomalía" style={{ textAlign: "center" }}>
                               {h.anomalia_detectada ? (
                                 <span style={{ color: "#ef4444" }}>⚠️</span>
                               ) : (
@@ -2612,7 +2624,7 @@ function IA() {
                                 </span>
                               )}
                             </td>
-                            <td>
+                            <td className="td-sec" data-label="Versión">
                               <span
                                 style={{
                                   background: "var(--accent-light)",
@@ -2625,6 +2637,7 @@ function IA() {
                                 {h.modelo_version || "—"}
                               </span>
                             </td>
+                            <TdToggle />
                           </tr>
                         ),
                       )}
@@ -2679,8 +2692,8 @@ function IA() {
                   </div>
                 }
               />
-              <div style={{ overflowX: "auto" }}>
-                <table className="table-base">
+              <div className="rtable-wrap" style={{ overflowX: "auto" }}>
+                <table className="table-base rtable">
                   <thead>
                     <tr>
                       {[
@@ -2716,7 +2729,7 @@ function IA() {
                     ) : (
                       equiposFiltrados.map((e, i) => (
                         <tr key={i}>
-                          <td>
+                          <td data-label="Equipo">
                             <p
                               style={{
                                 margin: 0,
@@ -2738,6 +2751,8 @@ function IA() {
                             </p>
                           </td>
                           <td
+                            className="td-sec"
+                            data-label="Tipo"
                             style={{
                               color: "var(--text-secondary)",
                               fontSize: "12px",
@@ -2745,10 +2760,10 @@ function IA() {
                           >
                             {e.equipo_tipo || "—"}
                           </td>
-                          <td style={{ minWidth: "130px" }}>
+                          <td className="td-sec" data-label="Probabilidad" style={{ minWidth: "130px" }}>
                             <Barra valor={e.probabilidad_falla} />
                           </td>
-                          <td>
+                          <td className="td-sec" data-label="Días">
                             <span
                               style={{
                                 color:
@@ -2763,10 +2778,10 @@ function IA() {
                               {e.dias_estimados}d
                             </span>
                           </td>
-                          <td>
+                          <td data-label="Riesgo">
                             <Pill nivel={e.nivel_riesgo} />
                           </td>
-                          <td style={{ textAlign: "center" }}>
+                          <td className="td-sec" data-label="Anomalía" style={{ textAlign: "center" }}>
                             {e.anomalia_detectada ? (
                               <span
                                 style={{
@@ -2793,6 +2808,8 @@ function IA() {
                             )}
                           </td>
                           <td
+                            className="td-sec"
+                            data-label="Mant."
                             style={{
                               color: "var(--text-secondary)",
                               textAlign: "center",
@@ -2801,6 +2818,8 @@ function IA() {
                             {e.total_mantenimientos}
                           </td>
                           <td
+                            className="td-sec"
+                            data-label="Correctivos"
                             style={{
                               color: "var(--text-secondary)",
                               textAlign: "center",
@@ -2809,11 +2828,13 @@ function IA() {
                             {e.total_correctivos}
                           </td>
                           <td
+                            className="td-sec"
+                            data-label="Costo prom."
                             style={{ color: "var(--success)", fontWeight: 600 }}
                           >
                             {fmtBs(e.costo_promedio)}
                           </td>
-                          <td>
+                          <td data-label="Análisis">
                             <button
                               onClick={() => setModalAnalisis(e)}
                               style={{
@@ -2827,6 +2848,7 @@ function IA() {
                               🔍 Ver
                             </button>
                           </td>
+                          <TdToggle />
                         </tr>
                       ))
                     )}
@@ -3322,8 +3344,8 @@ function IA() {
                   </span>
                 }
               />
-              <div style={{ overflowX: "auto" }}>
-                <table className="table-base">
+              <div className="rtable-wrap" style={{ overflowX: "auto" }}>
+                <table className="table-base rtable">
                   <thead>
                     <tr>
                       {[
@@ -3358,6 +3380,8 @@ function IA() {
                       historial.map((h, i) => (
                         <tr key={i}>
                           <td
+                            className="td-sec"
+                            data-label="Fecha"
                             style={{
                               color: "var(--text-muted)",
                               fontSize: "12px",
@@ -3366,7 +3390,7 @@ function IA() {
                           >
                             {fmtFull(h.fecha_prediccion)}
                           </td>
-                          <td>
+                          <td data-label="Equipo">
                             <p
                               style={{
                                 margin: 0,
@@ -3387,13 +3411,14 @@ function IA() {
                               {h.equipo_nombre}
                             </p>
                           </td>
-                          <td style={{ minWidth: "130px" }}>
+                          <td className="td-sec" data-label="Probabilidad" style={{ minWidth: "130px" }}>
                             <Barra valor={parseFloat(h.probabilidad_falla)} />
                           </td>
-                          <td>
+                          <td data-label="Nivel">
                             <Pill nivel={h.nivel_riesgo} />
                           </td>
                           <td
+                            data-label="Días"
                             style={{
                               color: "var(--text-secondary)",
                               fontSize: "13px",
@@ -3401,7 +3426,7 @@ function IA() {
                           >
                             {h.dias_estimados}d
                           </td>
-                          <td style={{ textAlign: "center" }}>
+                          <td className="td-sec" data-label="Anomalía" style={{ textAlign: "center" }}>
                             {h.anomalia_detectada ? (
                               <span
                                 style={{ color: "#ef4444", fontWeight: 700 }}
@@ -3419,7 +3444,7 @@ function IA() {
                               </span>
                             )}
                           </td>
-                          <td>
+                          <td className="td-sec" data-label="Versión">
                             <span
                               style={{
                                 background: "var(--accent-light)",
@@ -3432,6 +3457,7 @@ function IA() {
                               {h.modelo_version || "—"}
                             </span>
                           </td>
+                          <TdToggle />
                         </tr>
                       ))
                     )}
@@ -3685,8 +3711,8 @@ function IA() {
                 {/* Técnicos */}
                 <div style={S.surface}>
                   <SectionHeader title="👨‍💻 Técnicos" />
-                  <div style={{ overflowX: "auto" }}>
-                    <table className="table-base">
+                  <div className="rtable-wrap" style={{ overflowX: "auto" }}>
+                    <table className="table-base rtable">
                       <thead>
                         <tr>
                           {["Técnico", "Activas", "Estado"].map((h) => (
@@ -3698,6 +3724,7 @@ function IA() {
                         {(panelAdmin.tecnicos || []).map((t, i) => (
                           <tr key={i}>
                             <td
+                              data-label="Técnico"
                               style={{
                                 color: "var(--text-primary)",
                                 fontWeight: 500,
@@ -3706,6 +3733,7 @@ function IA() {
                               {t.nombre} {t.apellido || ""}
                             </td>
                             <td
+                              data-label="Activas"
                               style={{
                                 textAlign: "center",
                                 color:
@@ -3717,7 +3745,7 @@ function IA() {
                             >
                               {t.ordenes_activas}
                             </td>
-                            <td>
+                            <td data-label="Estado">
                               <span
                                 style={{
                                   background:
@@ -3764,8 +3792,8 @@ function IA() {
                 {/* Versiones */}
                 <div style={S.surface}>
                   <SectionHeader title="📈 Precisión por versión" />
-                  <div style={{ overflowX: "auto" }}>
-                    <table className="table-base">
+                  <div className="rtable-wrap" style={{ overflowX: "auto" }}>
+                    <table className="table-base rtable">
                       <thead>
                         <tr>
                           {[
@@ -3783,7 +3811,7 @@ function IA() {
                         {(panelAdmin.precision_por_version || []).map(
                           (v, i) => (
                             <tr key={i}>
-                              <td>
+                              <td data-label="Versión">
                                 <span
                                   style={{
                                     background: "var(--accent-light)",
@@ -3797,6 +3825,7 @@ function IA() {
                                 </span>
                               </td>
                               <td
+                                data-label="Modelo"
                                 style={{
                                   color: "var(--text-secondary)",
                                   fontSize: "12px",
@@ -3805,6 +3834,7 @@ function IA() {
                                 {v.modelo_ganador || "—"}
                               </td>
                               <td
+                                data-label="Accuracy"
                                 style={{
                                   color: "var(--success)",
                                   fontWeight: 600,
@@ -3815,6 +3845,7 @@ function IA() {
                                   : "—"}
                               </td>
                               <td
+                                data-label="F1"
                                 style={{
                                   color: "var(--accent-text)",
                                   fontWeight: 600,
@@ -3823,6 +3854,7 @@ function IA() {
                                 {v.f1 || "—"}
                               </td>
                               <td
+                                data-label="Prec. real"
                                 style={{
                                   color: "var(--text-primary)",
                                   fontWeight: 600,
