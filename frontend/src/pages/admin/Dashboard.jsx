@@ -1,6 +1,7 @@
 import { useEffect, useState, useContext } from "react";
 import AdminLayout from "../../components/layout/AdminLayout";
 import api from "../../services/api";
+import TdToggle from "../../components/ui/TdToggle";
 import {
   ResponsiveContainer, PieChart, Pie, Cell,
   Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid
@@ -178,8 +179,8 @@ function Dashboard() {
             Últimos Equipos Registrados
           </h5>
         </div>
-        <div style={{ overflowX: "auto" }}>
-          <table className="table-base">
+        <div className="rtable-wrap" style={{ overflowX: "auto" }}>
+          <table className="table-base rtable">
             <thead>
               <tr>
                 {["Código","Equipo","Tipo","Sucursal","Estado"].map(h => (
@@ -190,11 +191,12 @@ function Dashboard() {
             <tbody>
               {equipos.slice(0, 5).map(e => (
                 <tr key={e.id}>
-                  <td style={{ color: "var(--accent-text)", fontWeight: 600 }}>{e.codigo}</td>
-                  <td style={{ color: "var(--text-primary)" }}>{e.nombre}</td>
-                  <td style={{ color: "var(--text-secondary)" }}>{e.tipo}</td>
-                  <td style={{ color: "var(--text-secondary)" }}>{e.sucursal || "—"}</td>
-                  <td><span className={badgeClass(e.estado)}>{e.estado}</span></td>
+                  <td className="td-sec" data-label="Código" style={{ color: "var(--accent-text)", fontWeight: 600 }}>{e.codigo}</td>
+                  <td data-label="Equipo" style={{ color: "var(--text-primary)" }}>{e.nombre}</td>
+                  <td className="td-sec" data-label="Tipo" style={{ color: "var(--text-secondary)" }}>{e.tipo}</td>
+                  <td className="td-sec" data-label="Sucursal" style={{ color: "var(--text-secondary)" }}>{e.sucursal || "—"}</td>
+                  <td data-label="Estado"><span className={badgeClass(e.estado)}>{e.estado}</span></td>
+                  <TdToggle />
                 </tr>
               ))}
             </tbody>

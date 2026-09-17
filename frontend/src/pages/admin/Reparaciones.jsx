@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import AdminLayout from "../../components/layout/AdminLayout";
 import api from "../../services/api";
+import TdToggle from "../../components/ui/TdToggle";
 
 // ─────────────────────────────────────────────────────────────
 // ESTILOS BASE
@@ -2604,8 +2605,9 @@ export default function Reparaciones() {
                 Cargando mantenimientos…
               </div>
             ) : (
-              <div style={{ overflowX: "auto" }}>
+              <div className="rtable-wrap" style={{ overflowX: "auto" }}>
                 <table
+                  className="rtable"
                   style={{
                     width: "100%",
                     borderCollapse: "collapse",
@@ -2693,6 +2695,8 @@ export default function Reparaciones() {
                           }
                         >
                           <td
+                            className="td-sec"
+                            data-label="#"
                             style={{
                               padding: "12px 14px",
                               color: "var(--text-muted)",
@@ -2701,7 +2705,7 @@ export default function Reparaciones() {
                           >
                             #{m.id}
                           </td>
-                          <td style={{ padding: "12px 14px" }}>
+                          <td data-label="Equipo" style={{ padding: "12px 14px" }}>
                             <p
                               style={{
                                 margin: 0,
@@ -2734,6 +2738,8 @@ export default function Reparaciones() {
                             )}
                           </td>
                           <td
+                            className="td-sec"
+                            data-label="Tipo"
                             style={{
                               padding: "12px 14px",
                               color: "var(--text-secondary)",
@@ -2742,10 +2748,12 @@ export default function Reparaciones() {
                           >
                             {m.tipo || "—"}
                           </td>
-                          <td style={{ padding: "12px 14px" }}>
+                          <td data-label="Estado" style={{ padding: "12px 14px" }}>
                             <Pill estado={m.estado} />
                           </td>
                           <td
+                            className="td-sec"
+                            data-label="Técnico"
                             style={{
                               padding: "12px 14px",
                               color: "var(--text-secondary)",
@@ -2774,6 +2782,8 @@ export default function Reparaciones() {
                               )}
                           </td>
                           <td
+                            className="td-sec"
+                            data-label="Responsable"
                             style={{
                               padding: "12px 14px",
                               color: "var(--text-secondary)",
@@ -2783,6 +2793,8 @@ export default function Reparaciones() {
                             {m.responsable_nombre_completo || "—"}
                           </td>
                           <td
+                            className="td-sec"
+                            data-label="F. Programada"
                             style={{ padding: "12px 14px", fontSize: "12px" }}
                           >
                             {m.fecha_programada ? (
@@ -2804,6 +2816,8 @@ export default function Reparaciones() {
                             )}
                           </td>
                           <td
+                            className="td-sec"
+                            data-label="F. Inicio"
                             style={{
                               padding: "12px 14px",
                               color: "var(--text-muted)",
@@ -2814,6 +2828,8 @@ export default function Reparaciones() {
                             {m.fecha_inicio ? fmtFull(m.fecha_inicio) : "—"}
                           </td>
                           <td
+                            className="td-sec"
+                            data-label="Riesgo IA"
                             style={{
                               padding: "12px 14px",
                               textAlign: "center",
@@ -2851,6 +2867,7 @@ export default function Reparaciones() {
                             )}
                           </td>
                           <td
+                            data-label="Costo"
                             style={{
                               padding: "12px 14px",
                               color: m.costo
@@ -2861,7 +2878,7 @@ export default function Reparaciones() {
                           >
                             {fmtBs(m.costo)}
                           </td>
-                          <td style={{ padding: "12px 14px" }}>
+                          <td data-label="Acciones" style={{ padding: "12px 14px" }}>
                             <div style={{ display: "flex", gap: "6px" }}>
                               <button
                                 title="Ver detalles y gestionar"
@@ -2922,6 +2939,7 @@ export default function Reparaciones() {
                                 )}
                             </div>
                           </td>
+                          <TdToggle />
                         </tr>
                       ))
                     )}
@@ -3005,8 +3023,9 @@ export default function Reparaciones() {
                 {solPend} pendiente{solPend !== 1 ? "s" : ""}
               </span>
             </div>
-            <div style={{ overflowX: "auto" }}>
+            <div className="rtable-wrap" style={{ overflowX: "auto" }}>
               <table
+                className="rtable"
                 style={{
                   width: "100%",
                   borderCollapse: "collapse",
@@ -3075,6 +3094,8 @@ export default function Reparaciones() {
                         style={{ borderBottom: "1px solid var(--border)" }}
                       >
                         <td
+                          className="td-sec"
+                          data-label="#"
                           style={{
                             padding: "12px 14px",
                             color: "var(--text-muted)",
@@ -3083,7 +3104,7 @@ export default function Reparaciones() {
                         >
                           #{s.id}
                         </td>
-                        <td style={{ padding: "12px 14px" }}>
+                        <td data-label="Usuario" style={{ padding: "12px 14px" }}>
                           <p
                             style={{
                               margin: 0,
@@ -3104,6 +3125,8 @@ export default function Reparaciones() {
                           </p>
                         </td>
                         <td
+                          className="td-sec"
+                          data-label="Área"
                           style={{
                             padding: "12px 14px",
                             color: "var(--text-secondary)",
@@ -3113,6 +3136,8 @@ export default function Reparaciones() {
                           {s.area || "—"}
                         </td>
                         <td
+                          className="td-sec"
+                          data-label="Sucursal"
                           style={{
                             padding: "12px 14px",
                             color: "var(--text-secondary)",
@@ -3121,7 +3146,7 @@ export default function Reparaciones() {
                         >
                           {s.sucursal || "—"}
                         </td>
-                        <td style={{ padding: "12px 14px" }}>
+                        <td data-label="Equipo" style={{ padding: "12px 14px" }}>
                           <p
                             style={{
                               margin: 0,
@@ -3143,6 +3168,8 @@ export default function Reparaciones() {
                           </p>
                         </td>
                         <td
+                          className="td-sec"
+                          data-label="Descripción"
                           style={{
                             padding: "12px 14px",
                             color: "var(--text-secondary)",
@@ -3152,7 +3179,7 @@ export default function Reparaciones() {
                         >
                           {s.descripcion}
                         </td>
-                        <td style={{ padding: "12px 14px" }}>
+                        <td className="td-sec" data-label="Prioridad" style={{ padding: "12px 14px" }}>
                           <span
                             style={{
                               color:
@@ -3174,6 +3201,8 @@ export default function Reparaciones() {
                           </span>
                         </td>
                         <td
+                          className="td-sec"
+                          data-label="Fecha"
                           style={{
                             padding: "12px 14px",
                             color: "var(--text-muted)",
@@ -3183,7 +3212,7 @@ export default function Reparaciones() {
                         >
                           {fmt(s.fecha_solicitud)}
                         </td>
-                        <td style={{ padding: "12px 14px" }}>
+                        <td data-label="Estado" style={{ padding: "12px 14px" }}>
                           <span
                             style={{
                               background:
@@ -3212,7 +3241,7 @@ export default function Reparaciones() {
                             {s.estado}
                           </span>
                         </td>
-                        <td style={{ padding: "12px 14px" }}>
+                        <td data-label="Acción" style={{ padding: "12px 14px" }}>
                           {s.estado === "PENDIENTE" && (
                             <button
                               onClick={() => setModalNuevo(s)}
@@ -3232,6 +3261,7 @@ export default function Reparaciones() {
                             </button>
                           )}
                         </td>
+                        <TdToggle />
                       </tr>
                     ))
                   )}
@@ -3421,8 +3451,9 @@ export default function Reparaciones() {
                 )}
               </h5>
             </div>
-            <div style={{ overflowX: "auto" }}>
+            <div className="rtable-wrap" style={{ overflowX: "auto" }}>
               <table
+                className="rtable"
                 style={{
                   width: "100%",
                   borderCollapse: "collapse",
@@ -3492,6 +3523,8 @@ export default function Reparaciones() {
                         style={{ borderBottom: "1px solid var(--border)" }}
                       >
                         <td
+                          className="td-sec"
+                          data-label="#"
                           style={{
                             padding: "11px 14px",
                             color: "var(--text-muted)",
@@ -3500,7 +3533,7 @@ export default function Reparaciones() {
                         >
                           #{r.id}
                         </td>
-                        <td style={{ padding: "11px 14px" }}>
+                        <td data-label="Equipo" style={{ padding: "11px 14px" }}>
                           <p
                             style={{
                               margin: 0,
@@ -3522,6 +3555,8 @@ export default function Reparaciones() {
                           </p>
                         </td>
                         <td
+                          className="td-sec"
+                          data-label="Tipo"
                           style={{
                             padding: "11px 14px",
                             color: "var(--text-secondary)",
@@ -3531,6 +3566,8 @@ export default function Reparaciones() {
                           {r.tipo || "—"}
                         </td>
                         <td
+                          className="td-sec"
+                          data-label="Técnico"
                           style={{
                             padding: "11px 14px",
                             color: "var(--text-secondary)",
@@ -3540,6 +3577,8 @@ export default function Reparaciones() {
                           {r.tecnico || "—"}
                         </td>
                         <td
+                          className="td-sec"
+                          data-label="Personal"
                           style={{
                             padding: "11px 14px",
                             color: "var(--text-primary)",
@@ -3549,10 +3588,12 @@ export default function Reparaciones() {
                           {`${r.usuario_nombre || ""} ${r.usuario_apellido || ""}`.trim() ||
                             "—"}
                         </td>
-                        <td style={{ padding: "11px 14px" }}>
+                        <td data-label="Estado" style={{ padding: "11px 14px" }}>
                           <Pill estado={r.estado} />
                         </td>
                         <td
+                          className="td-sec"
+                          data-label="F.Prog."
                           style={{
                             padding: "11px 14px",
                             color: "var(--text-secondary)",
@@ -3562,6 +3603,8 @@ export default function Reparaciones() {
                           {fmtFull(r.fecha_programada)}
                         </td>
                         <td
+                          className="td-sec"
+                          data-label="Inicio"
                           style={{
                             padding: "11px 14px",
                             color: "var(--text-muted)",
@@ -3571,6 +3614,8 @@ export default function Reparaciones() {
                           {fmtFull(r.fecha_inicio)}
                         </td>
                         <td
+                          className="td-sec"
+                          data-label="Fin"
                           style={{
                             padding: "11px 14px",
                             color: "var(--text-muted)",
@@ -3580,6 +3625,8 @@ export default function Reparaciones() {
                           {r.fecha_fin ? fmtFull(r.fecha_fin) : "En proceso"}
                         </td>
                         <td
+                          className="td-sec"
+                          data-label="Rep."
                           style={{
                             padding: "11px 14px",
                             color: "#f59e0b",
@@ -3590,6 +3637,8 @@ export default function Reparaciones() {
                           {r.total_repuestos_qty || 0}
                         </td>
                         <td
+                          className="td-sec"
+                          data-label="C.Rep."
                           style={{
                             padding: "11px 14px",
                             color: "#f59e0b",
@@ -3599,6 +3648,7 @@ export default function Reparaciones() {
                           Bs {Number(r.total_repuestos_costo || 0).toFixed(2)}
                         </td>
                         <td
+                          data-label="Costo"
                           style={{
                             padding: "11px 14px",
                             color: "#22c55e",
@@ -3607,6 +3657,7 @@ export default function Reparaciones() {
                         >
                           {fmtBs(r.costo)}
                         </td>
+                        <TdToggle />
                       </tr>
                     ))
                   )}
