@@ -727,6 +727,11 @@ table {
   pointer-events: none;
 }
 
+/* Celda del toggle "Ver más": solo existe para el modo tarjeta movil.
+   Oculta por defecto para que en escritorio la tabla no la cuente como
+   columna extra (una celda display:none no participa del layout). */
+table.rtable td.rtable-toggle-cell { display: none; }
+
 /* ── Tablas responsive: en celular se "encajonan" en tarjetas, sin scroll
    horizontal. Cada <td> necesita data-label="Columna" para el rotulo. ── */
 @media (max-width: 760px) {
@@ -772,4 +777,33 @@ table {
     text-align: center;
   }
   table.rtable td[colspan]::before { content: none; }
+
+  /* Solo lo importante a la vista; el resto detrás de "Ver más" ── */
+  table.rtable td.td-sec { display: none !important; }
+  table.rtable tr:has(input.rtable-chk:checked) td.td-sec { display: flex !important; }
+
+  table.rtable input.rtable-chk { display: none; }
+  table.rtable td.rtable-toggle-cell {
+    justify-content: center;
+    padding: 7px 0 3px !important;
+    border-top: 1px dashed var(--border);
+  }
+  table.rtable td.rtable-toggle-cell::before { content: none; }
+  table.rtable label.rtable-toggle {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    color: var(--accent-text);
+    font-size: 11px;
+    font-weight: 700;
+  }
+  table.rtable label.rtable-toggle::before { content: "Ver más"; }
+  table.rtable tr:has(input.rtable-chk:checked) label.rtable-toggle::before { content: "Ver menos"; }
+  table.rtable .rtable-toggle-icon {
+    display: inline-block;
+    transition: transform 0.2s;
+    font-size: 10px;
+  }
+  table.rtable tr:has(input.rtable-chk:checked) .rtable-toggle-icon { transform: rotate(180deg); }
 }

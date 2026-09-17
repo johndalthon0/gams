@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "../../components/layout/AdminLayout";
 import api from "../../services/api";
+import TdToggle from "../../components/ui/TdToggle";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { addSistemaLogo, getSistemaConfig } from "../../utils/sistemaConfig";
@@ -252,10 +253,10 @@ function Repuestos() {
                       </td></tr>
                     ) : masUsados.map((r, i) => (
                       <tr key={r.id}>
-                        <td data-label="#" style={{ color: "var(--text-muted)", fontSize: "12px" }}>{i + 1}</td>
+                        <td className="td-sec" data-label="#" style={{ color: "var(--text-muted)", fontSize: "12px" }}>{i + 1}</td>
                         <td data-label="Repuesto" style={{ color: "var(--text-primary)", fontWeight: 600 }}>{r.repuesto}</td>
-                        <td data-label="Tipo" style={{ color: "var(--text-secondary)" }}>{r.tipo_repuesto || "—"}</td>
-                        <td data-label="Unid. usadas">
+                        <td className="td-sec" data-label="Tipo" style={{ color: "var(--text-secondary)" }}>{r.tipo_repuesto || "—"}</td>
+                        <td className="td-sec" data-label="Unid. usadas">
                           {Number(r.total_usado) > 0 ? (
                             <span style={{
                               background: "var(--accent-light)", color: "var(--accent-text)",
@@ -266,7 +267,7 @@ function Repuestos() {
                             <span style={{ color: "var(--text-muted)", fontSize: "12px" }}>Sin uso aún</span>
                           )}
                         </td>
-                        <td data-label="En mant." style={{ color: "var(--text-secondary)", textAlign: "center" }}>
+                        <td className="td-sec" data-label="En mant." style={{ color: "var(--text-secondary)", textAlign: "center" }}>
                           {r.en_mantenimientos || 0}
                         </td>
                         <td data-label="Stock actual">
@@ -283,10 +284,11 @@ function Repuestos() {
                             }}>AGOTADO</span>
                           )}
                         </td>
-                        <td data-label="Precio unit." style={{ color: "var(--text-secondary)" }}>{fmtBs(r.precio_unitario)}</td>
+                        <td className="td-sec" data-label="Precio unit." style={{ color: "var(--text-secondary)" }}>{fmtBs(r.precio_unitario)}</td>
                         <td data-label="Costo total" style={{ color: "var(--success)", fontWeight: 600 }}>
                           {fmtBs(r.costo_total)}
                         </td>
+                        <TdToggle />
                       </tr>
                     ))}
                   </tbody>

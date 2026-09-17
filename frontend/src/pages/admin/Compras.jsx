@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import AdminLayout from "../../components/layout/AdminLayout";
 import api from "../../services/api";
+import TdToggle from "../../components/ui/TdToggle";
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 const fmtBs    = (n) => `Bs ${Number(n || 0).toFixed(2)}`;
@@ -707,19 +708,19 @@ export default function Compras() {
                       </tr>
                     ) : compras.map(c => (
                       <tr key={c.id} style={{ borderBottom:"1px solid var(--border)" }}>
-                        <td data-label="#" style={{ padding:"12px 14px", color:"var(--text-muted)", fontSize:"12px" }}>#{c.id}</td>
+                        <td className="td-sec" data-label="#" style={{ padding:"12px 14px", color:"var(--text-muted)", fontSize:"12px" }}>#{c.id}</td>
                         <td data-label="Proveedor" style={{ padding:"12px 14px" }}>
                           {c.proveedor_nombre
                             ? <span style={{ fontWeight:600, color:"var(--text-primary)" }}>{c.proveedor_nombre}</span>
                             : <span style={{ color:"var(--text-muted)", fontStyle:"italic" }}>Sin proveedor</span>}
                         </td>
-                        <td data-label="N° Factura" style={{ padding:"12px 14px" }}>
+                        <td className="td-sec" data-label="N° Factura" style={{ padding:"12px 14px" }}>
                           {c.nro_factura
                             ? <span style={{ background:"var(--accent-light)", color:"var(--accent-text)", borderRadius:"6px", padding:"2px 8px", fontSize:"12px", fontWeight:600 }}>{c.nro_factura}</span>
                             : <span style={{ color:"var(--text-muted)" }}>—</span>}
                         </td>
-                        <td data-label="Fecha compra" style={{ padding:"12px 14px", color:"var(--text-secondary)", whiteSpace:"nowrap" }}>{fmtFecha(c.fecha_compra)}</td>
-                        <td data-label="Productos" style={{ padding:"12px 14px", textAlign:"center" }}>
+                        <td className="td-sec" data-label="Fecha compra" style={{ padding:"12px 14px", color:"var(--text-secondary)", whiteSpace:"nowrap" }}>{fmtFecha(c.fecha_compra)}</td>
+                        <td className="td-sec" data-label="Productos" style={{ padding:"12px 14px", textAlign:"center" }}>
                           <span style={{ background:"var(--bg-surface2)", border:"1px solid var(--border)", borderRadius:"6px", padding:"2px 8px", fontSize:"12px", fontWeight:600, color:"var(--text-primary)" }}>
                             {c.num_items || 0}
                           </span>
@@ -762,6 +763,7 @@ export default function Compras() {
                             )}
                           </div>
                         </td>
+                        <TdToggle />
                       </tr>
                     ))}
                   </tbody>
@@ -801,11 +803,11 @@ export default function Compras() {
                     </tr>
                   ) : proveedores.map(p => (
                     <tr key={p.id} style={{ borderBottom:"1px solid var(--border)" }}>
-                      <td data-label="#" style={{ padding:"12px 14px", color:"var(--text-muted)", fontSize:"12px" }}>#{p.id}</td>
+                      <td className="td-sec" data-label="#" style={{ padding:"12px 14px", color:"var(--text-muted)", fontSize:"12px" }}>#{p.id}</td>
                       <td data-label="Nombre" style={{ padding:"12px 14px", fontWeight:700, color:"var(--text-primary)" }}>{p.nombre}</td>
-                      <td data-label="Contacto" style={{ padding:"12px 14px", color:"var(--text-secondary)" }}>{p.contacto || "—"}</td>
-                      <td data-label="Teléfono" style={{ padding:"12px 14px", color:"var(--text-secondary)" }}>{p.telefono || "—"}</td>
-                      <td data-label="Email" style={{ padding:"12px 14px", color:"var(--accent-text)" }}>{p.email || "—"}</td>
+                      <td className="td-sec" data-label="Contacto" style={{ padding:"12px 14px", color:"var(--text-secondary)" }}>{p.contacto || "—"}</td>
+                      <td className="td-sec" data-label="Teléfono" style={{ padding:"12px 14px", color:"var(--text-secondary)" }}>{p.telefono || "—"}</td>
+                      <td className="td-sec" data-label="Email" style={{ padding:"12px 14px", color:"var(--accent-text)" }}>{p.email || "—"}</td>
                       <td data-label="Estado" style={{ padding:"12px 14px" }}>
                         <span style={{ background: p.estado ? "rgba(34,197,94,0.12)" : "rgba(239,68,68,0.12)", color: p.estado ? "#22c55e" : "#ef4444", border:`1px solid ${p.estado?"#22c55e":"#ef4444"}`, borderRadius:"6px", padding:"2px 8px", fontSize:"11px", fontWeight:600 }}>
                           {p.estado ? "Activo" : "Inactivo"}
@@ -829,6 +831,7 @@ export default function Compras() {
                           >🗑️</button>
                         </div>
                       </td>
+                      <TdToggle />
                     </tr>
                   ))}
                 </tbody>

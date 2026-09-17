@@ -3,6 +3,7 @@ import AdminLayout from "../../components/layout/AdminLayout";
 import api from "../../services/api";
 import { useDialog } from "../../context/DialogContext";
 import { useIsNarrow } from "../../hooks/useIsNarrow";
+import TdToggle from "../../components/ui/TdToggle";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { addSistemaLogo, getSistemaConfig } from "../../utils/sistemaConfig";
@@ -382,12 +383,12 @@ function Equipos() {
                 </tr>
               ) : equiposFiltrados.map(e => (
                 <tr key={e.id}>
-                  <td data-label="Sucursal" style={{ color: "var(--text-secondary)" }}>{e.sucursal || "—"}</td>
+                  <td className="td-sec" data-label="Sucursal" style={{ color: "var(--text-secondary)" }}>{e.sucursal || "—"}</td>
                   <td data-label="Código" style={{ color: "var(--accent-text)", fontWeight: 600 }}>{e.codigo}</td>
-                  <td data-label="Tipo" style={{ color: "var(--text-secondary)" }}>{e.tipo}</td>
+                  <td className="td-sec" data-label="Tipo" style={{ color: "var(--text-secondary)" }}>{e.tipo}</td>
                   <td data-label="Equipo" style={{ color: "var(--text-primary)" }}>{e.nombre}</td>
-                  <td data-label="N/S" style={{ color: "var(--text-secondary)" }}>{e.numero_serie || "—"}</td>
-                  <td data-label="F. Adquisición" style={{ color: "var(--text-secondary)" }}>{e.fecha_adquisicion || "—"}</td>
+                  <td className="td-sec" data-label="N/S" style={{ color: "var(--text-secondary)" }}>{e.numero_serie || "—"}</td>
+                  <td className="td-sec" data-label="F. Adquisición" style={{ color: "var(--text-secondary)" }}>{e.fecha_adquisicion || "—"}</td>
                   <td data-label="Estado"><span className={badgeClass(e.estado)}>{e.estado}</span></td>
                   <td data-label="Acciones">
                     <div style={{ display: "flex", gap: "6px", flexWrap: "nowrap", whiteSpace: "nowrap" }}>
@@ -427,6 +428,7 @@ function Equipos() {
                       )}
                     </div>
                   </td>
+                  <TdToggle />
                 </tr>
               ))}
             </tbody>

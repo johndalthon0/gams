@@ -3,6 +3,7 @@ import AdminLayout from "../../components/layout/AdminLayout";
 import api from "../../services/api";
 import { ThemeContext } from "../../context/ThemeContext";
 import { useDialog } from "../../context/DialogContext";
+import TdToggle from "../../components/ui/TdToggle";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { addSistemaLogo, getSistemaConfig } from "../../utils/sistemaConfig";
@@ -338,7 +339,7 @@ function Bajas() {
               <tbody>
                 {filtradas.map(b => (
                   <tr key={b.id}>
-                    <td data-label="#" style={{ color: "var(--text-muted)", fontSize: "12px" }}>#{b.id}</td>
+                    <td className="td-sec" data-label="#" style={{ color: "var(--text-muted)", fontSize: "12px" }}>#{b.id}</td>
                     <td data-label="Equipo">
                       <p style={{ margin: 0, color: "var(--accent-text)", fontWeight: 700, fontSize: "13px" }}>
                         {b.equipo_codigo}
@@ -347,11 +348,11 @@ function Bajas() {
                         {b.equipo_nombre}
                       </p>
                     </td>
-                    <td data-label="Tipo" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{b.equipo_tipo || "—"}</td>
-                    <td data-label="N° Serie" style={{ color: "var(--text-secondary)", fontSize: "12px" }}>{b.numero_serie || "—"}</td>
-                    <td data-label="Sucursal" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{b.sucursal || "—"}</td>
-                    <td data-label="Área" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{b.area || "—"}</td>
-                    <td data-label="Registrado por">
+                    <td className="td-sec" data-label="Tipo" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{b.equipo_tipo || "—"}</td>
+                    <td className="td-sec" data-label="N° Serie" style={{ color: "var(--text-secondary)", fontSize: "12px" }}>{b.numero_serie || "—"}</td>
+                    <td className="td-sec" data-label="Sucursal" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{b.sucursal || "—"}</td>
+                    <td className="td-sec" data-label="Área" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{b.area || "—"}</td>
+                    <td className="td-sec" data-label="Registrado por">
                       <p style={{ margin: 0, color: "var(--text-primary)", fontSize: "13px", fontWeight: 500 }}>
                         {b.usuario_nombre ? `${b.usuario_nombre} ${b.usuario_apellido || ""}` : "—"}
                       </p>
@@ -365,13 +366,13 @@ function Bajas() {
                         display: "inline-block", whiteSpace: "nowrap"
                       }}>{b.motivo || "—"}</span>
                     </td>
-                    <td data-label="Detalle" style={{
+                    <td className="td-sec" data-label="Detalle" style={{
                       color: "var(--text-secondary)", fontSize: "12px",
                       maxWidth: "180px"
                     }}>
                       {b.detalle || "—"}
                     </td>
-                    <td data-label="Fecha Baja" style={{ color: "var(--danger)", fontSize: "12px", whiteSpace: "nowrap", fontWeight: 500 }}>
+                    <td className="td-sec" data-label="Fecha Baja" style={{ color: "var(--danger)", fontSize: "12px", whiteSpace: "nowrap", fontWeight: 500 }}>
                       {fmtFull(b.fecha_baja)}
                     </td>
                     <td data-label="Acciones">
@@ -393,6 +394,7 @@ function Bajas() {
                         }}>📄</button>
                       </div>
                     </td>
+                    <TdToggle />
                   </tr>
                 ))}
               </tbody>

@@ -3,6 +3,7 @@ import AdminLayout from "../../components/layout/AdminLayout";
 import api from "../../services/api";
 import { useDialog } from "../../context/DialogContext";
 import { useIsNarrow } from "../../hooks/useIsNarrow";
+import TdToggle from "../../components/ui/TdToggle";
 
 const inp = {
   width: "100%", background: "var(--bg-surface2)",
@@ -343,7 +344,7 @@ function Asignaciones() {
                 </tr>
               ) : filtradas.map(a => (
                 <tr key={a.id} style={{ opacity: a.estado === 0 ? 0.65 : 1 }}>
-                  <td data-label="#" style={{ color: "var(--text-muted)", fontSize: "12px" }}>#{a.id}</td>
+                  <td className="td-sec" data-label="#" style={{ color: "var(--text-muted)", fontSize: "12px" }}>#{a.id}</td>
                   <td data-label="Equipo">
                     <p style={{ margin: 0, color: "var(--accent-text)", fontWeight: 600, fontSize: "13px" }}>
                       {a.equipo_codigo}
@@ -358,16 +359,16 @@ function Asignaciones() {
                     </p>
                     <p style={{ margin: 0, color: "var(--text-muted)", fontSize: "11px" }}>{a.email}</p>
                   </td>
-                  <td data-label="Área" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{a.area     || "—"}</td>
-                  <td data-label="Cargo" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{a.cargo    || "—"}</td>
-                  <td data-label="Sucursal" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{a.sucursal || "—"}</td>
-                  <td data-label="Fecha asig." style={{ color: "var(--text-muted)", fontSize: "12px", whiteSpace: "nowrap" }}>
+                  <td className="td-sec" data-label="Área" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{a.area     || "—"}</td>
+                  <td className="td-sec" data-label="Cargo" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{a.cargo    || "—"}</td>
+                  <td className="td-sec" data-label="Sucursal" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{a.sucursal || "—"}</td>
+                  <td className="td-sec" data-label="Fecha asig." style={{ color: "var(--text-muted)", fontSize: "12px", whiteSpace: "nowrap" }}>
                     {fmt(a.fecha_asignacion)}
                   </td>
-                  <td data-label="Fecha dev." style={{ color: "var(--text-muted)", fontSize: "12px", whiteSpace: "nowrap" }}>
+                  <td className="td-sec" data-label="Fecha dev." style={{ color: "var(--text-muted)", fontSize: "12px", whiteSpace: "nowrap" }}>
                     {a.fecha_devolucion ? fmt(a.fecha_devolucion) : "—"}
                   </td>
-                  <td data-label="Condición devolución" style={{ maxWidth: "180px" }}>
+                  <td className="td-sec" data-label="Condición devolución" style={{ maxWidth: "180px" }}>
                     {a.observaciones_devolucion ? (
                       <button onClick={() => setModalVer(a)} style={{
                         background: "none", border: "none",
@@ -408,6 +409,7 @@ function Asignaciones() {
                       }}>{narrow ? "👁" : "👁 Ver"}</button>
                     )}
                   </td>
+                  <TdToggle />
                 </tr>
               ))}
             </tbody>

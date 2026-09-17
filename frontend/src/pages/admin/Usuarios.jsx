@@ -3,6 +3,7 @@ import AdminLayout from "../../components/layout/AdminLayout";
 import api from "../../services/api";
 import { useDialog } from "../../context/DialogContext";
 import { useIsNarrow } from "../../hooks/useIsNarrow";
+import TdToggle from "../../components/ui/TdToggle";
 
 const inp = {
   width: "100%", background: "var(--bg-surface2)",
@@ -292,17 +293,17 @@ function Usuarios() {
                 </tr>
               ) : filtrados.map(u => (
                 <tr key={u.id} style={{ opacity: u.estado === 0 ? 0.55 : 1 }}>
-                  <td data-label="#" style={{ color: "var(--text-muted)", fontSize: "12px" }}>#{u.id}</td>
+                  <td className="td-sec" data-label="#" style={{ color: "var(--text-muted)", fontSize: "12px" }}>#{u.id}</td>
                   <td data-label="Nombre">
                     <p style={{ margin: 0, color: "var(--text-primary)", fontWeight: 600 }}>
                       {u.nombre} {u.apellido || ""}
                     </p>
                   </td>
-                  <td data-label="Email" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{u.email}</td>
-                  <td data-label="Teléfono" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{u.telefono || "—"}</td>
-                  <td data-label="Área" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{u.area     || "—"}</td>
-                  <td data-label="Cargo" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{u.cargo    || "—"}</td>
-                  <td data-label="Sucursal" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{u.sucursal || "—"}</td>
+                  <td className="td-sec" data-label="Email" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{u.email}</td>
+                  <td className="td-sec" data-label="Teléfono" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{u.telefono || "—"}</td>
+                  <td className="td-sec" data-label="Área" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{u.area     || "—"}</td>
+                  <td className="td-sec" data-label="Cargo" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{u.cargo    || "—"}</td>
+                  <td className="td-sec" data-label="Sucursal" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{u.sucursal || "—"}</td>
                   <td data-label="Estado">
                     <span className={u.estado === 1 ? "badge-success" : "badge-danger"}>
                       {u.estado === 1 ? "✅ Activo" : "❌ Inactivo"}
@@ -362,6 +363,7 @@ function Usuarios() {
                       >🗑</button>
                     </div>
                   </td>
+                  <TdToggle />
                 </tr>
               ))}
             </tbody>

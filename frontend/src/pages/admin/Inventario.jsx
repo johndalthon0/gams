@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import AdminLayout from "../../components/layout/AdminLayout";
 import api from "../../services/api";
 import { useDialog } from "../../context/DialogContext";
+import TdToggle from "../../components/ui/TdToggle";
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 const fmtBs   = (n) => `Bs ${Number(n || 0).toFixed(2)}`;
@@ -716,7 +717,7 @@ export default function Inventario() {
                         background: p.alerta_stock ? "rgba(239,68,68,0.04)" : "transparent",
                       }}
                     >
-                      <td data-label="Código" style={{ padding: "12px 14px" }}>
+                      <td className="td-sec" data-label="Código" style={{ padding: "12px 14px" }}>
                         <span style={{ color: "var(--accent-text)", fontWeight: 700, fontSize: "12px", background: "var(--accent-light)", borderRadius: "6px", padding: "2px 8px" }}>
                           {p.codigo || "—"}
                         </span>
@@ -725,8 +726,8 @@ export default function Inventario() {
                         <p style={{ margin: 0, fontWeight: 600, color: "var(--text-primary)" }}>{p.nombre}</p>
                         {p.descripcion && <p style={{ margin: "2px 0 0", color: "var(--text-muted)", fontSize: "11px" }}>{p.descripcion.slice(0, 50)}{p.descripcion.length > 50 ? "..." : ""}</p>}
                       </td>
-                      <td data-label="Categoría" style={{ padding: "12px 14px", color: "var(--text-secondary)" }}>{p.categoria_nombre || "—"}</td>
-                      <td data-label="Tipo" style={{ padding: "12px 14px", color: "var(--text-secondary)" }}>{p.tipo || "—"}</td>
+                      <td className="td-sec" data-label="Categoría" style={{ padding: "12px 14px", color: "var(--text-secondary)" }}>{p.categoria_nombre || "—"}</td>
+                      <td className="td-sec" data-label="Tipo" style={{ padding: "12px 14px", color: "var(--text-secondary)" }}>{p.tipo || "—"}</td>
                       <td data-label="Stock" style={{ padding: "12px 14px" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                           <span style={{ fontWeight: 700, color: p.alerta_stock ? "#ef4444" : "#22c55e", fontSize: "16px" }}>
@@ -738,8 +739,8 @@ export default function Inventario() {
                           )}
                         </div>
                       </td>
-                      <td data-label="Mín." style={{ padding: "12px 14px", color: "var(--text-muted)", fontSize: "12px" }}>{p.stock_minimo}</td>
-                      <td data-label="Precio" style={{ padding: "12px 14px", color: "#22c55e", fontWeight: 600 }}>{fmtBs(p.precio)}</td>
+                      <td className="td-sec" data-label="Mín." style={{ padding: "12px 14px", color: "var(--text-muted)", fontSize: "12px" }}>{p.stock_minimo}</td>
+                      <td className="td-sec" data-label="Precio" style={{ padding: "12px 14px", color: "#22c55e", fontWeight: 600 }}>{fmtBs(p.precio)}</td>
                       <td data-label="Estado" style={{ padding: "12px 14px" }}>
                         <Badge
                           label={p.estado ? "Activo" : "Inactivo"}
@@ -777,6 +778,7 @@ export default function Inventario() {
                           >🗑️</button>
                         </div>
                       </td>
+                      <TdToggle />
                     </tr>
                   ))}
                 </tbody>
@@ -878,7 +880,7 @@ export default function Inventario() {
                     const colorMov = m.tipo === "ENTRADA" ? "#22c55e" : m.tipo === "SALIDA" ? "#ef4444" : "#f59e0b";
                     return (
                       <tr key={m.id} style={{ borderBottom: "1px solid var(--border)" }}>
-                        <td data-label="Fecha" style={{ padding: "11px 14px", color: "var(--text-muted)", fontSize: "12px", whiteSpace: "nowrap" }}>
+                        <td className="td-sec" data-label="Fecha" style={{ padding: "11px 14px", color: "var(--text-muted)", fontSize: "12px", whiteSpace: "nowrap" }}>
                           {fmtFecha(m.fecha)}
                         </td>
                         <td data-label="Producto" style={{ padding: "11px 14px" }}>
@@ -896,19 +898,20 @@ export default function Inventario() {
                         <td data-label="Cantidad" style={{ padding: "11px 14px", fontWeight: 700, color: colorMov, fontSize: "15px" }}>
                           {m.tipo === "SALIDA" ? "-" : m.tipo === "ENTRADA" ? "+" : ""}{m.cantidad}
                         </td>
-                        <td data-label="Antes" style={{ padding: "11px 14px", color: "var(--text-muted)" }}>{m.stock_antes}</td>
-                        <td data-label="Después" style={{ padding: "11px 14px", fontWeight: 700, color: "var(--text-primary)" }}>{m.stock_despues}</td>
-                        <td data-label="Motivo" style={{ padding: "11px 14px", color: "var(--text-secondary)", maxWidth: "160px" }}>{m.motivo || "—"}</td>
-                        <td data-label="Referencia" style={{ padding: "11px 14px" }}>
+                        <td className="td-sec" data-label="Antes" style={{ padding: "11px 14px", color: "var(--text-muted)" }}>{m.stock_antes}</td>
+                        <td className="td-sec" data-label="Después" style={{ padding: "11px 14px", fontWeight: 700, color: "var(--text-primary)" }}>{m.stock_despues}</td>
+                        <td className="td-sec" data-label="Motivo" style={{ padding: "11px 14px", color: "var(--text-secondary)", maxWidth: "160px" }}>{m.motivo || "—"}</td>
+                        <td className="td-sec" data-label="Referencia" style={{ padding: "11px 14px" }}>
                           {m.referencia ? (
                             <span style={{ background: "var(--accent-light)", color: "var(--accent-text)", borderRadius: "6px", padding: "2px 8px", fontSize: "11px", fontWeight: 600 }}>
                               {m.referencia}
                             </span>
                           ) : "—"}
                         </td>
-                        <td data-label="Usuario" style={{ padding: "11px 14px", color: "var(--text-secondary)", fontSize: "12px" }}>
+                        <td className="td-sec" data-label="Usuario" style={{ padding: "11px 14px", color: "var(--text-secondary)", fontSize: "12px" }}>
                           {m.usuario_nombre ? `${m.usuario_nombre} ${m.usuario_apellido || ""}`.trim() : "—"}
                         </td>
+                        <TdToggle />
                       </tr>
                     );
                   })}

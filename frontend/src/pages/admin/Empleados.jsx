@@ -3,6 +3,7 @@ import AdminLayout from "../../components/layout/AdminLayout";
 import api from "../../services/api";
 import { useDialog } from "../../context/DialogContext";
 import { useIsNarrow } from "../../hooks/useIsNarrow";
+import TdToggle from "../../components/ui/TdToggle";
 
 const inp = {
   width: "100%", background: "var(--bg-surface2)",
@@ -338,16 +339,16 @@ function Empleados() {
                 </tr>
               ) : filtrados.map(e => (
                 <tr key={e.id} style={{ opacity: e.emp_estado === 0 ? 0.55 : 1 }}>
-                  <td data-label="#" style={{ color: "var(--text-muted)", fontSize: "12px" }}>#{e.id}</td>
+                  <td className="td-sec" data-label="#" style={{ color: "var(--text-muted)", fontSize: "12px" }}>#{e.id}</td>
                   <td data-label="Nombre">
                     <p style={{ margin: 0, color: "var(--text-primary)", fontWeight: 600 }}>
                       {e.nombre} {e.apellido || ""}
                     </p>
                   </td>
-                  <td data-label="Email" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{e.email}</td>
-                  <td data-label="Área" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{e.area     || "—"}</td>
-                  <td data-label="Cargo" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{e.cargo    || "—"}</td>
-                  <td data-label="Sucursal" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{e.sucursal || "—"}</td>
+                  <td className="td-sec" data-label="Email" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{e.email}</td>
+                  <td className="td-sec" data-label="Área" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{e.area     || "—"}</td>
+                  <td className="td-sec" data-label="Cargo" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{e.cargo    || "—"}</td>
+                  <td className="td-sec" data-label="Sucursal" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{e.sucursal || "—"}</td>
                   <td data-label="Rol">
                     <span className={e.rol === "ADMIN" ? "badge-accent" : "badge-warning"}>
                       {e.rol === "ADMIN" ? "🔑 ADMIN" : "🔧 EMPLEADO"}
@@ -389,6 +390,7 @@ function Empleados() {
                       >🗑</button>
                     </div>
                   </td>
+                  <TdToggle />
                 </tr>
               ))}
             </tbody>
