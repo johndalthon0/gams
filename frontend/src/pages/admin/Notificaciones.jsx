@@ -4,6 +4,7 @@ import { FiBell, FiCheck, FiRefreshCw, FiSend, FiInbox, FiUsers } from "react-ic
 import AdminLayout from "../../components/layout/AdminLayout";
 import api from "../../services/api";
 import { getTipo, fmtRelativo } from "../../utils/notificaciones";
+import { useIsNarrow } from "../../hooks/useIsNarrow";
 
 const card = {
   background: "var(--bg-surface)",
@@ -101,13 +102,14 @@ function Bandeja() {
     } catch { showMsg("Error al marcar"); }
   };
 
+  const narrow = useIsNarrow();
+
   const FILTROS = [
-    { k: "TODAS",      l: "Todas" },
-    { k: "NO_LEIDAS",  l: "No leídas" },
-    { k: "SOLICITUD",  l: "Solicitudes" },
-    { k: "ASIGNACION", l: "Asignaciones" },
-    { k: "IA_RIESGO",  l: "IA" },
-    { k: "ALERTA",     l: "Alertas" },
+    { k: "TODAS",     l: "Todas" },
+    { k: "NO_LEIDAS", l: "No leídas" },
+    { k: "SOLICITUD", l: "Solicitudes" },
+    { k: "IA_RIESGO", l: "IA" },
+    { k: "ALERTA",    l: "Alertas" },
   ];
 
   const filtradas = notifs.filter(n => {
@@ -145,25 +147,46 @@ function Bandeja() {
         ))}
       </div>
 
-      <div style={{ display: "flex", gap: "10px", alignItems: "center", marginBottom: "1.25rem", flexWrap: "wrap" }}>
-        <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
-          {FILTROS.map(f => (
-            <button key={f.k} onClick={() => setFiltro(f.k)} style={{ padding: "7px 14px", borderRadius: "8px", border: filtro === f.k ? "none" : "1px solid var(--border)", background: filtro === f.k ? "var(--accent)" : "var(--bg-surface)", color: filtro === f.k ? "#fff" : "var(--text-secondary)", fontWeight: 600, fontSize: "12px", cursor: "pointer", fontFamily: "inherit" }}>
-              {f.l}
-              {f.k === "NO_LEIDAS" && noLeidas > 0 && (
-                <span style={{ marginLeft: "6px", background: filtro === f.k ? "rgba(255,255,255,0.25)" : "#ef4444", color: "#fff", borderRadius: "999px", padding: "1px 6px", fontSize: "10px" }}>
-                  {noLeidas}
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
-        <div style={{ display: "flex", gap: "8px", marginLeft: "auto" }}>
-          <button onClick={load} title="Actualizar" style={iconBtn()}>
+      <div style={{
+        display: "flex", gap: "10px", alignItems: "center", marginBottom: "1.25rem",
+        flexWrap: "wrap", flexDirection: narrow ? "column" : "row",
+      }}>
+        {narrow ? (
+          <select
+            value={filtro}
+            onChange={e => setFiltro(e.target.value)}
+            style={{
+              width: "100%", background: "var(--bg-surface)", border: "1px solid var(--border)",
+              borderRadius: "10px", padding: "10px 12px", color: "var(--text-primary)",
+              fontSize: "13px", fontWeight: 600, fontFamily: "inherit",
+            }}
+          >
+            {FILTROS.map(f => (
+              <option key={f.k} value={f.k}>
+                {f.l}{f.k === "NO_LEIDAS" && noLeidas > 0 ? ` (${noLeidas})` : ""}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+            {FILTROS.map(f => (
+              <button key={f.k} onClick={() => setFiltro(f.k)} style={{ padding: "7px 14px", borderRadius: "8px", border: filtro === f.k ? "none" : "1px solid var(--border)", background: filtro === f.k ? "var(--accent)" : "var(--bg-surface)", color: filtro === f.k ? "#fff" : "var(--text-secondary)", fontWeight: 600, fontSize: "12px", cursor: "pointer", fontFamily: "inherit" }}>
+                {f.l}
+                {f.k === "NO_LEIDAS" && noLeidas > 0 && (
+                  <span style={{ marginLeft: "6px", background: filtro === f.k ? "rgba(255,255,255,0.25)" : "#ef4444", color: "#fff", borderRadius: "999px", padding: "1px 6px", fontSize: "10px" }}>
+                    {noLeidas}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+        )}
+        <div style={{ display: "flex", gap: "8px", width: narrow ? "100%" : "auto", marginLeft: narrow ? 0 : "auto" }}>
+          <button onClick={load} title="Actualizar" style={{ ...iconBtn(), ...(narrow ? { flex: "0 0 auto" } : {}) }}>
             <FiRefreshCw size={14} />
           </button>
           {noLeidas > 0 && (
-            <button onClick={leerTodas} style={{ ...iconBtn(), display: "flex", alignItems: "center", gap: "6px", padding: "8px 14px" }}>
+            <button onClick={leerTodas} style={{ ...iconBtn(), display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", padding: "8px 14px", flex: narrow ? 1 : "0 0 auto" }}>
               <FiCheck size={14} /> Marcar todas leídas
             </button>
           )}
@@ -234,7 +257,7 @@ function EnviarAviso() {
   };
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "minmax(280px, 560px) 1fr", gap: "1.5rem", alignItems: "start" }}>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1.5rem", alignItems: "start" }}>
       <div style={{ ...card, padding: "1.5rem" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "1.25rem" }}>
           <span style={{
