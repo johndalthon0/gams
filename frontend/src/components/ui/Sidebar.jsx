@@ -1,42 +1,48 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import {
+  FiHome, FiMonitor, FiUsers, FiClipboard, FiTool, FiTrash2, FiBook,
+  FiPackage, FiShoppingCart, FiCpu, FiBell, FiUser, FiSettings, FiLogOut,
+  FiFileText,
+} from "react-icons/fi";
 
 // ── Links por rol ──────────────────────────────────────────────────────────
 const adminLinks = [
-  { to: "/admin/dashboard",    icon: "🏠", label: "Dashboard" },
-  { to: "/admin/equipos",      icon: "💻", label: "Equipos" },
-  { to: "/admin/empleados",    icon: "👥", label: "Empleados" },
-  { to: "/admin/asignaciones", icon: "📦", label: "Asignaciones" },
-  { to: "/admin/reparaciones", icon: "🛠️", label: "Reparaciones" },
-  { to: "/admin/bajas",        icon: "🗑️", label: "Bajas" },
-  { to: "/admin/catalogos",    icon: "📋", label: "Catálogos" },
+  { to: "/admin/dashboard",    icon: FiHome,      label: "Dashboard" },
+  { to: "/admin/equipos",      icon: FiMonitor,   label: "Equipos" },
+  { to: "/admin/empleados",    icon: FiUsers,     label: "Empleados" },
+  { to: "/admin/asignaciones", icon: FiClipboard, label: "Asignaciones" },
+  { to: "/admin/reparaciones", icon: FiTool,      label: "Reparaciones" },
+  { to: "/admin/bajas",        icon: FiTrash2,    label: "Bajas" },
+  { to: "/admin/catalogos",    icon: FiBook,      label: "Catálogos" },
 ];
 
 const adminInventarioLinks = [
-  { to: "/admin/inventario", icon: "📦", label: "Inventario" },
-  { to: "/admin/compras",    icon: "🛒", label: "Compras" },
+  { to: "/admin/inventario", icon: FiPackage,      label: "Inventario" },
+  { to: "/admin/compras",    icon: FiShoppingCart, label: "Compras" },
 ];
 
 const adminIALinks = [
-  { to: "/admin/ia", icon: "🤖", label: "IA Predictiva" },
+  { to: "/admin/ia", icon: FiCpu, label: "IA Predictiva" },
 ];
 
 const adminSysLinks = [
-  { to: "/admin/usuarios",      icon: "👤", label: "Usuarios" },
-  { to: "/admin/configuracion", icon: "⚙️", label: "Configuración" },
+  { to: "/admin/notificaciones", icon: FiBell,     label: "Notificaciones" },
+  { to: "/admin/usuarios",       icon: FiUser,     label: "Usuarios" },
+  { to: "/admin/configuracion",  icon: FiSettings, label: "Configuración" },
 ];
 
 const empleadoLinks = [
-  { to: "/empleado/reparaciones", icon: "🛠️", label: "Mis Reparaciones" },
+  { to: "/empleado/reparaciones", icon: FiTool, label: "Mis Reparaciones" },
 ];
 
 const personalLinks = [
-  { to: "/personal/dashboard",     icon: "🏠", label: "Dashboard" },
-  { to: "/personal/mi-equipo",     icon: "💻", label: "Mis Equipos" },
-  { to: "/personal/mis-solicitudes",icon: "📋", label: "Mis Solicitudes" },
-  { to: "/personal/solicitar",     icon: "🛠️", label: "Solicitar Mant." },
-  { to: "/personal/notificaciones",icon: "🔔", label: "Notificaciones" },
-  { to: "/personal/perfil",        icon: "👤", label: "Mi Perfil" },
+  { to: "/personal/dashboard",      icon: FiHome,      label: "Dashboard" },
+  { to: "/personal/mi-equipo",      icon: FiMonitor,   label: "Mis Equipos" },
+  { to: "/personal/mis-solicitudes",icon: FiFileText,  label: "Mis Solicitudes" },
+  { to: "/personal/solicitar",      icon: FiTool,      label: "Solicitar Mant." },
+  { to: "/personal/notificaciones", icon: FiBell,      label: "Notificaciones" },
+  { to: "/personal/perfil",         icon: FiUser,      label: "Mi Perfil" },
 ];
 
 // ── Componente ─────────────────────────────────────────────────────────────
@@ -95,7 +101,7 @@ function Sidebar({ open, onClose }) {
     }
   };
 
-  const NavLink = ({ to, icon, label }) => (
+  const NavLink = ({ to, icon: Icon, label }) => (
     <Link
       to={to}
       style={linkStyle(to)}
@@ -103,7 +109,7 @@ function Sidebar({ open, onClose }) {
       onMouseEnter={e => hoverOn(e, to)}
       onMouseLeave={e => hoverOff(e, to)}
     >
-      <span style={{ fontSize: "15px", flexShrink: 0 }}>{icon}</span>
+      <Icon size={17} style={{ flexShrink: 0, opacity: 0.9 }} />
       {label}
     </Link>
   );
@@ -272,8 +278,12 @@ function Sidebar({ open, onClose }) {
             fontWeight:   600,
             cursor:       "pointer",
             fontFamily:   "inherit",
+            display:      "flex",
+            alignItems:   "center",
+            justifyContent: "center",
+            gap:          "8px",
           }}>
-            🚪 Cerrar sesión
+            <FiLogOut size={15} /> Cerrar sesión
           </button>
         </div>
 

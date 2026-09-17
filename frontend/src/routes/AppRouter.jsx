@@ -17,6 +17,7 @@ import Configuracion  from "../pages/admin/Configuracion";
 import IA             from "../pages/admin/IA";
 import Inventario     from "../pages/admin/Inventario";
 import Compras        from "../pages/admin/Compras";
+import NotificacionesAdmin from "../pages/admin/Notificaciones";
 
 // ── Empleado / Técnico ────────────────────────────────────────
 import EmpleadoDashboard from "../pages/empleado/Dashboard";
@@ -60,6 +61,7 @@ function AppRouter() {
           <Route path="/admin/reparaciones"  element={<Reparaciones />} />
           <Route path="/admin/bajas"         element={<Bajas />} />
           <Route path="/admin/catalogos"     element={<Catalogos />} />
+          <Route path="/admin/notificaciones" element={<NotificacionesAdmin />} />
           <Route path="/admin/configuracion" element={<Configuracion />} />
 
           {/* Inventario */}
