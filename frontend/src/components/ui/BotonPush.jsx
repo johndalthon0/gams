@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiBell, FiSettings, FiCheck } from "react-icons/fi";
+import { FiBell, FiSettings, FiCheck, FiSend } from "react-icons/fi";
 import { usePush } from "../../hooks/usePush";
 import api from "../../services/api";
 import { getTipo, fmtRelativo } from "../../utils/notificaciones";
@@ -244,66 +244,21 @@ export default function BotonPush() {
                 </div>
               )}
 
-              {esAdmin && <Broadcast />}
+              {esAdmin && (
+                <button
+                  onClick={() => { setAbierto(false); navigate("/admin/notificaciones?tab=enviar"); }}
+                  style={{
+                    ...btn("var(--bg-surface2)", "var(--accent-text)"),
+                    border: "1px solid var(--border)", marginTop: "14px",
+                    display: "flex", alignItems: "center", justifyContent: "center", gap: "6px",
+                  }}
+                >
+                  <FiSend size={13} /> Enviar aviso al personal
+                </button>
+              )}
             </div>
           )}
         </div>
-      )}
-    </div>
-  );
-}
-
-function Broadcast() {
-  const [titulo, setTitulo] = useState("");
-  const [cuerpo, setCuerpo] = useState("");
-  const [destino, setDestino] = useState("TODOS");
-  const [envio, setEnvio] = useState({ estado: "", texto: "" });
-  const [busy, setBusy] = useState(false);
-
-  const enviar = async () => {
-    if (!titulo.trim() || !cuerpo.trim()) {
-      setEnvio({ estado: "error", texto: "Completa título y mensaje" });
-      return;
-    }
-    setBusy(true);
-    setEnvio({ estado: "", texto: "" });
-    try {
-      const r = await api.post("/push/broadcast", { titulo, cuerpo, destino, url: "/personal/notificaciones" });
-      setEnvio({ estado: "ok", texto: r.data.message || "Enviado" });
-      setTitulo(""); setCuerpo("");
-    } catch (e) {
-      setEnvio({ estado: "error", texto: e.response?.data?.message || "Error al enviar" });
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const inp = {
-    width: "100%", background: "var(--bg-surface2)", border: "1px solid var(--border)",
-    borderRadius: "8px", padding: "7px 10px", color: "var(--text-primary)", fontSize: "12px",
-    outline: "none", fontFamily: "inherit", boxSizing: "border-box", marginBottom: "8px",
-  };
-
-  return (
-    <div style={{ marginTop: "14px", paddingTop: "14px", borderTop: "1px solid var(--border)" }}>
-      <p style={{ margin: "0 0 8px", fontWeight: 700, fontSize: "12px", color: "var(--text-primary)" }}>
-        Enviar aviso
-      </p>
-      <input style={inp} placeholder="Título" value={titulo} onChange={(e) => setTitulo(e.target.value)} maxLength={80} />
-      <textarea style={{ ...inp, resize: "vertical", minHeight: "52px" }} placeholder="Mensaje" value={cuerpo} onChange={(e) => setCuerpo(e.target.value)} maxLength={300} />
-      <select style={inp} value={destino} onChange={(e) => setDestino(e.target.value)}>
-        <option value="TODOS">Todo el personal</option>
-        <option value="PERSONAL">Solo personal</option>
-        <option value="EMPLEADO">Solo técnicos</option>
-        <option value="ADMIN">Solo administradores</option>
-      </select>
-      <button onClick={enviar} disabled={busy} style={btn("var(--accent)", "#fff")}>
-        {busy ? "Enviando…" : "Enviar notificación"}
-      </button>
-      {envio.texto && (
-        <p style={{ margin: "8px 0 0", fontSize: "11px", fontWeight: 600, color: envio.estado === "ok" ? "#22c55e" : "#ef4444" }}>
-          {envio.texto}
-        </p>
       )}
     </div>
   );
