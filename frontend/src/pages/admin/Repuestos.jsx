@@ -236,8 +236,8 @@ function Repuestos() {
                 )}
               </div>
 
-              <div style={{ overflowX: "auto" }}>
-                <table className="table-base">
+              <div className="rtable-wrap" style={{ overflowX: "auto" }}>
+                <table className="table-base rtable">
                   <thead>
                     <tr>
                       {["#","Repuesto","Tipo","Unid. usadas","En mant.","Stock actual","Precio unit.","Costo total"].map(h => (
@@ -252,10 +252,10 @@ function Repuestos() {
                       </td></tr>
                     ) : masUsados.map((r, i) => (
                       <tr key={r.id}>
-                        <td style={{ color: "var(--text-muted)", fontSize: "12px" }}>{i + 1}</td>
-                        <td style={{ color: "var(--text-primary)", fontWeight: 600 }}>{r.repuesto}</td>
-                        <td style={{ color: "var(--text-secondary)" }}>{r.tipo_repuesto || "—"}</td>
-                        <td>
+                        <td data-label="#" style={{ color: "var(--text-muted)", fontSize: "12px" }}>{i + 1}</td>
+                        <td data-label="Repuesto" style={{ color: "var(--text-primary)", fontWeight: 600 }}>{r.repuesto}</td>
+                        <td data-label="Tipo" style={{ color: "var(--text-secondary)" }}>{r.tipo_repuesto || "—"}</td>
+                        <td data-label="Unid. usadas">
                           {Number(r.total_usado) > 0 ? (
                             <span style={{
                               background: "var(--accent-light)", color: "var(--accent-text)",
@@ -266,10 +266,10 @@ function Repuestos() {
                             <span style={{ color: "var(--text-muted)", fontSize: "12px" }}>Sin uso aún</span>
                           )}
                         </td>
-                        <td style={{ color: "var(--text-secondary)", textAlign: "center" }}>
+                        <td data-label="En mant." style={{ color: "var(--text-secondary)", textAlign: "center" }}>
                           {r.en_mantenimientos || 0}
                         </td>
-                        <td>
+                        <td data-label="Stock actual">
                           <span style={{
                             color: Number(r.stock_actual) > 5 ? "var(--success)"
                                  : Number(r.stock_actual) > 0 ? "var(--warning)"
@@ -283,8 +283,8 @@ function Repuestos() {
                             }}>AGOTADO</span>
                           )}
                         </td>
-                        <td style={{ color: "var(--text-secondary)" }}>{fmtBs(r.precio_unitario)}</td>
-                        <td style={{ color: "var(--success)", fontWeight: 600 }}>
+                        <td data-label="Precio unit." style={{ color: "var(--text-secondary)" }}>{fmtBs(r.precio_unitario)}</td>
+                        <td data-label="Costo total" style={{ color: "var(--success)", fontWeight: 600 }}>
                           {fmtBs(r.costo_total)}
                         </td>
                       </tr>

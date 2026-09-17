@@ -320,8 +320,8 @@ function Empleados() {
           </span>
         </div>
 
-        <div style={{ overflowX: "auto" }}>
-          <table className="table-base">
+        <div className="rtable-wrap" style={{ overflowX: "auto" }}>
+          <table className="table-base rtable">
             <thead>
               <tr>
                 {["#","Nombre","Email","Área","Cargo","Sucursal","Rol","Estado","Acciones"].map(h => (
@@ -338,27 +338,27 @@ function Empleados() {
                 </tr>
               ) : filtrados.map(e => (
                 <tr key={e.id} style={{ opacity: e.emp_estado === 0 ? 0.55 : 1 }}>
-                  <td style={{ color: "var(--text-muted)", fontSize: "12px" }}>#{e.id}</td>
-                  <td>
+                  <td data-label="#" style={{ color: "var(--text-muted)", fontSize: "12px" }}>#{e.id}</td>
+                  <td data-label="Nombre">
                     <p style={{ margin: 0, color: "var(--text-primary)", fontWeight: 600 }}>
                       {e.nombre} {e.apellido || ""}
                     </p>
                   </td>
-                  <td style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{e.email}</td>
-                  <td style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{e.area     || "—"}</td>
-                  <td style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{e.cargo    || "—"}</td>
-                  <td style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{e.sucursal || "—"}</td>
-                  <td>
+                  <td data-label="Email" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{e.email}</td>
+                  <td data-label="Área" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{e.area     || "—"}</td>
+                  <td data-label="Cargo" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{e.cargo    || "—"}</td>
+                  <td data-label="Sucursal" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{e.sucursal || "—"}</td>
+                  <td data-label="Rol">
                     <span className={e.rol === "ADMIN" ? "badge-accent" : "badge-warning"}>
                       {e.rol === "ADMIN" ? "🔑 ADMIN" : "🔧 EMPLEADO"}
                     </span>
                   </td>
-                  <td>
+                  <td data-label="Estado">
                     <span className={e.emp_estado === 1 ? "badge-success" : "badge-danger"}>
                       {e.emp_estado === 1 ? "✅ Activo" : "❌ Inactivo"}
                     </span>
                   </td>
-                  <td>
+                  <td data-label="Acciones">
                     <div style={{ display: "flex", gap: "6px", flexWrap: "nowrap", whiteSpace: "nowrap" }}>
                       {/* ACTIVAR / DESACTIVAR */}
                       <button

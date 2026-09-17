@@ -274,8 +274,8 @@ function Usuarios() {
           </span>
         </div>
 
-        <div className="users-table-wrap" style={{ overflowX: "auto" }}>
-          <table className="table-base">
+        <div className="users-table-wrap rtable-wrap" style={{ overflowX: "auto" }}>
+          <table className="table-base rtable">
             <thead>
               <tr>
                 {["#","Nombre","Email","Teléfono","Área","Cargo","Sucursal","Estado","Acciones"].map(h => (
@@ -292,23 +292,23 @@ function Usuarios() {
                 </tr>
               ) : filtrados.map(u => (
                 <tr key={u.id} style={{ opacity: u.estado === 0 ? 0.55 : 1 }}>
-                  <td style={{ color: "var(--text-muted)", fontSize: "12px" }}>#{u.id}</td>
-                  <td>
+                  <td data-label="#" style={{ color: "var(--text-muted)", fontSize: "12px" }}>#{u.id}</td>
+                  <td data-label="Nombre">
                     <p style={{ margin: 0, color: "var(--text-primary)", fontWeight: 600 }}>
                       {u.nombre} {u.apellido || ""}
                     </p>
                   </td>
-                  <td style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{u.email}</td>
-                  <td style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{u.telefono || "—"}</td>
-                  <td style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{u.area     || "—"}</td>
-                  <td style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{u.cargo    || "—"}</td>
-                  <td style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{u.sucursal || "—"}</td>
-                  <td>
+                  <td data-label="Email" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{u.email}</td>
+                  <td data-label="Teléfono" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{u.telefono || "—"}</td>
+                  <td data-label="Área" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{u.area     || "—"}</td>
+                  <td data-label="Cargo" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{u.cargo    || "—"}</td>
+                  <td data-label="Sucursal" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{u.sucursal || "—"}</td>
+                  <td data-label="Estado">
                     <span className={u.estado === 1 ? "badge-success" : "badge-danger"}>
                       {u.estado === 1 ? "✅ Activo" : "❌ Inactivo"}
                     </span>
                   </td>
-                  <td>
+                  <td data-label="Acciones">
                     <div className="users-row-actions" style={{ display: "flex", gap: "6px", flexWrap: "nowrap", whiteSpace: "nowrap" }}>
 
                       {/* EDITAR */}

@@ -726,3 +726,50 @@ table {
   background: radial-gradient(circle, rgba(99, 102, 241, 0.10), transparent 70%);
   pointer-events: none;
 }
+
+/* ── Tablas responsive: en celular se "encajonan" en tarjetas, sin scroll
+   horizontal. Cada <td> necesita data-label="Columna" para el rotulo. ── */
+@media (max-width: 760px) {
+  .rtable-wrap { overflow-x: visible !important; }
+  table.rtable thead { display: none; }
+  table.rtable, table.rtable tbody, table.rtable tr, table.rtable td {
+    display: block;
+    width: 100%;
+  }
+  table.rtable tr {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 10px;
+    padding: 4px 12px;
+    background: var(--bg-surface);
+  }
+  table.rtable td {
+    display: flex !important;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0 !important;
+    border: none !important;
+    border-top: 1px solid var(--border);
+    text-align: right;
+    white-space: normal !important;
+  }
+  table.rtable td:first-child { border-top: none; }
+  table.rtable td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    color: var(--text-secondary);
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    text-align: left;
+    flex-shrink: 0;
+  }
+  table.rtable td:empty,
+  table.rtable td[data-label=""] { display: none; }
+  table.rtable td[colspan] {
+    display: block;
+    text-align: center;
+  }
+  table.rtable td[colspan]::before { content: none; }
+}

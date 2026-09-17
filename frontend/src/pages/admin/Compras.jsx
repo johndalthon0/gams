@@ -687,8 +687,8 @@ export default function Compras() {
                 Cargando compras...
               </div>
             ) : (
-              <div style={{ overflowX:"auto" }}>
-                <table style={{ width:"100%", borderCollapse:"collapse", fontSize:"13px" }}>
+              <div className="rtable-wrap" style={{ overflowX:"auto" }}>
+                <table className="rtable" style={{ width:"100%", borderCollapse:"collapse", fontSize:"13px" }}>
                   <thead>
                     <tr style={{ background:"var(--bg-surface2)", borderBottom:"2px solid var(--border)" }}>
                       {["#","Proveedor","N° Factura","Fecha compra","Productos","Total","Estado","Acciones"].map(h => (
@@ -707,26 +707,26 @@ export default function Compras() {
                       </tr>
                     ) : compras.map(c => (
                       <tr key={c.id} style={{ borderBottom:"1px solid var(--border)" }}>
-                        <td style={{ padding:"12px 14px", color:"var(--text-muted)", fontSize:"12px" }}>#{c.id}</td>
-                        <td style={{ padding:"12px 14px" }}>
+                        <td data-label="#" style={{ padding:"12px 14px", color:"var(--text-muted)", fontSize:"12px" }}>#{c.id}</td>
+                        <td data-label="Proveedor" style={{ padding:"12px 14px" }}>
                           {c.proveedor_nombre
                             ? <span style={{ fontWeight:600, color:"var(--text-primary)" }}>{c.proveedor_nombre}</span>
                             : <span style={{ color:"var(--text-muted)", fontStyle:"italic" }}>Sin proveedor</span>}
                         </td>
-                        <td style={{ padding:"12px 14px" }}>
+                        <td data-label="N° Factura" style={{ padding:"12px 14px" }}>
                           {c.nro_factura
                             ? <span style={{ background:"var(--accent-light)", color:"var(--accent-text)", borderRadius:"6px", padding:"2px 8px", fontSize:"12px", fontWeight:600 }}>{c.nro_factura}</span>
                             : <span style={{ color:"var(--text-muted)" }}>—</span>}
                         </td>
-                        <td style={{ padding:"12px 14px", color:"var(--text-secondary)", whiteSpace:"nowrap" }}>{fmtFecha(c.fecha_compra)}</td>
-                        <td style={{ padding:"12px 14px", textAlign:"center" }}>
+                        <td data-label="Fecha compra" style={{ padding:"12px 14px", color:"var(--text-secondary)", whiteSpace:"nowrap" }}>{fmtFecha(c.fecha_compra)}</td>
+                        <td data-label="Productos" style={{ padding:"12px 14px", textAlign:"center" }}>
                           <span style={{ background:"var(--bg-surface2)", border:"1px solid var(--border)", borderRadius:"6px", padding:"2px 8px", fontSize:"12px", fontWeight:600, color:"var(--text-primary)" }}>
                             {c.num_items || 0}
                           </span>
                         </td>
-                        <td style={{ padding:"12px 14px", fontWeight:700, color:"var(--accent-text)", fontSize:"15px" }}>{fmtBs(c.total)}</td>
-                        <td style={{ padding:"12px 14px" }}><PillEstado estado={c.estado} /></td>
-                        <td style={{ padding:"12px 14px" }}>
+                        <td data-label="Total" style={{ padding:"12px 14px", fontWeight:700, color:"var(--accent-text)", fontSize:"15px" }}>{fmtBs(c.total)}</td>
+                        <td data-label="Estado" style={{ padding:"12px 14px" }}><PillEstado estado={c.estado} /></td>
+                        <td data-label="Acciones" style={{ padding:"12px 14px" }}>
                           <div style={{ display:"flex", gap:"6px" }}>
                             <button
                               onClick={() => verDetalle(c.id)}
@@ -782,8 +782,8 @@ export default function Compras() {
           </div>
 
           <div style={S.surface}>
-            <div style={{ overflowX:"auto" }}>
-              <table style={{ width:"100%", borderCollapse:"collapse", fontSize:"13px" }}>
+            <div className="rtable-wrap" style={{ overflowX:"auto" }}>
+              <table className="rtable" style={{ width:"100%", borderCollapse:"collapse", fontSize:"13px" }}>
                 <thead>
                   <tr style={{ background:"var(--bg-surface2)", borderBottom:"2px solid var(--border)" }}>
                     {["#","Nombre","Contacto","Teléfono","Email","Estado","Acciones"].map(h => (
@@ -801,17 +801,17 @@ export default function Compras() {
                     </tr>
                   ) : proveedores.map(p => (
                     <tr key={p.id} style={{ borderBottom:"1px solid var(--border)" }}>
-                      <td style={{ padding:"12px 14px", color:"var(--text-muted)", fontSize:"12px" }}>#{p.id}</td>
-                      <td style={{ padding:"12px 14px", fontWeight:700, color:"var(--text-primary)" }}>{p.nombre}</td>
-                      <td style={{ padding:"12px 14px", color:"var(--text-secondary)" }}>{p.contacto || "—"}</td>
-                      <td style={{ padding:"12px 14px", color:"var(--text-secondary)" }}>{p.telefono || "—"}</td>
-                      <td style={{ padding:"12px 14px", color:"var(--accent-text)" }}>{p.email || "—"}</td>
-                      <td style={{ padding:"12px 14px" }}>
+                      <td data-label="#" style={{ padding:"12px 14px", color:"var(--text-muted)", fontSize:"12px" }}>#{p.id}</td>
+                      <td data-label="Nombre" style={{ padding:"12px 14px", fontWeight:700, color:"var(--text-primary)" }}>{p.nombre}</td>
+                      <td data-label="Contacto" style={{ padding:"12px 14px", color:"var(--text-secondary)" }}>{p.contacto || "—"}</td>
+                      <td data-label="Teléfono" style={{ padding:"12px 14px", color:"var(--text-secondary)" }}>{p.telefono || "—"}</td>
+                      <td data-label="Email" style={{ padding:"12px 14px", color:"var(--accent-text)" }}>{p.email || "—"}</td>
+                      <td data-label="Estado" style={{ padding:"12px 14px" }}>
                         <span style={{ background: p.estado ? "rgba(34,197,94,0.12)" : "rgba(239,68,68,0.12)", color: p.estado ? "#22c55e" : "#ef4444", border:`1px solid ${p.estado?"#22c55e":"#ef4444"}`, borderRadius:"6px", padding:"2px 8px", fontSize:"11px", fontWeight:600 }}>
                           {p.estado ? "Activo" : "Inactivo"}
                         </span>
                       </td>
-                      <td style={{ padding:"12px 14px" }}>
+                      <td data-label="Acciones" style={{ padding:"12px 14px" }}>
                         <div style={{ display:"flex", gap:"6px" }}>
                           <button
                             onClick={() => setModalProv(p)}

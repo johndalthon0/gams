@@ -324,8 +324,8 @@ function Asignaciones() {
           </span>
         </div>
 
-        <div style={{ overflowX: "auto" }}>
-          <table className="table-base">
+        <div className="rtable-wrap" style={{ overflowX: "auto" }}>
+          <table className="table-base rtable">
             <thead>
               <tr>
                 {["#","Equipo","Usuario","Área","Cargo","Sucursal",
@@ -343,8 +343,8 @@ function Asignaciones() {
                 </tr>
               ) : filtradas.map(a => (
                 <tr key={a.id} style={{ opacity: a.estado === 0 ? 0.65 : 1 }}>
-                  <td style={{ color: "var(--text-muted)", fontSize: "12px" }}>#{a.id}</td>
-                  <td>
+                  <td data-label="#" style={{ color: "var(--text-muted)", fontSize: "12px" }}>#{a.id}</td>
+                  <td data-label="Equipo">
                     <p style={{ margin: 0, color: "var(--accent-text)", fontWeight: 600, fontSize: "13px" }}>
                       {a.equipo_codigo}
                     </p>
@@ -352,22 +352,22 @@ function Asignaciones() {
                       {a.equipo}
                     </p>
                   </td>
-                  <td>
+                  <td data-label="Usuario">
                     <p style={{ margin: 0, color: "var(--text-primary)", fontWeight: 500, fontSize: "13px" }}>
                       {a.usuario} {a.apellido || ""}
                     </p>
                     <p style={{ margin: 0, color: "var(--text-muted)", fontSize: "11px" }}>{a.email}</p>
                   </td>
-                  <td style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{a.area     || "—"}</td>
-                  <td style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{a.cargo    || "—"}</td>
-                  <td style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{a.sucursal || "—"}</td>
-                  <td style={{ color: "var(--text-muted)", fontSize: "12px", whiteSpace: "nowrap" }}>
+                  <td data-label="Área" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{a.area     || "—"}</td>
+                  <td data-label="Cargo" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{a.cargo    || "—"}</td>
+                  <td data-label="Sucursal" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{a.sucursal || "—"}</td>
+                  <td data-label="Fecha asig." style={{ color: "var(--text-muted)", fontSize: "12px", whiteSpace: "nowrap" }}>
                     {fmt(a.fecha_asignacion)}
                   </td>
-                  <td style={{ color: "var(--text-muted)", fontSize: "12px", whiteSpace: "nowrap" }}>
+                  <td data-label="Fecha dev." style={{ color: "var(--text-muted)", fontSize: "12px", whiteSpace: "nowrap" }}>
                     {a.fecha_devolucion ? fmt(a.fecha_devolucion) : "—"}
                   </td>
-                  <td style={{ maxWidth: "180px" }}>
+                  <td data-label="Condición devolución" style={{ maxWidth: "180px" }}>
                     {a.observaciones_devolucion ? (
                       <button onClick={() => setModalVer(a)} style={{
                         background: "none", border: "none",
@@ -383,12 +383,12 @@ function Asignaciones() {
                       <span style={{ color: "var(--text-muted)", fontSize: "12px" }}>—</span>
                     )}
                   </td>
-                  <td>
+                  <td data-label="Estado">
                     <span className={a.estado === 1 ? "badge-success" : "badge-accent"}>
                       {a.estado === 1 ? "✅ Activa" : "📦 Devuelto"}
                     </span>
                   </td>
-                  <td>
+                  <td data-label="Acciones">
                     {a.estado === 1 && (
                       <button onClick={() => abrirDevolucion(a)} style={{
                         background: "var(--warning-bg)", border: "1px solid var(--warning)",

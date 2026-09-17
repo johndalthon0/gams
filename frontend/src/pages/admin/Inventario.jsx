@@ -681,8 +681,8 @@ export default function Inventario() {
           </div>
 
           <div style={S.surface}>
-            <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
+            <div className="rtable-wrap" style={{ overflowX: "auto" }}>
+              <table className="rtable" style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
                 <thead>
                   <tr style={{ background: "var(--bg-surface2)", borderBottom: "2px solid var(--border)" }}>
                     {["Código","Nombre","Categoría","Tipo","Stock","Mín.","Precio","Estado","Acciones"].map(h => (
@@ -716,18 +716,18 @@ export default function Inventario() {
                         background: p.alerta_stock ? "rgba(239,68,68,0.04)" : "transparent",
                       }}
                     >
-                      <td style={{ padding: "12px 14px" }}>
+                      <td data-label="Código" style={{ padding: "12px 14px" }}>
                         <span style={{ color: "var(--accent-text)", fontWeight: 700, fontSize: "12px", background: "var(--accent-light)", borderRadius: "6px", padding: "2px 8px" }}>
                           {p.codigo || "—"}
                         </span>
                       </td>
-                      <td style={{ padding: "12px 14px" }}>
+                      <td data-label="Nombre" style={{ padding: "12px 14px" }}>
                         <p style={{ margin: 0, fontWeight: 600, color: "var(--text-primary)" }}>{p.nombre}</p>
                         {p.descripcion && <p style={{ margin: "2px 0 0", color: "var(--text-muted)", fontSize: "11px" }}>{p.descripcion.slice(0, 50)}{p.descripcion.length > 50 ? "..." : ""}</p>}
                       </td>
-                      <td style={{ padding: "12px 14px", color: "var(--text-secondary)" }}>{p.categoria_nombre || "—"}</td>
-                      <td style={{ padding: "12px 14px", color: "var(--text-secondary)" }}>{p.tipo || "—"}</td>
-                      <td style={{ padding: "12px 14px" }}>
+                      <td data-label="Categoría" style={{ padding: "12px 14px", color: "var(--text-secondary)" }}>{p.categoria_nombre || "—"}</td>
+                      <td data-label="Tipo" style={{ padding: "12px 14px", color: "var(--text-secondary)" }}>{p.tipo || "—"}</td>
+                      <td data-label="Stock" style={{ padding: "12px 14px" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                           <span style={{ fontWeight: 700, color: p.alerta_stock ? "#ef4444" : "#22c55e", fontSize: "16px" }}>
                             {p.stock}
@@ -738,9 +738,9 @@ export default function Inventario() {
                           )}
                         </div>
                       </td>
-                      <td style={{ padding: "12px 14px", color: "var(--text-muted)", fontSize: "12px" }}>{p.stock_minimo}</td>
-                      <td style={{ padding: "12px 14px", color: "#22c55e", fontWeight: 600 }}>{fmtBs(p.precio)}</td>
-                      <td style={{ padding: "12px 14px" }}>
+                      <td data-label="Mín." style={{ padding: "12px 14px", color: "var(--text-muted)", fontSize: "12px" }}>{p.stock_minimo}</td>
+                      <td data-label="Precio" style={{ padding: "12px 14px", color: "#22c55e", fontWeight: 600 }}>{fmtBs(p.precio)}</td>
+                      <td data-label="Estado" style={{ padding: "12px 14px" }}>
                         <Badge
                           label={p.estado ? "Activo" : "Inactivo"}
                           color={p.estado ? "#22c55e" : "#ef4444"}
@@ -748,7 +748,7 @@ export default function Inventario() {
                           border={p.estado ? "#22c55e" : "#ef4444"}
                         />
                       </td>
-                      <td style={{ padding: "12px 14px" }}>
+                      <td data-label="Acciones" style={{ padding: "12px 14px" }}>
                         <div style={{ display: "flex", gap: "5px" }}>
                           <button
                             title="Editar"
@@ -794,8 +794,8 @@ export default function Inventario() {
           </div>
 
           <div style={S.surface}>
-            <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
+            <div className="rtable-wrap" style={{ overflowX: "auto" }}>
+              <table className="rtable" style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
                 <thead>
                   <tr style={{ background: "var(--bg-surface2)", borderBottom: "2px solid var(--border)" }}>
                     {["#","Nombre","Descripción","Acciones"].map(h => (
@@ -813,10 +813,10 @@ export default function Inventario() {
                     </tr>
                   ) : categorias.map(c => (
                     <tr key={c.id} style={{ borderBottom: "1px solid var(--border)" }}>
-                      <td style={{ padding: "12px 14px", color: "var(--text-muted)", fontSize: "12px" }}>#{c.id}</td>
-                      <td style={{ padding: "12px 14px", fontWeight: 600, color: "var(--text-primary)" }}>{c.nombre}</td>
-                      <td style={{ padding: "12px 14px", color: "var(--text-secondary)" }}>{c.descripcion || "—"}</td>
-                      <td style={{ padding: "12px 14px" }}>
+                      <td data-label="#" style={{ padding: "12px 14px", color: "var(--text-muted)", fontSize: "12px" }}>#{c.id}</td>
+                      <td data-label="Nombre" style={{ padding: "12px 14px", fontWeight: 600, color: "var(--text-primary)" }}>{c.nombre}</td>
+                      <td data-label="Descripción" style={{ padding: "12px 14px", color: "var(--text-secondary)" }}>{c.descripcion || "—"}</td>
+                      <td data-label="Acciones" style={{ padding: "12px 14px" }}>
                         <div style={{ display: "flex", gap: "8px" }}>
                           <button style={{ ...btn(C.ghost, { padding: "5px 12px", fontSize: "12px" }) }} onClick={() => setModalCategoria(c)}>✏️ Editar</button>
                           <button style={{ background: "rgba(239,68,68,0.1)", color: "#ef4444", border: "1px solid #ef4444", borderRadius: "8px", padding: "5px 12px", cursor: "pointer", fontSize: "12px", fontWeight: 600 }} onClick={() => eliminarCategoria(c)}>🗑️ Eliminar</button>
@@ -857,8 +857,8 @@ export default function Inventario() {
           </div>
 
           <div style={S.surface}>    
-            <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
+            <div className="rtable-wrap" style={{ overflowX: "auto" }}>
+              <table className="rtable" style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
                 <thead>
                   <tr style={{ background: "var(--bg-surface2)", borderBottom: "2px solid var(--border)" }}>
                     {["Fecha","Producto","Tipo","Cantidad","Antes","Después","Motivo","Referencia","Usuario"].map(h => (
@@ -878,14 +878,14 @@ export default function Inventario() {
                     const colorMov = m.tipo === "ENTRADA" ? "#22c55e" : m.tipo === "SALIDA" ? "#ef4444" : "#f59e0b";
                     return (
                       <tr key={m.id} style={{ borderBottom: "1px solid var(--border)" }}>
-                        <td style={{ padding: "11px 14px", color: "var(--text-muted)", fontSize: "12px", whiteSpace: "nowrap" }}>
+                        <td data-label="Fecha" style={{ padding: "11px 14px", color: "var(--text-muted)", fontSize: "12px", whiteSpace: "nowrap" }}>
                           {fmtFecha(m.fecha)}
                         </td>
-                        <td style={{ padding: "11px 14px" }}>
+                        <td data-label="Producto" style={{ padding: "11px 14px" }}>
                           <p style={{ margin: 0, fontWeight: 600, color: "var(--text-primary)" }}>{m.producto_nombre}</p>
                           {m.producto_codigo && <p style={{ margin: 0, color: "var(--text-muted)", fontSize: "11px" }}>{m.producto_codigo}</p>}
                         </td>
-                        <td style={{ padding: "11px 14px" }}>
+                        <td data-label="Tipo" style={{ padding: "11px 14px" }}>
                           <Badge
                             label={m.tipo === "ENTRADA" ? "⬆ ENTRADA" : m.tipo === "SALIDA" ? "⬇ SALIDA" : "⚖ AJUSTE"}
                             color={colorMov}
@@ -893,20 +893,20 @@ export default function Inventario() {
                             border={colorMov}
                           />
                         </td>
-                        <td style={{ padding: "11px 14px", fontWeight: 700, color: colorMov, fontSize: "15px" }}>
+                        <td data-label="Cantidad" style={{ padding: "11px 14px", fontWeight: 700, color: colorMov, fontSize: "15px" }}>
                           {m.tipo === "SALIDA" ? "-" : m.tipo === "ENTRADA" ? "+" : ""}{m.cantidad}
                         </td>
-                        <td style={{ padding: "11px 14px", color: "var(--text-muted)" }}>{m.stock_antes}</td>
-                        <td style={{ padding: "11px 14px", fontWeight: 700, color: "var(--text-primary)" }}>{m.stock_despues}</td>
-                        <td style={{ padding: "11px 14px", color: "var(--text-secondary)", maxWidth: "160px" }}>{m.motivo || "—"}</td>
-                        <td style={{ padding: "11px 14px" }}>
+                        <td data-label="Antes" style={{ padding: "11px 14px", color: "var(--text-muted)" }}>{m.stock_antes}</td>
+                        <td data-label="Después" style={{ padding: "11px 14px", fontWeight: 700, color: "var(--text-primary)" }}>{m.stock_despues}</td>
+                        <td data-label="Motivo" style={{ padding: "11px 14px", color: "var(--text-secondary)", maxWidth: "160px" }}>{m.motivo || "—"}</td>
+                        <td data-label="Referencia" style={{ padding: "11px 14px" }}>
                           {m.referencia ? (
                             <span style={{ background: "var(--accent-light)", color: "var(--accent-text)", borderRadius: "6px", padding: "2px 8px", fontSize: "11px", fontWeight: 600 }}>
                               {m.referencia}
                             </span>
                           ) : "—"}
                         </td>
-                        <td style={{ padding: "11px 14px", color: "var(--text-secondary)", fontSize: "12px" }}>
+                        <td data-label="Usuario" style={{ padding: "11px 14px", color: "var(--text-secondary)", fontSize: "12px" }}>
                           {m.usuario_nombre ? `${m.usuario_nombre} ${m.usuario_apellido || ""}`.trim() : "—"}
                         </td>
                       </tr>

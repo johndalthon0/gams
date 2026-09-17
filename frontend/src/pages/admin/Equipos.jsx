@@ -364,8 +364,8 @@ function Equipos() {
             Inventario Actual
           </h5>
         </div>
-        <div style={{ overflowX: "auto" }}>
-          <table className="table-base">
+        <div className="rtable-wrap" style={{ overflowX: "auto" }}>
+          <table className="table-base rtable">
             <thead>
               <tr>
                 {["Sucursal","Código","Tipo","Equipo","N/S","F. Adquisición","Estado","Acciones"].map(h => (
@@ -382,14 +382,14 @@ function Equipos() {
                 </tr>
               ) : equiposFiltrados.map(e => (
                 <tr key={e.id}>
-                  <td style={{ color: "var(--text-secondary)" }}>{e.sucursal || "—"}</td>
-                  <td style={{ color: "var(--accent-text)", fontWeight: 600 }}>{e.codigo}</td>
-                  <td style={{ color: "var(--text-secondary)" }}>{e.tipo}</td>
-                  <td style={{ color: "var(--text-primary)" }}>{e.nombre}</td>
-                  <td style={{ color: "var(--text-secondary)" }}>{e.numero_serie || "—"}</td>
-                  <td style={{ color: "var(--text-secondary)" }}>{e.fecha_adquisicion || "—"}</td>
-                  <td><span className={badgeClass(e.estado)}>{e.estado}</span></td>
-                  <td>
+                  <td data-label="Sucursal" style={{ color: "var(--text-secondary)" }}>{e.sucursal || "—"}</td>
+                  <td data-label="Código" style={{ color: "var(--accent-text)", fontWeight: 600 }}>{e.codigo}</td>
+                  <td data-label="Tipo" style={{ color: "var(--text-secondary)" }}>{e.tipo}</td>
+                  <td data-label="Equipo" style={{ color: "var(--text-primary)" }}>{e.nombre}</td>
+                  <td data-label="N/S" style={{ color: "var(--text-secondary)" }}>{e.numero_serie || "—"}</td>
+                  <td data-label="F. Adquisición" style={{ color: "var(--text-secondary)" }}>{e.fecha_adquisicion || "—"}</td>
+                  <td data-label="Estado"><span className={badgeClass(e.estado)}>{e.estado}</span></td>
+                  <td data-label="Acciones">
                     <div style={{ display: "flex", gap: "6px", flexWrap: "nowrap", whiteSpace: "nowrap" }}>
                       <button onClick={() => setEquipoView(e)} style={{
                         background: "var(--accent-light)", border: "1px solid var(--accent)",

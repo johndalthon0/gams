@@ -326,8 +326,8 @@ function Bajas() {
             </p>
           </div>
         ) : (
-          <div style={{ overflowX: "auto" }}>
-            <table className="table-base">
+          <div className="rtable-wrap" style={{ overflowX: "auto" }}>
+            <table className="table-base rtable">
               <thead>
                 <tr>
                   {["#","Equipo","Tipo","N° Serie","Sucursal","Área","Registrado por","Motivo","Detalle","Fecha Baja",""].map(h => (
@@ -338,8 +338,8 @@ function Bajas() {
               <tbody>
                 {filtradas.map(b => (
                   <tr key={b.id}>
-                    <td style={{ color: "var(--text-muted)", fontSize: "12px" }}>#{b.id}</td>
-                    <td>
+                    <td data-label="#" style={{ color: "var(--text-muted)", fontSize: "12px" }}>#{b.id}</td>
+                    <td data-label="Equipo">
                       <p style={{ margin: 0, color: "var(--accent-text)", fontWeight: 700, fontSize: "13px" }}>
                         {b.equipo_codigo}
                       </p>
@@ -347,17 +347,17 @@ function Bajas() {
                         {b.equipo_nombre}
                       </p>
                     </td>
-                    <td style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{b.equipo_tipo || "—"}</td>
-                    <td style={{ color: "var(--text-secondary)", fontSize: "12px" }}>{b.numero_serie || "—"}</td>
-                    <td style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{b.sucursal || "—"}</td>
-                    <td style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{b.area || "—"}</td>
-                    <td>
+                    <td data-label="Tipo" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{b.equipo_tipo || "—"}</td>
+                    <td data-label="N° Serie" style={{ color: "var(--text-secondary)", fontSize: "12px" }}>{b.numero_serie || "—"}</td>
+                    <td data-label="Sucursal" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{b.sucursal || "—"}</td>
+                    <td data-label="Área" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{b.area || "—"}</td>
+                    <td data-label="Registrado por">
                       <p style={{ margin: 0, color: "var(--text-primary)", fontSize: "13px", fontWeight: 500 }}>
                         {b.usuario_nombre ? `${b.usuario_nombre} ${b.usuario_apellido || ""}` : "—"}
                       </p>
                       <p style={{ margin: 0, color: "var(--text-muted)", fontSize: "11px" }}>{b.cargo || ""}</p>
                     </td>
-                    <td>
+                    <td data-label="Motivo">
                       <span style={{
                         background: "var(--danger-bg)", color: "var(--danger)",
                         border: "1px solid var(--danger)", borderRadius: "6px",
@@ -365,16 +365,16 @@ function Bajas() {
                         display: "inline-block", whiteSpace: "nowrap"
                       }}>{b.motivo || "—"}</span>
                     </td>
-                    <td style={{
+                    <td data-label="Detalle" style={{
                       color: "var(--text-secondary)", fontSize: "12px",
                       maxWidth: "180px"
                     }}>
                       {b.detalle || "—"}
                     </td>
-                    <td style={{ color: "var(--danger)", fontSize: "12px", whiteSpace: "nowrap", fontWeight: 500 }}>
+                    <td data-label="Fecha Baja" style={{ color: "var(--danger)", fontSize: "12px", whiteSpace: "nowrap", fontWeight: 500 }}>
                       {fmtFull(b.fecha_baja)}
                     </td>
-                    <td>
+                    <td data-label="Acciones">
                       <div style={{ display: "flex", gap: "6px" }}>
                         <button onClick={async () => {
                           try {
