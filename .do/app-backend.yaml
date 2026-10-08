@@ -1,0 +1,52 @@
+# DigitalOcean App Spec — backend (Node/Express)
+# Uso: App Platform -> Create App -> pega este archivo en "Edit App Spec".
+# Los campos marcados EDITAR_EN_PANEL se quedan vacíos a propósito: NUNCA
+# pongas contraseñas/secretos reales en un archivo que se sube a git.
+# Después de importar, ve a cada servicio -> Settings -> App-Level
+# Environment Variables y pega ahí los valores reales (quedan cifrados).
+
+name: gams-backend
+region: nyc
+services:
+  - name: backend
+    github:
+      repo: johndalthon0/gams
+      branch: main
+      deploy_on_push: true
+    source_dir: backend
+    build_command: npm install
+    run_command: node server.js
+    environment_slug: node-js
+    instance_size_slug: basic-xxs
+    instance_count: 1
+    http_port: 3000
+    health_check:
+      http_path: /
+    envs:
+      - key: DB_HOST
+        value: altaria.proxy.rlwy.net
+      - key: DB_PORT
+        value: "10369"
+      - key: DB_USER
+        value: root
+      - key: DB_PASSWORD
+        value: EDITAR_EN_PANEL
+        type: SECRET
+      - key: DB_NAME
+        value: gams_mantenimiento
+      - key: DB_SSL
+        value: "false"
+      - key: JWT_SECRET
+        value: EDITAR_EN_PANEL
+        type: SECRET
+      - key: CORS_ORIGINS
+        value: "*"
+      - key: IA_URL
+        value: https://gams-ia-xxxxx.ondigitalocean.app
+      - key: VAPID_PUBLIC_KEY
+        value: EDITAR_EN_PANEL
+      - key: VAPID_PRIVATE_KEY
+        value: EDITAR_EN_PANEL
+        type: SECRET
+      - key: VAPID_EMAIL
+        value: mailto:admin@gams.gob.bo

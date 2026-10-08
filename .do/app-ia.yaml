@@ -1,0 +1,36 @@
+# DigitalOcean App Spec — python_ia (FastAPI)
+# Mismo flujo que app-backend.yaml: pégalo en "Edit App Spec" al crear la App.
+# EDITAR_EN_PANEL -> pega el valor real en Settings -> Environment Variables
+# después de crear la App (nunca en este archivo, que se sube a git).
+
+name: gams-ia
+region: nyc
+services:
+  - name: ia
+    github:
+      repo: johndalthon0/gams
+      branch: main
+      deploy_on_push: true
+    source_dir: python_ia
+    build_command: pip install -r requirements.txt
+    run_command: uvicorn main:app --host 0.0.0.0 --port $PORT
+    environment_slug: python
+    instance_size_slug: basic-xxs
+    instance_count: 1
+    http_port: 8080
+    health_check:
+      http_path: /
+    envs:
+      - key: DB_HOST
+        value: altaria.proxy.rlwy.net
+      - key: DB_PORT
+        value: "10369"
+      - key: DB_USER
+        value: root
+      - key: DB_PASSWORD
+        value: EDITAR_EN_PANEL
+        type: SECRET
+      - key: DB_NAME
+        value: gams_mantenimiento
+      - key: DB_SSL
+        value: "false"
