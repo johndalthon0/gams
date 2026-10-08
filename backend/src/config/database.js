@@ -38,4 +38,37 @@ pool.on('connection', (conn) => {
   );
 });
 
-module.exports = pool.promise();
+// El pool puede emitir 'error' por conexiones ociosas que el proxy de
+// Railway cierra en segundo plano; sin este listener, Node lo trata como
+// error no manejado y tumba el proceso.
+pool.on('error', (err) => {
+  console.error('MySQL pool error:', err.code || err.message);
+});
+
+const promisePool = pool.promise();
+
+// Railway cierra conexiones ociosas (el pool no se entera hasta que las usa),
+// así que una query de vez en cuando falla con "Connection lost" aunque la
+// BD esté perfectamente disponible. Se reintenta una vez con una conexión
+// nueva del pool antes de rendirse.
+const esConexionPerdida = (err) =>
+  err && (
+    err.code === 'PROTOCOL_CONNECTION_LOST' ||
+    err.code === 'ECONNRESET' ||
+    err.code === 'ETIMEDOUT' ||
+    err.code === 'PROTOCOL_SEQUENCE_TIMEOUT' ||
+    err.fatal === true ||
+    /connection lost/i.test(err.message || '')
+  );
+
+async function query(sql, params) {
+  try {
+    return await promisePool.query(sql, params);
+  } catch (err) {
+    if (!esConexionPerdida(err)) throw err;
+    console.warn('BD: conexión perdida, reintentando una vez —', err.code || err.message);
+    return promisePool.query(sql, params);
+  }
+}
+
+module.exports = { query, pool: promisePool };
