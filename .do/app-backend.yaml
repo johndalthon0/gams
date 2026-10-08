@@ -42,7 +42,7 @@ services:
       - key: CORS_ORIGINS
         value: "*"
       - key: IA_URL
-        value: https://gams-ia-xxxxx.ondigitalocean.app
+        value: https://gams-ia-6h5q6.ondigitalocean.app
       - key: VAPID_PUBLIC_KEY
         value: EDITAR_EN_PANEL
       - key: VAPID_PRIVATE_KEY
