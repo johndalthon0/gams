@@ -510,7 +510,7 @@ CREATE TABLE `notificaciones` (
   `equipo_id` int(11) DEFAULT NULL,
   `titulo` varchar(150) DEFAULT NULL,
   `mensaje` text DEFAULT NULL,
-  `tipo` enum('MANTENIMIENTO','ALERTA','IA','ASIGNACION') DEFAULT NULL,
+  `tipo` varchar(30) DEFAULT NULL,
   `leido` tinyint(4) DEFAULT 0,
   `fecha` timestamp NOT NULL DEFAULT current_timestamp(),
   `leida` tinyint(1) DEFAULT 0,

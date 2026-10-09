@@ -40,6 +40,19 @@ const notificar = async (uid, tipo, titulo, mensaje, datos = {}) => {
   } catch (e) { console.error('notif:', e.message); }
 };
 
+// Igual que notificar(), pero deja la notificación pendiente de respuesta
+// (el destinatario debe confirmar/rechazar, ej. disponibilidad para un mantenimiento).
+const notificarConRespuesta = async (uid, tipo, titulo, mensaje, datos = {}) => {
+  try {
+    await db.query(
+      `INSERT INTO notificaciones
+         (usuario_id, tipo, titulo, mensaje, leida, datos_json, respondida, respuesta, fecha)
+       VALUES (?,?,?,?,0,?,0,'PENDIENTE',?)`,
+      [uid, tipo, titulo.substring(0,255), mensaje.substring(0,2000), JSON.stringify(datos), ahoraMySQL()]
+    );
+  } catch (e) { console.error('notif:', e.message); }
+};
+
 const getAdmins = async () => {
   try {
     const [r] = await db.query(
@@ -389,14 +402,10 @@ exports.createMantenimiento = async (req, res) => {
       );
       if (resp) {
         const [[eq]] = await db.query('SELECT codigo, nombre FROM equipos WHERE id=?', [equipo_id]);
-        await db.query(
-          `INSERT INTO notificaciones (usuario_id,tipo,titulo,mensaje,leida,datos_json,respondida,respuesta,fecha)
-           VALUES (?,?,?,?,0,?,0,'PENDIENTE',?)`,
-          [resp.id, 'SOLICITUD_MANT',
-           `🛠️ Mantenimiento programado — ${eq?.codigo || ''}`,
-           `Mantenimiento preventivo para tu equipo ${eq?.codigo} el ${fecha_programada}.`,
-           JSON.stringify({ mantenimiento_id:mantId, equipo_id:parseInt(equipo_id), fecha_programada }),
-           ahoraMySQL()]
+        await notificarConRespuesta(resp.id, 'SOLICITUD_MANT',
+          `🛠️ Mantenimiento programado — ${eq?.codigo || ''}`,
+          `Mantenimiento preventivo para tu equipo ${eq?.codigo} el ${fecha_programada}.`,
+          { mantenimiento_id:mantId, equipo_id:parseInt(equipo_id), fecha_programada }
         );
         await push(resp.id, {
           titulo: `🛠️ Mantenimiento programado — ${eq?.codigo}`,
@@ -503,14 +512,10 @@ exports.reprogramarAdmin = async (req, res) => {
        WHERE a.equipo_id=? AND a.estado=1 LIMIT 1`, [m.eq_id]
     );
     if (resp) {
-      await db.query(
-        `INSERT INTO notificaciones (usuario_id,tipo,titulo,mensaje,leida,datos_json,respondida,respuesta,fecha)
-         VALUES (?,?,?,?,0,?,0,'PENDIENTE',?)`,
-        [resp.id, 'SOLICITUD_MANT',
-         `🔄 Reprogramado — ${m.codigo}`,
-         `Tu equipo ${m.codigo} reprogramado para el ${fecha_programada}. Confirma disponibilidad.`,
-         JSON.stringify({ mantenimiento_id:parseInt(id), equipo_id:m.eq_id, fecha_programada }),
-         ahoraMySQL()]
+      await notificarConRespuesta(resp.id, 'SOLICITUD_MANT',
+        `🔄 Reprogramado — ${m.codigo}`,
+        `Tu equipo ${m.codigo} reprogramado para el ${fecha_programada}. Confirma disponibilidad.`,
+        { mantenimiento_id:parseInt(id), equipo_id:m.eq_id, fecha_programada }
       );
       await push(resp.id, {
         titulo: `📅 Mantenimiento reprogramado — ${m.codigo}`,
@@ -673,7 +678,7 @@ exports.getHistorialMant = async (req, res) => {
       `SELECT h.*, u.nombre, u.apellido
        FROM mantenimiento_historial h
        LEFT JOIN usuarios u ON u.id = h.usuario_id
-       WHERE h.mantenimiento_id = ? ORDER BY h.fecha ASC`,
+       WHERE h.mantenimiento_id = ? ORDER BY h.fecha DESC, h.id DESC`,
       [req.params.id]
     );
     res.json(rows.map(r => ({ ...r, usuario_nombre: seg(r.nombre, r.apellido) })));
