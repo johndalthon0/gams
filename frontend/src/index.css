@@ -732,9 +732,11 @@ table {
    columna extra (una celda display:none no participa del layout). */
 table.rtable td.rtable-toggle-cell { display: none; }
 
-/* ── Tablas responsive: en celular se "encajonan" en tarjetas, sin scroll
-   horizontal. Cada <td> necesita data-label="Columna" para el rotulo. ── */
-@media (max-width: 760px) {
+/* ── Tablas responsive: en celular y en laptops angostas (sidebar incluido)
+   se "encajonan" en tarjetas, sin scroll horizontal. Cada <td> necesita
+   data-label="Columna" para el rotulo. 1200px cubre pantallas de 13-14"
+   donde tablas con muchas columnas (Reparaciones, IA) no entran enteras. ── */
+@media (max-width: 1200px) {
   .rtable-wrap { overflow-x: visible !important; }
   table.rtable thead { display: none; }
   table.rtable, table.rtable tbody, table.rtable tr, table.rtable td {
