@@ -35,6 +35,7 @@ app.use('/api/compras',        require('./routes/compras.routes'));
 app.use('/api/bajas',          require('./routes/baja.routes'));
 app.use('/api/ia',             require('./routes/ia.routes'));
 app.use('/api/push',           require('./routes/push.routes'));
+app.use('/api/configuracion',  require('./routes/configuracion.routes'));
 
 app.get('/', (req, res) => res.json({ message: 'API GAMS TI 🚀', version: '2.0' }));
 
