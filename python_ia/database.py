@@ -1,11 +1,19 @@
 import decimal
 import datetime
+from zoneinfo import ZoneInfo
 import mysql.connector
 from mysql.connector import pooling
 from config import DB_CONFIG
 import logging
 
 logger = logging.getLogger(__name__)
+
+# El servidor corre en UTC, no en hora de Bolivia. Usar NOW() de MySQL o
+# datetime.now() sin zona guarda la hora UTC en una columna DATETIME (que
+# no tiene zona horaria propia), y se muestra 4h adelantada. Esto da la
+# hora real de Bolivia como string listo para un DATETIME/TIMESTAMP.
+def ahora_bolivia_sql() -> str:
+    return datetime.datetime.now(ZoneInfo("America/La_Paz")).strftime("%Y-%m-%d %H:%M:%S")
 
 _pool = None
 

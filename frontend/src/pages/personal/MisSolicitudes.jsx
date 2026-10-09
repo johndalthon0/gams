@@ -18,6 +18,7 @@ const inp = {
 
 const fmt = (d) =>
   d ? new Date(d).toLocaleDateString("es-BO", {
+    timeZone: "America/La_Paz",
     day:"2-digit", month:"short", year:"numeric",
     hour:"2-digit", minute:"2-digit",
   }) : "—";

@@ -1,5 +1,6 @@
 const webpush = require('web-push');
 const db      = require('../config/database');
+const { ahoraMySQL } = require('../utils/fecha');
 
 // Configurar VAPID — si las claves no son válidas, el push queda deshabilitado
 // pero el servidor NO se cae.
@@ -52,9 +53,9 @@ exports.suscribir = async (req, res) => {
     if (exist) {
       await db.query(
         `UPDATE push_suscripciones
-         SET p256dh=?, auth=?, activa=1, fecha_actualizacion=NOW()
+         SET p256dh=?, auth=?, activa=1, fecha_actualizacion=?
          WHERE id=?`,
-        [keys.p256dh, keys.auth, exist.id]
+        [keys.p256dh, keys.auth, ahoraMySQL(), exist.id]
       );
     } else {
       await db.query(
@@ -188,10 +189,7 @@ exports.broadcast = async (req, res) => {
     const [usuarios] = await db.query(sql, params);
     const ids = usuarios.map(u => u.id);
 
-    const d = new Date();
-    const pad = n => String(n).padStart(2, '0');
-    const fecha = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ` +
-                  `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    const fecha = ahoraMySQL();
     for (const uid of ids) {
       try {
         await db.query(

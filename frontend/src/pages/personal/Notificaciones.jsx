@@ -6,6 +6,7 @@ import api from "../../services/api";
 // ── Helpers ───────────────────────────────────────────────────
 const fmtFull = (d) =>
   d ? new Date(d).toLocaleString("es-BO", {
+    timeZone: "America/La_Paz",
     day:"2-digit", month:"short", year:"numeric",
     hour:"2-digit", minute:"2-digit",
   }) : "—";

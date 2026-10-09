@@ -115,7 +115,7 @@ function Asignaciones() {
   };
 
   const fmt = (d) => d ? new Date(d).toLocaleDateString("es-BO", {
-    day: "2-digit", month: "short", year: "numeric"
+    timeZone: "America/La_Paz", day: "2-digit", month: "short", year: "numeric"
   }) : "—";
 
   // Filtros

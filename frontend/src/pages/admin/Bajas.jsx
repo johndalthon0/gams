@@ -63,8 +63,8 @@ function Bajas() {
     }
   };
 
-  const fmt     = (d) => d ? new Date(d).toLocaleDateString("es-BO", { day: "2-digit", month: "short", year: "numeric" }) : "—";
-  const fmtFull = (d) => d ? new Date(d).toLocaleString("es-BO") : "—";
+  const fmt     = (d) => d ? new Date(d).toLocaleDateString("es-BO", { timeZone: "America/La_Paz", day: "2-digit", month: "short", year: "numeric" }) : "—";
+  const fmtFull = (d) => d ? new Date(d).toLocaleString("es-BO", { timeZone: "America/La_Paz" }) : "—";
 
   const filtradas = bajas.filter(b => {
     const q = buscar.toLowerCase();
@@ -161,7 +161,7 @@ function Bajas() {
     doc.setFont("helvetica", "bold"); doc.setFontSize(12);
     doc.text(`${sistema.nombre_institucion} — REPORTE DE BAJAS DE EQUIPOS`, 148, 12, { align: "center" });
     doc.setFont("helvetica", "normal"); doc.setFontSize(8);
-    doc.text(`Generado: ${new Date().toLocaleString("es-BO")} | Total: ${filtradas.length}`, 148, 21, { align: "center" });
+    doc.text(`Generado: ${new Date().toLocaleString("es-BO", { timeZone: "America/La_Paz" })} | Total: ${filtradas.length}`, 148, 21, { align: "center" });
     doc.setTextColor(30, 30, 30);
     autoTable(doc, {
       startY: 34,

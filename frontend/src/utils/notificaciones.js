@@ -17,8 +17,11 @@ export const TIPO_CONFIG = {
 
 export const getTipo = (tipo) => TIPO_CONFIG[tipo] || TIPO_CONFIG.DEFAULT;
 
+// Siempre en hora de Bolivia, sin importar la zona horaria del dispositivo
+// que esté viendo la pantalla (si no, cada admin vería una hora distinta).
 export const fmtFull = (d) =>
   d ? new Date(d).toLocaleString("es-BO", {
+    timeZone: "America/La_Paz",
     day: "2-digit", month: "short", year: "numeric",
     hour: "2-digit", minute: "2-digit",
   }) : "—";

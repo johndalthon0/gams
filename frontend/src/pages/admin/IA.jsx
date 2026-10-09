@@ -42,6 +42,7 @@ const S = {
 const fmt = (d) =>
   d
     ? new Date(d).toLocaleDateString("es-BO", {
+        timeZone: "America/La_Paz",
         day: "2-digit",
         month: "short",
         year: "numeric",
@@ -52,6 +53,7 @@ const fmtFull = (d) => {
   const value = new Date(d);
   if (Number.isNaN(value.getTime())) return "—";
   return value.toLocaleString("es-BO", {
+    timeZone: "America/La_Paz",
     day: "2-digit",
     month: "short",
     year: "numeric",

@@ -6,7 +6,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Optional
 
-from database import execute_query, execute_update, execute_insert
+from database import execute_query, execute_update, execute_insert, ahora_bolivia_sql
 from api.schemas.schemas import PropuestaAccion
 
 logger = logging.getLogger(__name__)
@@ -186,9 +186,9 @@ def accionar_orden(data: PropuestaAccion):
         # Marcar la orden IA
         execute_update("""
             UPDATE ia_ordenes
-            SET estado = %s, aprobada_por = %s, fecha_accion = NOW()
+            SET estado = %s, aprobada_por = %s, fecha_accion = %s
             WHERE id = %s
-        """, (data.accion, data.usuario_id, data.orden_id))
+        """, (data.accion, data.usuario_id, ahora_bolivia_sql(), data.orden_id))
 
         if data.accion != "APROBADA":
             return {"message": f"Orden {data.accion.lower()}"}
@@ -423,17 +423,18 @@ def accion_orden_trabajo(data: AccionOrdenTrabajo):
         orden = orden[0]
 
         if data.accion == "INICIAR":
+            ahora = ahora_bolivia_sql()
             execute_update("""
                 UPDATE ia_ordenes_trabajo
-                SET estado='EN_PROCESO', fecha_inicio=NOW()
+                SET estado='EN_PROCESO', fecha_inicio=%s
                 WHERE id=%s
-            """, (data.orden_id,))
+            """, (ahora, data.orden_id))
             if orden.get("mantenimiento_id"):
                 execute_update("""
                     UPDATE mantenimientos
-                    SET estado='EN_PROCESO', fecha_inicio=NOW()
+                    SET estado='EN_PROCESO', fecha_inicio=%s
                     WHERE id=%s
-                """, (orden["mantenimiento_id"],))
+                """, (ahora, orden["mantenimiento_id"]))
 
         elif data.accion == "PAUSAR":
             execute_update("""
@@ -444,24 +445,26 @@ def accion_orden_trabajo(data: AccionOrdenTrabajo):
             """, (data.observaciones or "", data.observaciones or "", data.orden_id))
 
         elif data.accion == "FINALIZAR":
+            ahora = ahora_bolivia_sql()
             execute_update("""
                 UPDATE ia_ordenes_trabajo
                 SET estado='FINALIZADO',
-                    fecha_fin=NOW(),
+                    fecha_fin=%s,
                     observaciones=%s,
                     costo_final=%s
                 WHERE id=%s
-            """, (data.observaciones or "", data.costo_final or 0, data.orden_id))
+            """, (ahora, data.observaciones or "", data.costo_final or 0, data.orden_id))
 
             if orden.get("mantenimiento_id"):
                 execute_update("""
                     UPDATE mantenimientos
                     SET estado='FINALIZADO',
-                        fecha_fin=NOW(),
+                        fecha_fin=%s,
                         costo=%s,
                         descripcion_solucion=%s
                     WHERE id=%s
                 """, (
+                    ahora,
                     data.costo_final or 0,
                     data.observaciones or "",
                     orden["mantenimiento_id"]

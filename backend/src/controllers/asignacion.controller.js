@@ -1,4 +1,5 @@
 const db = require('../config/database');
+const { ahoraMySQL } = require('../utils/fecha');
 
 exports.getAsignaciones = async (req, res) => {
   try {
@@ -100,8 +101,8 @@ exports.createAsignacion = async (req, res) => {
 
     await db.query(`
       INSERT INTO asignaciones (usuario_id, equipo_id, fecha_asignacion, estado)
-      VALUES (?, ?, NOW(), 1)
-    `, [usuario_id, equipo_id]);
+      VALUES (?, ?, ?, 1)
+    `, [usuario_id, equipo_id, ahoraMySQL()]);
 
     await db.query(
       "UPDATE equipos SET estado='ASIGNADO' WHERE id=?", [equipo_id]
@@ -133,10 +134,10 @@ exports.devolver = async (req, res) => {
     await db.query(`
       UPDATE asignaciones
       SET estado                   = 0,
-          fecha_devolucion         = NOW(),
+          fecha_devolucion         = ?,
           observaciones_devolucion = ?
       WHERE id = ?
-    `, [`[${condicion}] ${observaciones || ""}`.trim(), id]);
+    `, [ahoraMySQL(), `[${condicion}] ${observaciones || ""}`.trim(), id]);
 
     await db.query(
       "UPDATE equipos SET estado='DISPONIBLE' WHERE id=?", [a[0].equipo_id]

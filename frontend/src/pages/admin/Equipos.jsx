@@ -142,7 +142,7 @@ function Equipos() {
     doc.setFont("helvetica", "bold"); doc.setFontSize(12);
     doc.text(`${sistema.nombre_institucion} — ${sistema.nombre_sistema}`, 148, 12, { align: "center" });
     doc.setFont("helvetica", "normal"); doc.setFontSize(8);
-    doc.text(`Generado: ${new Date().toLocaleString("es-BO")} | Total: ${equiposFiltrados.length} equipos`, 148, 20, { align: "center" });
+    doc.text(`Generado: ${new Date().toLocaleString("es-BO", { timeZone: "America/La_Paz" })} | Total: ${equiposFiltrados.length} equipos`, 148, 20, { align: "center" });
     doc.setTextColor(30, 30, 30);
 
     autoTable(doc, {

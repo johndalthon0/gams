@@ -28,6 +28,11 @@ const pool = mysql.createPool({
   connectionLimit: 10,
   connectTimeout: 60000,
   charset: 'utf8mb4',
+  // Las columnas DATETIME se escriben con hora de Bolivia (utils/fecha.js),
+  // no con la hora del servidor (UTC en Render/DigitalOcean). Sin esto, el
+  // driver reinterpreta esos mismos dígitos como si fueran UTC al leerlos
+  // de vuelta, adelantando la hora mostrada 4 horas.
+  timezone: '-04:00',
 });
 
 // MySQL 8 (Railway) trae ONLY_FULL_GROUP_BY; MariaDB local no. Se relaja

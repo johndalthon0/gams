@@ -3,9 +3,9 @@ import PersonalLayout from "../../components/layout/PersonalLayout";
 import api from "../../services/api";
 
 const fmt = (d) => d
-  ? new Date(d).toLocaleDateString("es-BO",{day:"2-digit",month:"short",year:"numeric"})
+  ? new Date(d).toLocaleDateString("es-BO",{timeZone:"America/La_Paz",day:"2-digit",month:"short",year:"numeric"})
   : "—";
-const fmtFull = (d) => d ? new Date(d).toLocaleString("es-BO") : "—";
+const fmtFull = (d) => d ? new Date(d).toLocaleString("es-BO", { timeZone: "America/La_Paz" }) : "—";
 
 const COLOR_EQ = {
   DISPONIBLE:    {c:"#22c55e",bg:"#f0fdf4",b:"#22c55e",label:"Disponible"},

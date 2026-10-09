@@ -1,4 +1,5 @@
 const db = require('../config/database');
+const { ahoraMySQL } = require('../utils/fecha');
 
 // ── Push (opcional) ───────────────────────────────────────────
 let _push;
@@ -9,14 +10,6 @@ const pushMany = async (uids, p) => { for (const uid of uids) await push(uid, p)
 const seg = (n, a) =>
   [n, a].filter(x => x && x !== 'null' && x !== 'None' && x !== 'undefined')
         .join(' ').trim() || '—';
-
-// Fecha/hora local real (corrige el problema de hora 12:00)
-const ahoraMySQL = () => {
-  const d   = new Date();
-  const pad = n => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ` +
-         `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-};
 
 const registrarHistorial = async (mant_id, usuario_id, accion, ant, nuevo, obs = '') => {
   try {

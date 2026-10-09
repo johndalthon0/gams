@@ -63,9 +63,15 @@ const btnDng = mkBtn("rgba(239,68,68,0.12)", "#ef4444", "1px solid #ef4444");
 // ─────────────────────────────────────────────────────────────
 // UTILIDADES
 // ─────────────────────────────────────────────────────────────
+// Todas las fechas se muestran en hora de Bolivia, sin importar la zona
+// horaria del dispositivo que esté viendo la pantalla (si no, cada admin
+// vería una hora distinta y nunca coincide con lo que pasó realmente).
+const TZ = "America/La_Paz";
+
 const fmt = (d) =>
   d
     ? new Date(d).toLocaleDateString("es-BO", {
+        timeZone: TZ,
         day: "2-digit",
         month: "short",
         year: "numeric",
@@ -78,14 +84,20 @@ const fmtFull = (d) => {
   const f = new Date(d);
   if (isNaN(f)) return "—";
   const fecha = f.toLocaleDateString("es-BO", {
+    timeZone: TZ,
     day: "2-digit",
     month: "short",
     year: "numeric",
   });
-  const conHora =
-    f.getHours() !== 0 || f.getMinutes() !== 0 || f.getSeconds() !== 0;
+  const horaMin = new Intl.DateTimeFormat("en-GB", {
+    timeZone: TZ,
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(f);
+  const conHora = horaMin !== "00:00";
   return conHora
-    ? `${fecha}, ${f.toLocaleTimeString("es-BO", { hour: "2-digit", minute: "2-digit" })}`
+    ? `${fecha}, ${f.toLocaleTimeString("es-BO", { timeZone: TZ, hour: "2-digit", minute: "2-digit" })}`
     : fecha;
 };
 const fmtBs = (n) =>

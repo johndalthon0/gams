@@ -1,4 +1,5 @@
 const db = require('../config/database');
+const { ahoraMySQL } = require('../utils/fecha');
 
 // =============================================
 // LISTAR TODOS (Admin)
@@ -174,25 +175,27 @@ exports.darBajaEquipo = async (req, res) => {
     if (eq[0].estado === 'BAJA')
       return res.status(400).json({ message: 'El equipo ya está dado de baja' });
 
+    const ahora = ahoraMySQL();
+
     // ✅ Guardar en tabla bajas CON detalle
     await db.query(`
       INSERT INTO bajas (equipo_id, usuario_id, motivo, detalle, fecha_baja)
-      VALUES (?, ?, ?, ?, NOW())
-    `, [id, usuario_id, informe_baja, detalle || null]);
+      VALUES (?, ?, ?, ?, ?)
+    `, [id, usuario_id, informe_baja, detalle || null, ahora]);
 
     // Actualizar equipo
     await db.query(`
       UPDATE equipos
-      SET estado='BAJA', informe_baja=?, fecha_baja=NOW()
+      SET estado='BAJA', informe_baja=?, fecha_baja=?
       WHERE id=?
-    `, [informe_baja, id]);
+    `, [informe_baja, ahora, id]);
 
     // Cerrar asignaciones activas
     await db.query(`
       UPDATE asignaciones
-      SET estado=0, fecha_devolucion=NOW()
+      SET estado=0, fecha_devolucion=?
       WHERE equipo_id=? AND estado=1
-    `, [id]);
+    `, [ahora, id]);
 
     res.json({ message: 'Equipo dado de baja' });
   } catch (err) {

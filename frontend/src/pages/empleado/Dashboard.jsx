@@ -45,7 +45,7 @@ function EmpleadoDashboard() {
     navigate("/");
   };
 
-  const fmt = (d) => d ? new Date(d).toLocaleDateString("es-BO") : "—";
+  const fmt = (d) => d ? new Date(d).toLocaleDateString("es-BO", { timeZone: "America/La_Paz" }) : "—";
 
   const Badge = ({ estado }) => {
     const map = {

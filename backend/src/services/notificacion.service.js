@@ -1,4 +1,5 @@
 const db = require('../config/database');
+const { ahoraMySQL } = require('../utils/fecha');
 
 let pushController;
 const push = async (usuarioId, payload) => {
@@ -8,13 +9,6 @@ const push = async (usuarioId, payload) => {
 	} catch (err) {
 		console.error('recordatorio push:', err.message);
 	}
-};
-
-const ahoraMySQL = () => {
-	const d = new Date();
-	const pad = (n) => String(n).padStart(2, '0');
-	return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ` +
-		`${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 };
 
 const guardarYEnviar = async (usuarioId, mantenimiento, esAdmin, momento) => {

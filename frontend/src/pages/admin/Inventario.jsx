@@ -7,7 +7,7 @@ import TdToggle from "../../components/ui/TdToggle";
 // ── Helpers ────────────────────────────────────────────────────────────────
 const fmtBs   = (n) => `Bs ${Number(n || 0).toFixed(2)}`;
 const fmtNum  = (n) => Number(n || 0).toLocaleString("es-BO");
-const fmtFecha= (d) => d ? new Date(d).toLocaleString("es-BO", { day:"2-digit", month:"short", year:"numeric", hour:"2-digit", minute:"2-digit" }) : "—";
+const fmtFecha= (d) => d ? new Date(d).toLocaleString("es-BO", { timeZone: "America/La_Paz", day:"2-digit", month:"short", year:"numeric", hour:"2-digit", minute:"2-digit" }) : "—";
 
 // ── Estilos base usando variables CSS del tema ─────────────────────────────
 const S = {

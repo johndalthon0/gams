@@ -51,7 +51,7 @@ function Repuestos() {
     }
   };
 
-  const fmt   = (d) => d ? new Date(d).toLocaleDateString("es-BO") : "—";
+  const fmt   = (d) => d ? new Date(d).toLocaleDateString("es-BO", { timeZone: "America/La_Paz" }) : "—";
   const fmtBs = (n) => `Bs ${Number(n || 0).toFixed(2)}`;
 
   const eqFiltrados = porEquipo.filter(r => {
@@ -88,7 +88,7 @@ function Repuestos() {
     doc.setFont("helvetica", "bold"); doc.setFontSize(12);
     doc.text(`${sistema.nombre_institucion} — REPORTE DE REPUESTOS`, 148, 12, { align: "center" });
     doc.setFont("helvetica", "normal"); doc.setFontSize(8);
-    doc.text(`Generado: ${new Date().toLocaleString("es-BO")}`, 148, 21, { align: "center" });
+    doc.text(`Generado: ${new Date().toLocaleString("es-BO", { timeZone: "America/La_Paz" })}`, 148, 21, { align: "center" });
     doc.setTextColor(30, 30, 30);
     autoTable(doc, {
       startY: 34,
@@ -114,7 +114,7 @@ function Repuestos() {
     doc.setFont("helvetica", "bold"); doc.setFontSize(12);
     doc.text(`${sistema.nombre_institucion} — REPUESTOS POR EQUIPO`, 148, 12, { align: "center" });
     doc.setFont("helvetica", "normal"); doc.setFontSize(8);
-    doc.text(`Generado: ${new Date().toLocaleString("es-BO")}`, 148, 21, { align: "center" });
+    doc.text(`Generado: ${new Date().toLocaleString("es-BO", { timeZone: "America/La_Paz" })}`, 148, 21, { align: "center" });
     doc.setTextColor(30, 30, 30);
     autoTable(doc, {
       startY: 34,

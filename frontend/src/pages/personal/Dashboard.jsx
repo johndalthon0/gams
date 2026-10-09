@@ -25,7 +25,7 @@ function Dashboard() {
   const formatDate = (raw) => {
     if (!raw) return "—";
     return new Date(raw).toLocaleDateString("es-BO", {
-      day: "2-digit", month: "short", year: "numeric"
+      timeZone: "America/La_Paz", day: "2-digit", month: "short", year: "numeric"
     });
   };
 
