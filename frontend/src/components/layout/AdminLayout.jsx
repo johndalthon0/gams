@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { ThemeContext } from "../../context/ThemeContext";
 import Sidebar from "../ui/Sidebar";
 import BotonPush from "../ui/BotonPush";
@@ -12,6 +12,17 @@ function AdminLayout({ children }) {
   const width    = useWindowSize();           // ✅ tiempo real
   const isMobile = width <= 1024;
   const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+  const [sistema, setSistema] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("gam_sistema_config") || "{}"); } catch { return {}; }
+  });
+  useEffect(() => {
+    const actualizar = () => {
+      try { setSistema(JSON.parse(localStorage.getItem("gam_sistema_config") || "{}")); } catch {}
+    };
+    window.addEventListener("gams-sistema-actualizado", actualizar);
+    return () => window.removeEventListener("gams-sistema-actualizado", actualizar);
+  }, []);
 
   return (
     <div style={{
@@ -87,14 +98,14 @@ function AdminLayout({ children }) {
                 overflow: "hidden",
                 textOverflow: "ellipsis"
               }}>
-                {isMobile ? "GAMS TI" : "Sistema Inventario TI"}
+                {isMobile ? (sistema.logo_texto || "GAMS TI") : (sistema.nombre_institucion || "Sistema Inventario TI")}
               </p>
               {!isMobile && (
                 <p style={{
                   color: "var(--text-secondary)",
                   fontSize: "12px", margin: 0
                 }}>
-                  Panel Administrativo
+                  {sistema.nombre_sistema || "Panel Administrativo"}
                 </p>
               )}
             </div>
