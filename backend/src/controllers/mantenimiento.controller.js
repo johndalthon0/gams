@@ -1,10 +1,20 @@
 const db = require('../config/database');
 const { ahoraMySQL } = require('../utils/fecha');
+const { enviarCorreo } = require('../utils/mailer');
 
 // ── Push (opcional) ───────────────────────────────────────────
 let _push;
 const push     = async (uid, p) => { try { if (!_push) _push = require('./push.controller'); await _push.enviarPushUsuario(uid, p); } catch {} };
 const pushMany = async (uids, p) => { for (const uid of uids) await push(uid, p); };
+
+// Correo al email registrado del usuario, además de la notificación
+// in-app y el push. Si no tiene email o falla el envío, no afecta nada más.
+const correoPorNotif = async (uid, titulo, mensaje) => {
+  try {
+    const [[u]] = await db.query('SELECT email FROM usuarios WHERE id=?', [uid]);
+    if (u?.email) await enviarCorreo(u.email, titulo, mensaje);
+  } catch (e) { console.error('correoPorNotif:', e.message); }
+};
 
 // ── Utilidades ────────────────────────────────────────────────
 const seg = (n, a) =>
@@ -31,6 +41,7 @@ const notificar = async (uid, tipo, titulo, mensaje, datos = {}) => {
       [uid, tipo, titulo.substring(0,255), mensaje.substring(0,2000), JSON.stringify(datos), ahoraMySQL()]
     );
   } catch (e) { console.error('notif:', e.message); }
+  await correoPorNotif(uid, titulo, mensaje);
 };
 
 // Igual que notificar(), pero deja la notificación pendiente de respuesta
@@ -44,6 +55,7 @@ const notificarConRespuesta = async (uid, tipo, titulo, mensaje, datos = {}) => 
       [uid, tipo, titulo.substring(0,255), mensaje.substring(0,2000), JSON.stringify(datos), ahoraMySQL()]
     );
   } catch (e) { console.error('notif:', e.message); }
+  await correoPorNotif(uid, titulo, mensaje);
 };
 
 const getAdmins = async () => {

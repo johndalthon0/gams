@@ -50,3 +50,8 @@ services:
         type: SECRET
       - key: VAPID_EMAIL
         value: mailto:admin@gams.gob.bo
+      - key: RESEND_API_KEY
+        value: EDITAR_EN_PANEL
+        type: SECRET
+      - key: RESEND_FROM
+        value: "GAMS TI <onboarding@resend.dev>"
