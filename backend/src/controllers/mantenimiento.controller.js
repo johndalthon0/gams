@@ -174,16 +174,24 @@ exports.createSolicitud = async (req, res) => {
 
     const admins = await getAdmins();
     const [[eq]] = await db.query('SELECT codigo, nombre FROM equipos WHERE id=?', [equipo_id]);
+    const [[solicitante]] = await db.query(
+      `SELECT u.nombre, u.apellido, a.nombre AS area
+       FROM usuarios u LEFT JOIN areas a ON a.id = u.area_id
+       WHERE u.id = ?`, [req.user.id]
+    );
+    const nombreSolicitante = seg(solicitante?.nombre, solicitante?.apellido);
+    const zona = solicitante?.area ? ` (${solicitante.area})` : '';
+
     for (const uid of admins) {
       await notificar(uid, 'SOLICITUD',
         `📋 Nueva solicitud — ${eq?.codigo || ''}`,
-        `Solicitud de mantenimiento para ${eq?.codigo} — ${eq?.nombre}. Prioridad: ${prioridad || 'MEDIA'}.`,
+        `${nombreSolicitante}${zona} reportó: "${descripcion}" — Equipo ${eq?.codigo} (${eq?.nombre}). Prioridad: ${prioridad || 'MEDIA'}.`,
         { equipo_id: parseInt(equipo_id) }
       );
     }
     await pushMany(admins, {
       titulo: `📋 Nueva solicitud — ${eq?.codigo || ''}`,
-      cuerpo: `${eq?.codigo} requiere mantenimiento. Prioridad: ${prioridad || 'MEDIA'}.`,
+      cuerpo: `${nombreSolicitante}${zona}: ${descripcion}`,
       icono:  '/icon-192.png', url: '/admin/reparaciones', tag: `sol-${equipo_id}`,
     });
 
@@ -221,9 +229,16 @@ exports.reenviarSolicitud = async (req, res) => {
     await db.query("UPDATE solicitudes_mantenimiento SET estado='PENDIENTE' WHERE id=?", [id]);
     const admins = await getAdmins();
     const [[eq]] = await db.query('SELECT codigo, nombre FROM equipos WHERE id=?', [sol.equipo_id]);
+    const [[solicitante]] = await db.query(
+      `SELECT u.nombre, u.apellido, a.nombre AS area
+       FROM usuarios u LEFT JOIN areas a ON a.id = u.area_id
+       WHERE u.id = ?`, [req.user.id]
+    );
+    const nombreSolicitante = seg(solicitante?.nombre, solicitante?.apellido);
+    const zona = solicitante?.area ? ` (${solicitante.area})` : '';
     for (const uid of admins) {
       await notificar(uid, 'SOLICITUD', `🔁 Solicitud reenviada — ${eq?.codigo || ''}`,
-        `Solicitud reenviada para ${eq?.codigo} — ${eq?.nombre}.`, { equipo_id: sol.equipo_id });
+        `${nombreSolicitante}${zona} reenvió: "${sol.descripcion}" — Equipo ${eq?.codigo} (${eq?.nombre}).`, { equipo_id: sol.equipo_id });
     }
     await pushMany(admins, {
       titulo: `🔁 Solicitud reenviada — ${eq?.codigo || ''}`,
