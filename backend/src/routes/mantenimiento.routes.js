@@ -9,6 +9,9 @@ router.get('/equipos',                     auth, ctrl.getEquiposParaMantenimient
 router.get('/repuestos',                   auth, ctrl.getRepuestos);
 router.get('/reportes',                    auth, ctrl.getReportes);
 
+// ── Señal liviana de cambios — ANTES de /:id ──────────────────
+router.get('/cambios',                     auth, ctrl.getResumenCambios);
+
 // ── Solicitudes — ANTES de /:id ───────────────────────────────
 router.get('/solicitudes',                 auth, ctrl.getSolicitudes);
 router.post('/solicitudes',                auth, ctrl.createSolicitud);

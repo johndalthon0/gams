@@ -106,6 +106,26 @@ exports.getMisEquipos = async (req, res) => {
   } catch (err) { res.status(500).json({ message: err.message }); }
 };
 
+// Señal liviana para que el panel de Reparaciones sepa si hay algo nuevo
+// (solicitud, reprogramación, cambio de estado) sin traer todo cada vez.
+// Solo cuando este número cambia, el frontend pide los datos completos.
+exports.getResumenCambios = async (req, res) => {
+  try {
+    // sol_max_id detecta solicitudes nuevas. historial_max_id detecta
+    // cualquier cambio de estado en un mantenimiento existente
+    // (reprogramar, confirmar, iniciar, finalizar...), ya que esas
+    // acciones no crean una fila nueva en `mantenimientos` pero sí en
+    // `mantenimiento_historial` cada vez.
+    const [[r]] = await db.query(`
+      SELECT
+        (SELECT COALESCE(MAX(id),0) FROM solicitudes_mantenimiento) AS sol_max_id,
+        (SELECT COALESCE(MAX(id),0) FROM mantenimientos) AS mant_max_id,
+        (SELECT COALESCE(MAX(id),0) FROM mantenimiento_historial) AS historial_max_id
+    `);
+    res.json(r);
+  } catch (err) { res.status(500).json({ message: err.message }); }
+};
+
 // ─────────────────────────────────────────────────────────────
 // SOLICITUDES
 // ─────────────────────────────────────────────────────────────

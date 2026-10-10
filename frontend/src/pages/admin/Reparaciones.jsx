@@ -2218,10 +2218,20 @@ export default function Reparaciones() {
 
   useEffect(() => {
     load();
-    // Refresca sola cada 20s (solicitudes nuevas, reprogramaciones, etc.)
-    // sin que el admin tenga que recargar la página a mano. "silencioso"
-    // evita el parpadeo de "Cargando..." en cada refresco de fondo.
-    const t = setInterval(() => load(true), 20000);
+
+    // En vez de volver a traer todo cada tanto (aunque no haya cambiado
+    // nada), se revisa cada 8s una señal liviana (3 números) y solo si
+    // cambió algo se trae la data completa — sin parpadeo de "Cargando...".
+    let ultimo = null;
+    const revisar = async () => {
+      try {
+        const { data } = await api.get("/mantenimientos/cambios");
+        const firma = `${data.sol_max_id}-${data.mant_max_id}-${data.historial_max_id}`;
+        if (ultimo !== null && firma !== ultimo) load(true);
+        ultimo = firma;
+      } catch {}
+    };
+    const t = setInterval(revisar, 8000);
     return () => clearInterval(t);
   }, [load]);
 
