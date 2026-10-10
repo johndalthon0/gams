@@ -2181,8 +2181,8 @@ export default function Reparaciones() {
     setTimeout(() => setMsg({ type: "", text: "" }), 4000);
   };
 
-  const load = useCallback(async () => {
-    setLoading(true);
+  const load = useCallback(async (silencioso = false) => {
+    if (!silencioso) setLoading(true);
     try {
       const [sol, man, eq, rep] = await Promise.all([
         api.get("/mantenimientos/solicitudes"),
@@ -2210,14 +2210,19 @@ export default function Reparaciones() {
       setRepuestosCat(Array.isArray(rep.data) ? rep.data : []);
       setTecnicos(tecs);
     } catch {
-      showMsg("error", "Error cargando datos");
+      if (!silencioso) showMsg("error", "Error cargando datos");
     } finally {
-      setLoading(false);
+      if (!silencioso) setLoading(false);
     }
   }, []);
 
   useEffect(() => {
     load();
+    // Refresca sola cada 20s (solicitudes nuevas, reprogramaciones, etc.)
+    // sin que el admin tenga que recargar la página a mano. "silencioso"
+    // evita el parpadeo de "Cargando..." en cada refresco de fondo.
+    const t = setInterval(() => load(true), 20000);
+    return () => clearInterval(t);
   }, [load]);
 
   const loadReportes = async () => {
