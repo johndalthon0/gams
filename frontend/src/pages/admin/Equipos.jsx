@@ -8,6 +8,11 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { addSistemaLogo, getSistemaConfig } from "../../utils/sistemaConfig";
 
+const fmtFecha = (d) =>
+  d ? new Date(d).toLocaleDateString("es-BO", {
+    timeZone: "America/La_Paz", day: "2-digit", month: "short", year: "numeric",
+  }) : "—";
+
 const inputStyle = {
   width: "100%",
   background: "var(--bg-surface2)",
@@ -151,7 +156,7 @@ function Equipos() {
       body: equiposFiltrados.map(e => [
         e.codigo, e.nombre, e.tipo || "—",
         e.sucursal || "—",
-        e.fecha_adquisicion || "—", e.estado
+        fmtFecha(e.fecha_adquisicion), e.estado
       ]),
       styles: { fontSize: 8 },
       headStyles: { fillColor: [108, 99, 255] }
@@ -385,7 +390,7 @@ function Equipos() {
                   <td data-label="Código" style={{ color: "var(--accent-text)", fontWeight: 600 }}>{e.codigo}</td>
                   <td className="td-sec" data-label="Tipo" style={{ color: "var(--text-secondary)" }}>{e.tipo}</td>
                   <td data-label="Equipo" style={{ color: "var(--text-primary)" }}>{e.nombre}</td>
-                  <td className="td-sec" data-label="F. Adquisición" style={{ color: "var(--text-secondary)" }}>{e.fecha_adquisicion || "—"}</td>
+                  <td className="td-sec" data-label="F. Adquisición" style={{ color: "var(--text-secondary)" }}>{fmtFecha(e.fecha_adquisicion)}</td>
                   <td data-label="Estado"><span className={badgeClass(e.estado)}>{e.estado}</span></td>
                   <td data-label="Acciones">
                     <div style={{ display: "flex", gap: "6px", flexWrap: "nowrap", whiteSpace: "nowrap" }}>
@@ -535,7 +540,7 @@ function Equipos() {
                   { label: "Equipo/Modelo", value: equipoView.nombre },
                   { label: "Sucursal",      value: equipoView.sucursal || "—" },
                   { label: "Adquisición",   value: equipoView.tipo_adquisicion || "—" },
-                  { label: "Fecha",         value: equipoView.fecha_adquisicion || "—" },
+                  { label: "Fecha",         value: fmtFecha(equipoView.fecha_adquisicion) },
                   { label: "Proveedor",     value: equipoView.proveedor || "—" },
                 ].map(f => (
                   <div key={f.label} style={{
