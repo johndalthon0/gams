@@ -18,8 +18,17 @@ services:
     instance_size_slug: basic-xxs
     instance_count: 1
     http_port: 8080
+    # El entrenamiento es CPU-intensivo y el plan solo tiene 1 vCPU; el GIL
+    # de Python puede atrasar la respuesta al ping de salud mientras entrena.
+    # Con los valores por defecto, DigitalOcean lo marcaba como caido y lo
+    # reiniciaba a mitad de entrenamiento. Se da mas margen.
     health_check:
       http_path: /
+      initial_delay_seconds: 20
+      period_seconds: 30
+      timeout_seconds: 10
+      success_threshold: 1
+      failure_threshold: 5
     envs:
       - key: DB_HOST
         value: mysql-50a1390-jdalthon00-1fc3.a.aivencloud.com
