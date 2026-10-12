@@ -732,14 +732,14 @@ table {
    columna extra (una celda display:none no participa del layout). */
 table.rtable td.rtable-toggle-cell { display: none; }
 
-/* ── Tablas responsive: se "encajonan" en tarjetas hasta 1024px, el mismo
-   limite que usa AdminLayout para el menu hamburguesa (isMobile), asi
-   los dos coinciden -- antes el menu ya se volvia movil en ese rango
-   pero la tabla seguia ancha con scroll. Cada <td> necesita
-   data-label="Columna" para el rotulo. Mas ancho que eso (tablet grande
-   en horizontal/laptop/desktop) la tabla usa su propio scroll horizontal
-   interno (ver minWidth:0 en AdminLayout). ── */
-@media (max-width: 1024px) {
+/* ── Tablas responsive: la regla no es "movil vs desktop", es "entra
+   completa o se encajona" -- si la ventana no alcanza para mostrar
+   todas las columnas sin scroll, pasa a tarjetas. 1600px cubre
+   ventanas de escritorio achicadas/divididas a la mitad de pantalla,
+   no solo celulares. Cada <td> necesita data-label="Columna" para el
+   rotulo. Solo en monitores grandes con la ventana maximizada se ve
+   la tabla ancha completa. ── */
+@media (max-width: 1600px) {
   .rtable-wrap { overflow-x: visible !important; }
   table.rtable thead { display: none; }
   table.rtable, table.rtable tbody, table.rtable tr, table.rtable td {
