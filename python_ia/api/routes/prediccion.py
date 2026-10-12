@@ -181,6 +181,8 @@ def _calcular_equipos_riesgo(guardar: bool = True):
 
             shap_dict   = calcular_shap_equipo(modelo, X_scaled[i:i+1], nombre_modelo, X_scaled)
             row_feat    = features_df.iloc[i].to_dict()
+            row_feat["_tipo_nombre"]   = str(row_eq.get("equipo_tipo", "")) or None
+            row_feat["_estado_nombre"] = str(row_eq.get("estado", "")) or None
             explicacion = generar_explicacion_texto(
                 shap_dict, probabilidad_falla, nivel_riesgo,
                 dias_estimados, anomalia_detectada, row_feat

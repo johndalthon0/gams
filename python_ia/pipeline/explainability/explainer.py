@@ -137,18 +137,23 @@ def generar_explicacion_texto(
             "medio" if abs(valor_shap) >= 0.03 else
             "bajo"
         )
-        val_real = row_datos.get(feature, 0.0)
-        if isinstance(val_real, float):
-            if "pct" in feature:
-                val_fmt = f"{round(val_real * 100, 1)}%"
-            elif "costo" in feature or "ratio" in feature:
-                val_fmt = f"Bs {val_real:,.2f}"
-            elif "dias" in feature:
-                val_fmt = f"{int(val_real)} días"
-            else:
-                val_fmt = f"{round(val_real, 2)}"
+        if feature == "tipo_codificado" and row_datos.get("_tipo_nombre"):
+            val_real = val_fmt = row_datos["_tipo_nombre"]
+        elif feature == "estado_codificado" and row_datos.get("_estado_nombre"):
+            val_real = val_fmt = row_datos["_estado_nombre"]
         else:
-            val_fmt = str(val_real)
+            val_real = row_datos.get(feature, 0.0)
+            if isinstance(val_real, float):
+                if "pct" in feature:
+                    val_fmt = f"{round(val_real * 100, 1)}%"
+                elif "costo" in feature or "ratio" in feature:
+                    val_fmt = f"Bs {val_real:,.2f}"
+                elif "dias" in feature:
+                    val_fmt = f"{int(val_real)} días"
+                else:
+                    val_fmt = str(int(val_real)) if val_real == int(val_real) else f"{round(val_real, 2)}"
+            else:
+                val_fmt = str(val_real)
 
         factores.append({
             "feature":   feature,
@@ -159,25 +164,36 @@ def generar_explicacion_texto(
             "direccion": "aumenta riesgo" if valor_shap > 0 else "reduce riesgo",
         })
 
-    altos  = [f["label"] for f in factores if f["impacto"] == "alto"]
-    medios = [f["label"] for f in factores if f["impacto"] == "medio"]
+    altos  = [f for f in factores if f["impacto"] == "alto"]
+    medios = [f for f in factores if f["impacto"] == "medio"]
 
-    def _listar(nombres):
+    def _listar(items):
+        nombres = [f"{f['label']} ({f['valor']})" for f in items]
         if not nombres:
             return ""
         if len(nombres) == 1:
             return nombres[0]
         return ", ".join(nombres[:-1]) + " y " + nombres[-1]
 
-    conclusion = f"La IA analizó {len(shap_dict)} variables. "
-    if altos:
-        conclusion += f"Impacto alto: {_listar(altos)}. "
-    if medios:
-        conclusion += f"Impacto medio: {_listar(medios)}. "
-    conclusion += f"Estima {round(probabilidad, 1)}% de probabilidad de falla. "
+    principales = (altos or medios)[:3]
+
+    if principales:
+        conclusion = (
+            f"El riesgo lo explican principalmente: {_listar(principales)}. "
+        )
+    else:
+        conclusion = "No se identificaron factores de riesgo claros en el historial del equipo. "
+
+    if altos and medios:
+        conclusion += f"También influyen, con menor peso: {_listar(medios[:3])}. "
+
     if anomalia:
-        conclusion += "Se detectó comportamiento anómalo (Isolation Forest). "
-    conclusion += f"Nivel: {nivel_riesgo}. Intervención recomendada en {dias} días."
+        conclusion += "Además, su historial de mantenimiento muestra un patrón distinto al resto de equipos similares, lo que refuerza la alerta. "
+
+    conclusion += (
+        f"La IA estima {round(probabilidad, 1)}% de probabilidad de falla "
+        f"(riesgo {nivel_riesgo}) y recomienda intervenir en los próximos {dias} días."
+    )
 
     return {
         "factores":   factores,
