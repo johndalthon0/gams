@@ -150,6 +150,17 @@ const CE = {
 // ─────────────────────────────────────────────────────────────
 // COMPONENTES PEQUEÑOS
 // ─────────────────────────────────────────────────────────────
+const ESTADO_LABEL = {
+  PENDIENTE_CONFIRMACION: "Pendiente",
+  PROGRAMADO: "Programado",
+  EN_PROCESO: "En proceso",
+  PAUSADO: "Pausado",
+  REPROGRAMAR: "Reprogramar",
+  PENDIENTE: "Pendiente",
+  FINALIZADO: "Finalizado",
+  RECHAZADO: "Rechazado",
+};
+
 function Pill({ estado }) {
   const c = CE[estado] || CE.PENDIENTE;
   return (
@@ -165,7 +176,7 @@ function Pill({ estado }) {
         whiteSpace: "nowrap",
       }}
     >
-      {estado?.replace(/_/g, " ")}
+      {ESTADO_LABEL[estado] || estado?.replace(/_/g, " ")}
     </span>
   );
 }
@@ -2654,12 +2665,6 @@ export default function Reparaciones() {
                         "Equipo",
                         "Tipo",
                         "Estado",
-                        "Técnico",
-                        "Responsable",
-                        "F. Programada",
-                        "F. Inicio",
-                        "Riesgo IA",
-                        "Costo",
                         "Acciones",
                       ].map((h) => (
                         <th
@@ -2684,7 +2689,7 @@ export default function Reparaciones() {
                     {mantFiltrados.length === 0 ? (
                       <tr>
                         <td
-                          colSpan={11}
+                          colSpan={5}
                           style={{
                             padding: "4rem",
                             textAlign: "center",
@@ -2778,133 +2783,6 @@ export default function Reparaciones() {
                           </td>
                           <td data-label="Estado" style={{ padding: "12px 14px" }}>
                             <Pill estado={m.estado} />
-                          </td>
-                          <td
-                            className="td-sec"
-                            data-label="Técnico"
-                            style={{
-                              padding: "12px 14px",
-                              color: "var(--text-secondary)",
-                              fontSize: "12px",
-                            }}
-                          >
-                            {m.tecnico_nombre_completo || m.tecnico || "—"}
-                            {rol === "EMPLEADO" &&
-                              m.tecnico_usuario_id === currentUser.id && (
-                                <span
-                                  style={{
-                                    display: "block",
-                                    background: "rgba(34,197,94,0.12)",
-                                    color: "#22c55e",
-                                    border: "1px solid #22c55e",
-                                    borderRadius: "4px",
-                                    padding: "1px 6px",
-                                    fontSize: "10px",
-                                    fontWeight: 600,
-                                    marginTop: "3px",
-                                    width: "fit-content",
-                                  }}
-                                >
-                                  Asignado a ti
-                                </span>
-                              )}
-                          </td>
-                          <td
-                            className="td-sec"
-                            data-label="Responsable"
-                            style={{
-                              padding: "12px 14px",
-                              color: "var(--text-secondary)",
-                              fontSize: "12px",
-                            }}
-                          >
-                            {m.responsable_nombre_completo || "—"}
-                          </td>
-                          <td
-                            className="td-sec"
-                            data-label="F. Programada"
-                            style={{ padding: "12px 14px", fontSize: "12px" }}
-                          >
-                            {m.fecha_programada ? (
-                              <span
-                                style={{
-                                  color:
-                                    new Date(m.fecha_programada) < new Date() &&
-                                    !["FINALIZADO", "RECHAZADO"].includes(
-                                      m.estado,
-                                    )
-                                      ? "#ef4444"
-                                      : "var(--text-secondary)",
-                                }}
-                              >
-                                {fmtFull(m.fecha_programada)}
-                              </span>
-                            ) : (
-                              "—"
-                            )}
-                          </td>
-                          <td
-                            className="td-sec"
-                            data-label="F. Inicio"
-                            style={{
-                              padding: "12px 14px",
-                              color: "var(--text-muted)",
-                              fontSize: "12px",
-                              whiteSpace: "nowrap",
-                            }}
-                          >
-                            {m.fecha_inicio ? fmtFull(m.fecha_inicio) : "—"}
-                          </td>
-                          <td
-                            className="td-sec"
-                            data-label="Riesgo IA"
-                            style={{
-                              padding: "12px 14px",
-                              textAlign: "center",
-                            }}
-                          >
-                            {m.nivel_riesgo_ia ? (
-                              <span
-                                style={{
-                                  display: "inline-flex",
-                                  alignItems: "center",
-                                  gap: "5px",
-                                  color: "var(--text-secondary)",
-                                  fontSize: "11px",
-                                  fontWeight: 600,
-                                  whiteSpace: "nowrap",
-                                }}
-                              >
-                                <span
-                                  style={{
-                                    width: "7px",
-                                    height: "7px",
-                                    borderRadius: "50%",
-                                    background:
-                                      m.nivel_riesgo_ia === "CRITICO"
-                                        ? "#ef4444"
-                                        : m.nivel_riesgo_ia === "ALTO"
-                                          ? "#f59e0b"
-                                          : "#eab308",
-                                  }}
-                                />
-                                {m.nivel_riesgo_ia}
-                              </span>
-                            ) : (
-                              "—"
-                            )}
-                          </td>
-                          <td
-                            data-label="Costo"
-                            style={{
-                              padding: "12px 14px",
-                              color: m.costo
-                                ? "var(--text-primary)"
-                                : "var(--text-muted)",
-                              fontWeight: 600,
-                            }}
-                          >
-                            {fmtBs(m.costo)}
                           </td>
                           <td data-label="Acciones" style={{ padding: "12px 14px" }}>
                             <div style={{ display: "flex", gap: "6px" }}>
