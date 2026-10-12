@@ -904,17 +904,8 @@ function ModalDetalle({ mant, onClose, onAction, cargando }) {
             marginBottom: "1rem",
           }}
         >
-          {/* Pausar / Reanudar */}
+          {/* Reanudar (solo para registros ya pausados — no se puede volver a pausar) */}
           <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-            {mant.estado === "EN_PROCESO" && (
-              <button
-                onClick={() => onAction("PAUSAR", { observacion: obs })}
-                disabled={cargando}
-                style={{ ...btnWarn, opacity: cargando ? 0.6 : 1 }}
-              >
-                ⏸ Pausar
-              </button>
-            )}
             {mant.estado === "PAUSADO" && (
               <button
                 onClick={() => onAction("INICIAR")}
@@ -2322,7 +2313,6 @@ export default function Reparaciones() {
     { k: "EN_PROCESO", l: "En proceso" },
     { k: "PROGRAMADO", l: "Programado" },
     { k: "PENDIENTE_CONFIRMACION", l: "Pend. Confirm." },
-    { k: "PAUSADO", l: "Pausado" },
     { k: "REPROGRAMAR", l: "Reprogramar" },
     { k: "FINALIZADO", l: "Finalizado" },
   ];
