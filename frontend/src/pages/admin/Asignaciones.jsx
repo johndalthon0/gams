@@ -329,8 +329,7 @@ function Asignaciones() {
           <table className="table-base rtable">
             <thead>
               <tr>
-                {["#","Equipo","Usuario","Área","Cargo","Sucursal",
-                  "Fecha asig.","Fecha dev.","Condición devolución","Estado","Acciones"].map(h => (
+                {["#","Equipo","Usuario","Estado","Acciones"].map(h => (
                   <th key={h}>{h}</th>
                 ))}
               </tr>
@@ -338,7 +337,7 @@ function Asignaciones() {
             <tbody>
               {filtradas.length === 0 ? (
                 <tr>
-                  <td colSpan={11} style={{ textAlign: "center", padding: "3rem", color: "var(--text-secondary)" }}>
+                  <td colSpan={5} style={{ textAlign: "center", padding: "3rem", color: "var(--text-secondary)" }}>
                     {buscar ? `Sin resultados para "${buscar}"` : "Sin asignaciones en esta vista"}
                   </td>
                 </tr>
@@ -359,31 +358,6 @@ function Asignaciones() {
                     </p>
                     <p style={{ margin: 0, color: "var(--text-muted)", fontSize: "11px" }}>{a.email}</p>
                   </td>
-                  <td className="td-sec" data-label="Área" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{a.area     || "—"}</td>
-                  <td className="td-sec" data-label="Cargo" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{a.cargo    || "—"}</td>
-                  <td className="td-sec" data-label="Sucursal" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{a.sucursal || "—"}</td>
-                  <td className="td-sec" data-label="Fecha asig." style={{ color: "var(--text-muted)", fontSize: "12px", whiteSpace: "nowrap" }}>
-                    {fmt(a.fecha_asignacion)}
-                  </td>
-                  <td className="td-sec" data-label="Fecha dev." style={{ color: "var(--text-muted)", fontSize: "12px", whiteSpace: "nowrap" }}>
-                    {a.fecha_devolucion ? fmt(a.fecha_devolucion) : "—"}
-                  </td>
-                  <td className="td-sec" data-label="Condición devolución" style={{ maxWidth: "180px" }}>
-                    {a.observaciones_devolucion ? (
-                      <button onClick={() => setModalVer(a)} style={{
-                        background: "none", border: "none",
-                        color: "var(--accent-text)", cursor: "pointer",
-                        fontSize: "12px", textAlign: "left",
-                        fontFamily: "inherit", padding: 0,
-                        textDecoration: "underline"
-                      }}>
-                        {a.observaciones_devolucion.substring(0, 40)}
-                        {a.observaciones_devolucion.length > 40 ? "..." : ""}
-                      </button>
-                    ) : (
-                      <span style={{ color: "var(--text-muted)", fontSize: "12px" }}>—</span>
-                    )}
-                  </td>
                   <td data-label="Estado">
                     <span className={a.estado === 1 ? "badge-success" : "badge-accent"}>
                       {a.estado === 1 ? "✅ Activa" : "📦 Devuelto"}
@@ -401,13 +375,12 @@ function Asignaciones() {
                         📦
                       </button>
                     )}
-                    {a.estado === 0 && (
-                      <button onClick={() => setModalVer(a)} style={{
-                        background: "var(--accent-light)", border: "1px solid var(--accent)",
-                        color: "var(--accent-text)", borderRadius: "8px",
-                        padding: "5px 10px", cursor: "pointer", fontSize: "13px"
-                      }}>👁</button>
-                    )}
+                    <button onClick={() => setModalVer(a)} title="Ver detalle completo" style={{
+                      background: "var(--accent-light)", border: "1px solid var(--accent)",
+                      color: "var(--accent-text)", borderRadius: "8px",
+                      padding: "5px 10px", cursor: "pointer", fontSize: "13px",
+                      marginLeft: a.estado === 1 ? "6px" : 0
+                    }}>👁</button>
                   </td>
                   <TdToggle />
                 </tr>
