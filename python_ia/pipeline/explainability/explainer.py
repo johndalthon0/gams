@@ -159,13 +159,22 @@ def generar_explicacion_texto(
             "direccion": "aumenta riesgo" if valor_shap > 0 else "reduce riesgo",
         })
 
-    n_altos  = sum(1 for f in factores if f["impacto"] == "alto")
-    n_medios = sum(1 for f in factores if f["impacto"] == "medio")
-    conclusion = (
-        f"La IA analizó {len(shap_dict)} variables. "
-        f"Con {n_altos} factores de impacto alto y {n_medios} medio, "
-        f"estima {round(probabilidad, 1)}% de probabilidad de falla. "
-    )
+    altos  = [f["label"] for f in factores if f["impacto"] == "alto"]
+    medios = [f["label"] for f in factores if f["impacto"] == "medio"]
+
+    def _listar(nombres):
+        if not nombres:
+            return ""
+        if len(nombres) == 1:
+            return nombres[0]
+        return ", ".join(nombres[:-1]) + " y " + nombres[-1]
+
+    conclusion = f"La IA analizó {len(shap_dict)} variables. "
+    if altos:
+        conclusion += f"Impacto alto: {_listar(altos)}. "
+    if medios:
+        conclusion += f"Impacto medio: {_listar(medios)}. "
+    conclusion += f"Estima {round(probabilidad, 1)}% de probabilidad de falla. "
     if anomalia:
         conclusion += "Se detectó comportamiento anómalo (Isolation Forest). "
     conclusion += f"Nivel: {nivel_riesgo}. Intervención recomendada en {dias} días."
