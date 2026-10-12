@@ -105,16 +105,35 @@ exports.getProducto = async (req, res) => {
   }
 };
 
+// Codigo unico autogenerado (REP-0001, REP-0002...) para que nadie tenga
+// que inventarlo a mano ni se pueda repetir por error.
+const generarCodigoProducto = async () => {
+  const [[r]] = await db.query(
+    `SELECT COALESCE(MAX(CAST(SUBSTRING(codigo,5) AS UNSIGNED)),0) AS max
+     FROM repuestos WHERE codigo REGEXP '^REP-[0-9]+$'`
+  );
+  let n = r.max + 1;
+  for (let intento = 0; intento < 20; intento++) {
+    const candidato = `REP-${String(n).padStart(4, '0')}`;
+    const [existe] = await db.query('SELECT id FROM repuestos WHERE codigo = ?', [candidato]);
+    if (existe.length === 0) return candidato;
+    n++;
+  }
+  throw new Error('No se pudo generar un código único');
+};
+
 exports.createProducto = async (req, res) => {
   try {
-    const { nombre, tipo, codigo, descripcion, precio, stock, stock_minimo, unidad, categoria_id } = req.body;
+    let { nombre, tipo, codigo, descripcion, precio, stock, stock_minimo, unidad, categoria_id } = req.body;
     if (!nombre) return res.status(400).json({ message: 'Nombre requerido' });
+
+    codigo = codigo ? codigo.trim() : await generarCodigoProducto();
 
     const [r] = await db.query(
       `INSERT INTO repuestos
          (nombre, tipo, codigo, descripcion, precio, stock, stock_minimo, unidad, categoria_id, estado)
        VALUES (?,?,?,?,?,?,?,?,?,1)`,
-      [nombre, tipo || null, codigo || null, descripcion || null,
+      [nombre, tipo || null, codigo, descripcion || null,
        precio || 0, stock || 0, stock_minimo || 5, unidad || 'unidad', categoria_id || null]
     );
 

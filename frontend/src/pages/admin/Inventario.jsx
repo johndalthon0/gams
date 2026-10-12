@@ -246,10 +246,6 @@ function FormProducto({ inicial, categorias, onClose, onSuccess, showMsg }) {
           <input style={S.inp} value={form.nombre} onChange={e => set("nombre", e.target.value)} placeholder="Ej: Disco SSD 500GB Samsung" />
         </div>
         <div>
-          <label style={S.lbl}>Código interno</label>
-          <input style={S.inp} value={form.codigo || ""} onChange={e => set("codigo", e.target.value)} placeholder="REP-001" />
-        </div>
-        <div>
           <label style={S.lbl}>Tipo</label>
           <input style={S.inp} value={form.tipo || ""} onChange={e => set("tipo", e.target.value)} placeholder="Hardware, Cable, Tóner..." />
         </div>
