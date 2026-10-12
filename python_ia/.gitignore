@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+.env
+venv/
+.venv/
+
+# El modelo entrenado ya se persiste en la BD (ia_modelo_versiones.modelo_blob/
+# scaler_blob) y se restaura solo al arrancar o en la primera prediccion si
+# falta. Comitear estos binarios hacia que cada build nueva "congelara" el
+# modelo viejo (incluido el sintetico de fabrica) sin importar lo entrenado
+# despues -- esa era la causa de que el modelo real se perdiera en cada
+# redeploy/reinicio.
+trained_models/
+logs/

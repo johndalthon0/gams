@@ -1,4 +1,5 @@
 import os
+import io
 import json
 import joblib
 import logging
@@ -27,7 +28,51 @@ def _nueva_version() -> str:
 
 
 def modelo_existe() -> bool:
-    return os.path.exists(MODEL_FILE) and os.path.exists(SCALER_FILE)
+    if os.path.exists(MODEL_FILE) and os.path.exists(SCALER_FILE):
+        return True
+    # El disco del contenedor es temporal -- cada redeploy/reinicio lo borra.
+    # Si no esta en disco, se intenta restaurar la ultima version activa
+    # guardada en la BD antes de rendirse.
+    return _restaurar_desde_bd()
+
+
+def _restaurar_desde_bd() -> bool:
+    try:
+        rows = execute_query("""
+            SELECT version, modelo_ganador, equipos_usados, filas_dataset,
+                   metricas_json, features_json, modelo_blob, scaler_blob
+            FROM ia_modelo_versiones
+            WHERE activa = 1 AND modelo_blob IS NOT NULL
+            ORDER BY id DESC LIMIT 1
+        """)
+        if not rows:
+            return False
+        r = rows[0]
+
+        os.makedirs(MODELS_DIR, exist_ok=True)
+        with open(MODEL_FILE, "wb") as f:
+            f.write(r["modelo_blob"])
+        with open(SCALER_FILE, "wb") as f:
+            f.write(r["scaler_blob"])
+
+        meta = {
+            "version":      r["version"],
+            "modelo":       r["modelo_ganador"],
+            "n_equipos":    r["equipos_usados"],
+            "n_filas":      r["filas_dataset"],
+            "feature_cols": json.loads(r["features_json"]) if r["features_json"] else [],
+            "metricas":     json.loads(r["metricas_json"]) if r["metricas_json"] else {},
+        }
+        with open(META_FILE, "w") as f:
+            json.dump(meta, f, indent=2, default=str)
+        with open(VERSION_FILE, "w") as f:
+            f.write(r["version"])
+
+        logger.info(f"Modelo restaurado desde BD: {r['version']}")
+        return True
+    except Exception as e:
+        logger.error(f"No se pudo restaurar modelo desde BD: {e}")
+        return False
 
 
 def guardar_modelo(
@@ -55,15 +100,23 @@ def guardar_modelo(
     with open(VERSION_FILE, "w") as f:
         f.write(version)
 
-    # Guardar en BD — usando columnas que SÍ existen
+    # El disco del contenedor es temporal: cualquier reinicio/redeploy lo
+    # borra. Se guarda tambien el modelo y el scaler como blob en la BD
+    # (persistente) para poder restaurarlos despues (ver _restaurar_desde_bd).
+    buf_modelo = io.BytesIO()
+    joblib.dump(modelo, buf_modelo)
+    buf_scaler = io.BytesIO()
+    joblib.dump(scaler, buf_scaler)
+
     try:
         execute_update("UPDATE ia_modelo_versiones SET activa = 0")
         execute_insert("""
             INSERT INTO ia_modelo_versiones
                 (version, modelo_ganador, equipos_usados, filas_dataset,
                  accuracy, precision_score, recall, f1, roc_auc,
-                 metricas_json, features_json, comparacion_json, activa, notas)
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,1,%s)
+                 metricas_json, features_json, comparacion_json,
+                 modelo_blob, scaler_blob, activa, notas)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,1,%s)
         """, (
             version,
             nombre_modelo,
@@ -77,9 +130,11 @@ def guardar_modelo(
             json.dumps(metricas,    default=str),
             json.dumps(feature_cols,default=str),
             json.dumps(comparacion, default=str),
+            buf_modelo.getvalue(),
+            buf_scaler.getvalue(),
             f"Entrenamiento automático — {nombre_modelo}"
         ))
-        logger.info(f"Versión guardada en BD: {version}")
+        logger.info(f"Versión guardada en BD (con modelo): {version}")
     except Exception as e:
         logger.error(f"Error guardando versión en BD: {e}")
 
