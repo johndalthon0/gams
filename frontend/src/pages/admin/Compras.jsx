@@ -638,9 +638,18 @@ export default function Compras() {
         </div>
       </div>
 
-      {/* ── MENSAJE ── */}
+      {/* ── MENSAJE — fijo arriba de la pantalla, visible sin importar el scroll ── */}
       {msg.text && (
-        <div style={{ background: msg.type === "success" ? "var(--success-bg)" : "var(--danger-bg)", border:`1px solid ${msg.type==="success"?"var(--success)":"var(--danger)"}`, color: msg.type==="success" ? "var(--success)" : "var(--danger)", borderRadius:"10px", padding:"12px 16px", marginBottom:"1.25rem", fontSize:"14px", fontWeight:500 }}>
+        <div style={{
+          position: "fixed", top: "76px", left: "50%", transform: "translateX(-50%)",
+          zIndex: 10001, minWidth: "280px", maxWidth: "min(90vw, 480px)",
+          boxShadow: "0 10px 30px rgba(0,0,0,0.3)",
+          background: msg.type === "success" ? "var(--success-bg)" : "var(--danger-bg)",
+          border:`1px solid ${msg.type==="success"?"var(--success)":"var(--danger)"}`,
+          color: msg.type==="success" ? "var(--success)" : "var(--danger)",
+          borderRadius:"10px", padding:"12px 16px", fontSize:"14px", fontWeight:500,
+          textAlign: "center",
+        }}>
           {msg.text}
         </div>
       )}

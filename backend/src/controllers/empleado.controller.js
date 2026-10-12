@@ -156,6 +156,33 @@ exports.toggleEstado = async (req, res) => {
 };
 
 // =============================
+// CAMBIAR CONTRASEÑA (admin resetea la de un empleado)
+// =============================
+exports.cambiarPassword = async (req, res) => {
+  try {
+    const { id } = req.params; // id de empleados
+    const { password } = req.body;
+
+    if (!password || password.length < 6)
+      return res.status(400).json({ message: 'La contraseña debe tener al menos 6 caracteres' });
+
+    const [emp] = await db.query(
+      'SELECT usuario_id FROM empleados WHERE id = ?', [id]
+    );
+    if (emp.length === 0)
+      return res.status(404).json({ message: 'Empleado no encontrado' });
+
+    const hash = bcrypt.hashSync(password, 10);
+    await db.query('UPDATE usuarios SET password = ? WHERE id = ?', [hash, emp[0].usuario_id]);
+
+    res.json({ message: 'Contraseña actualizada' });
+  } catch (err) {
+    console.log("ERROR cambiarPassword:", err.message);
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// =============================
 // ELIMINAR
 // =============================
 exports.deleteEmpleado = async (req, res) => {

@@ -63,7 +63,7 @@ function Equipos() {
 
   const emptyForm = {
     id: "", codigo: "", nombre: "", tipo_id: "",
-    sucursal_id: "", numero_serie: "",
+    sucursal_id: "",
     tipo_adquisicion: "Propio", caracteristicas: "",
     proveedor: "", fecha_adquisicion: "", observaciones: ""
   };
@@ -98,7 +98,7 @@ function Equipos() {
 
   const save = async () => {
     try {
-      if (!form.codigo || !form.nombre || !form.tipo_id) {
+      if (!form.nombre || !form.tipo_id) {
         await avisar("Completa los campos obligatorios.");
         return;
       }
@@ -147,10 +147,10 @@ function Equipos() {
 
     autoTable(doc, {
       startY: 30,
-      head: [["Código","Equipo","Tipo","N° Serie","Sucursal","F. Adquisición","Estado"]],
+      head: [["Código","Equipo","Tipo","Sucursal","F. Adquisición","Estado"]],
       body: equiposFiltrados.map(e => [
         e.codigo, e.nombre, e.tipo || "—",
-        e.numero_serie || "—", e.sucursal || "—",
+        e.sucursal || "—",
         e.fecha_adquisicion || "—", e.estado
       ]),
       styles: { fontSize: 8 },
@@ -287,9 +287,7 @@ function Equipos() {
               gap: "16px"
             }}>
               {[
-                { label: "Código *",          name: "codigo",            type: "text" },
                 { label: "Equipo / Modelo *", name: "nombre",            type: "text" },
-                { label: "Número de Serie",   name: "numero_serie",      type: "text" },
                 { label: "Proveedor",         name: "proveedor",         type: "text" },
                 { label: "Fecha Adquisición", name: "fecha_adquisicion", type: "date" },
                 { label: "Características",   name: "caracteristicas",   type: "text" },
@@ -369,7 +367,7 @@ function Equipos() {
           <table className="table-base rtable">
             <thead>
               <tr>
-                {["Sucursal","Código","Tipo","Equipo","N/S","F. Adquisición","Estado","Acciones"].map(h => (
+                {["Sucursal","Código","Tipo","Equipo","F. Adquisición","Estado","Acciones"].map(h => (
                   <th key={h}>{h}</th>
                 ))}
               </tr>
@@ -377,7 +375,7 @@ function Equipos() {
             <tbody>
               {equiposFiltrados.length === 0 ? (
                 <tr>
-                  <td colSpan={8} style={{ textAlign: "center", padding: "3rem", color: "var(--text-secondary)" }}>
+                  <td colSpan={7} style={{ textAlign: "center", padding: "3rem", color: "var(--text-secondary)" }}>
                     {buscar ? `Sin resultados para "${buscar}"` : "No hay equipos registrados"}
                   </td>
                 </tr>
@@ -387,7 +385,6 @@ function Equipos() {
                   <td data-label="Código" style={{ color: "var(--accent-text)", fontWeight: 600 }}>{e.codigo}</td>
                   <td className="td-sec" data-label="Tipo" style={{ color: "var(--text-secondary)" }}>{e.tipo}</td>
                   <td data-label="Equipo" style={{ color: "var(--text-primary)" }}>{e.nombre}</td>
-                  <td className="td-sec" data-label="N/S" style={{ color: "var(--text-secondary)" }}>{e.numero_serie || "—"}</td>
                   <td className="td-sec" data-label="F. Adquisición" style={{ color: "var(--text-secondary)" }}>{e.fecha_adquisicion || "—"}</td>
                   <td data-label="Estado"><span className={badgeClass(e.estado)}>{e.estado}</span></td>
                   <td data-label="Acciones">
@@ -404,7 +401,7 @@ function Equipos() {
                           setForm({
                             id: e.id, codigo: e.codigo || "", nombre: e.nombre || "",
                             tipo_id: e.tipo_id || "", sucursal_id: e.sucursal_id || "",
-                            numero_serie: e.numero_serie || "", tipo_adquisicion: e.tipo_adquisicion || "",
+                            tipo_adquisicion: e.tipo_adquisicion || "",
                             caracteristicas: e.caracteristicas || "", proveedor: e.proveedor || "",
                             fecha_adquisicion: e.fecha_adquisicion || "", observaciones: e.observaciones || ""
                           });
@@ -536,7 +533,6 @@ function Equipos() {
                   { label: "Código",        value: equipoView.codigo },
                   { label: "Tipo",          value: equipoView.tipo },
                   { label: "Equipo/Modelo", value: equipoView.nombre },
-                  { label: "Número Serie",  value: equipoView.numero_serie || "—" },
                   { label: "Sucursal",      value: equipoView.sucursal || "—" },
                   { label: "Adquisición",   value: equipoView.tipo_adquisicion || "—" },
                   { label: "Fecha",         value: equipoView.fecha_adquisicion || "—" },

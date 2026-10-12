@@ -113,9 +113,9 @@ function Bajas() {
 
     sec("DATOS DEL EQUIPO");
     par("Código:",     b.equipo_codigo, "Equipo/Modelo:", b.equipo_nombre);
-    par("Tipo:",       b.equipo_tipo,   "N° Serie:",      b.numero_serie || "—");
-    par("Sucursal:",   b.sucursal,      "Área:",          b.area || "—");
-    par("Adquisición:", b.tipo_adquisicion || "—", "Proveedor:", b.proveedor || "—");
+    par("Tipo:",       b.equipo_tipo,   "Sucursal:",      b.sucursal || "—");
+    par("Área:",       b.area || "—",   "Adquisición:",   b.tipo_adquisicion || "—");
+    par("Proveedor:",  b.proveedor || "—");
     y += 4;
 
     sec("DATOS DE LA BAJA");
@@ -165,10 +165,10 @@ function Bajas() {
     doc.setTextColor(30, 30, 30);
     autoTable(doc, {
       startY: 34,
-      head: [["#","Código","Equipo","Tipo","N° Serie","Sucursal","Área","Registrado por","Motivo","Fecha"]],
+      head: [["#","Código","Equipo","Tipo","Sucursal","Área","Registrado por","Motivo","Fecha"]],
       body: filtradas.map(b => [
         b.id, b.equipo_codigo, b.equipo_nombre,
-        b.equipo_tipo || "—", b.numero_serie || "—",
+        b.equipo_tipo || "—",
         b.sucursal || "—", b.area || "—",
         `${b.usuario_nombre || ""} ${b.usuario_apellido || ""}`.trim() || "—",
         b.motivo || "—", fmtFull(b.fecha_baja)
@@ -331,7 +331,7 @@ function Bajas() {
             <table className="table-base rtable">
               <thead>
                 <tr>
-                  {["#","Equipo","Tipo","N° Serie","Sucursal","Área","Registrado por","Motivo","Detalle","Fecha Baja",""].map(h => (
+                  {["#","Equipo","Tipo","Sucursal","Área","Registrado por","Motivo","Detalle","Fecha Baja",""].map(h => (
                     <th key={h}>{h}</th>
                   ))}
                 </tr>
@@ -349,7 +349,6 @@ function Bajas() {
                       </p>
                     </td>
                     <td className="td-sec" data-label="Tipo" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{b.equipo_tipo || "—"}</td>
-                    <td className="td-sec" data-label="N° Serie" style={{ color: "var(--text-secondary)", fontSize: "12px" }}>{b.numero_serie || "—"}</td>
                     <td className="td-sec" data-label="Sucursal" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{b.sucursal || "—"}</td>
                     <td className="td-sec" data-label="Área" style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{b.area || "—"}</td>
                     <td className="td-sec" data-label="Registrado por">
@@ -446,7 +445,6 @@ function Bajas() {
                   { l: "Código",         v: modalVer.equipo_codigo },
                   { l: "Equipo",         v: modalVer.equipo_nombre },
                   { l: "Tipo",           v: modalVer.equipo_tipo         || "—" },
-                  { l: "N° Serie",       v: modalVer.numero_serie        || "—" },
                   { l: "Sucursal",       v: modalVer.sucursal            || "—" },
                   { l: "Área",           v: modalVer.area                || "—" },
                   { l: "Adquisición",    v: modalVer.tipo_adquisicion    || "—" },

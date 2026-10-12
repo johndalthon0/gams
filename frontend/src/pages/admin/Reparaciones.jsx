@@ -1689,25 +1689,32 @@ function ModalNuevo({
                     Sin resultados para "{buscarEq}"
                   </div>
                 ) : (
-                  eqFilt.map((e) => (
+                  eqFilt.map((e) => {
+                    const bloqueado = e.estado === "MANTENIMIENTO";
+                    return (
                     <div
                       key={e.id}
+                      title={bloqueado ? "Ya tiene un mantenimiento activo — finalízalo antes de registrar uno nuevo" : undefined}
                       onClick={() => {
+                        if (bloqueado) {
+                          setAlerta("Este equipo ya tiene un mantenimiento activo. Finalízalo antes de registrar uno nuevo.");
+                          return;
+                        }
                         set("equipo_id", e.id);
                         setBuscarEq("");
                       }}
                       style={{
                         padding: "10px 14px",
                         borderBottom: "1px solid var(--border)",
-                        cursor: "pointer",
+                        cursor: bloqueado ? "not-allowed" : "pointer",
+                        opacity: bloqueado ? 0.5 : 1,
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
                       }}
-                      onMouseEnter={(ev) =>
-                        (ev.currentTarget.style.background =
-                          "var(--accent-light)")
-                      }
+                      onMouseEnter={(ev) => {
+                        if (!bloqueado) ev.currentTarget.style.background = "var(--accent-light)";
+                      }}
                       onMouseLeave={(ev) =>
                         (ev.currentTarget.style.background = "transparent")
                       }
@@ -1767,7 +1774,7 @@ function ModalNuevo({
                         {e.estado}
                       </span>
                     </div>
-                  ))
+                  );})
                 )}
               </div>
             )}

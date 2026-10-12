@@ -61,6 +61,39 @@ const countPill = {
   fontWeight: 700,
 };
 
+/* ── BTN helpers ── */
+const BtnAdd = ({ onClick, color = "var(--accent)" }) => (
+  <button onClick={onClick} style={{
+    width: "100%", background: "transparent",
+    color, border: `1px dashed ${color}`,
+    borderRadius: "10px", padding: "9px",
+    fontSize: "13px", fontWeight: 700,
+    cursor: "pointer", fontFamily: "inherit",
+    marginBottom: "1rem"
+  }}>
+    + Agregar
+  </button>
+);
+
+/* ── Columna de catálogo ── */
+const CatCol = ({ icon, title, count, children }) => (
+  <div style={colBox}>
+    <div style={colHead}>
+      <h6 style={{ color: "var(--text-primary)", fontWeight: 700, margin: 0, fontSize: "14px" }}>
+        {icon} {title}
+      </h6>
+      <span style={countPill}>{count}</span>
+    </div>
+    {children}
+  </div>
+);
+
+const Vacio = () => (
+  <p style={{ color: "var(--text-muted)", fontSize: "12px", textAlign: "center", padding: "1rem 0", margin: 0 }}>
+    Sin registros
+  </p>
+);
+
 function Catalogos() {
 
   const { confirmar } = useDialog();
@@ -154,39 +187,6 @@ function Catalogos() {
     setEditingType("");
     load();
   };
-
-  /* ── BTN helpers ── */
-  const BtnAdd = ({ onClick, color = "var(--accent)" }) => (
-    <button onClick={onClick} style={{
-      width: "100%", background: "transparent",
-      color, border: `1px dashed ${color}`,
-      borderRadius: "10px", padding: "9px",
-      fontSize: "13px", fontWeight: 700,
-      cursor: "pointer", fontFamily: "inherit",
-      marginBottom: "1rem"
-    }}>
-      + Agregar
-    </button>
-  );
-
-  /* ── Columna de catálogo ── */
-  const CatCol = ({ icon, title, count, children }) => (
-    <div style={colBox}>
-      <div style={colHead}>
-        <h6 style={{ color: "var(--text-primary)", fontWeight: 700, margin: 0, fontSize: "14px" }}>
-          {icon} {title}
-        </h6>
-        <span style={countPill}>{count}</span>
-      </div>
-      {children}
-    </div>
-  );
-
-  const Vacio = () => (
-    <p style={{ color: "var(--text-muted)", fontSize: "12px", textAlign: "center", padding: "1rem 0", margin: 0 }}>
-      Sin registros
-    </p>
-  );
 
   /* ── RENDER ITEM ── */
   const renderItem = (item, tipoItem, ruta, campos = ["nombre"]) => {

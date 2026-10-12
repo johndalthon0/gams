@@ -12,7 +12,8 @@ router.get('/tecnicos',   auth, ctrl.getTecnicos);
 
 router.get('/',           auth, ctrl.getEmpleados);
 router.post('/',          auth, ctrl.createEmpleado);
-router.put('/toggle/:id', auth, ctrl.toggleEstado);
+router.put('/toggle/:id',  auth, ctrl.toggleEstado);
+router.put('/:id/password', auth, ctrl.cambiarPassword);
 router.delete('/:id',     auth, ctrl.deleteEmpleado);
 
 module.exports = router;

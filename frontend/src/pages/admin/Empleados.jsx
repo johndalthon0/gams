@@ -24,16 +24,13 @@ function Empleados() {
 
   const [empleados,  setEmpleados]  = useState([]);
   const [sucursales, setSucursales] = useState([]);
-  const [cargos,     setCargos]     = useState([]);
-  const [areas,      setAreas]      = useState([]);
   const [roles,      setRoles]      = useState([]);
   const [mostrarForm,setMostrarForm]= useState(false);
   const [buscar,     setBuscar]     = useState("");
 
   const emptyForm = {
     nombre: "", apellido: "", email: "", password: "",
-    telefono: "", sucursal_id: "", cargo_id: "",
-    area_id: "", rol_id: ""
+    telefono: "", sucursal_id: "", rol_id: ""
   };
   const [form, setForm] = useState(emptyForm);
   const [guardando, setGuardando] = useState(false);
@@ -42,17 +39,13 @@ function Empleados() {
 
   const getData = async () => {
     try {
-      const [e, s, c, a, r] = await Promise.all([
+      const [e, s, r] = await Promise.all([
         api.get("/empleados"),
         api.get("/empleados/sucursales"),
-        api.get("/empleados/cargos"),
-        api.get("/empleados/areas"),
         api.get("/empleados/roles")
       ]);
       setEmpleados(Array.isArray(e.data) ? e.data : []);
       setSucursales(s.data);
-      setCargos(c.data);
-      setAreas(a.data);
       setRoles(r.data);
     } catch (err) {
       console.log(err);
@@ -75,6 +68,26 @@ function Empleados() {
       avisar(err.response?.data?.message || "No se pudo crear el empleado.", "Error al crear empleado");
     } finally {
       setGuardando(false);
+    }
+  };
+
+  const [modalPass, setModalPass] = useState(null); // { id, nombre }
+  const [nuevaPass, setNuevaPass] = useState("");
+  const [guardandoPass, setGuardandoPass] = useState(false);
+
+  const cambiarPassword = async () => {
+    if (nuevaPass.length < 6)
+      return avisar("La contraseña debe tener al menos 6 caracteres.");
+    setGuardandoPass(true);
+    try {
+      await api.put(`/empleados/${modalPass.id}/password`, { password: nuevaPass });
+      setModalPass(null);
+      setNuevaPass("");
+      avisar(`Contraseña de ${modalPass.nombre} actualizada.`, "Listo");
+    } catch (err) {
+      avisar(err.response?.data?.message || "No se pudo cambiar la contraseña.", "Error");
+    } finally {
+      setGuardandoPass(false);
     }
   };
 
@@ -159,6 +172,7 @@ function Empleados() {
           placeholder="🔍 Buscar por nombre, email, cargo..."
           value={buscar}
           onChange={e => setBuscar(e.target.value)}
+          autoComplete="off"
         />
         <button
           onClick={() => { setMostrarForm(!mostrarForm); setForm(emptyForm); }}
@@ -254,24 +268,6 @@ function Empleados() {
                 )}
               </div>
 
-              <div>
-                <label style={lbl}>Área</label>
-                <select name="area_id" style={inp} value={form.area_id} onChange={handleChange}>
-                  <option value="">Seleccionar área...</option>
-                  {areas.map(a => (
-                    <option key={a.id} value={a.id}>{a.nombre}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label style={lbl}>Cargo</label>
-                <select name="cargo_id" style={inp} value={form.cargo_id} onChange={handleChange}>
-                  <option value="">Seleccionar cargo...</option>
-                  {cargos.map(c => (
-                    <option key={c.id} value={c.id}>{c.nombre}</option>
-                  ))}
-                </select>
-              </div>
               <div>
                 <label style={lbl}>Sucursal</label>
                 <select name="sucursal_id" style={inp} value={form.sucursal_id} onChange={handleChange}>
@@ -378,6 +374,17 @@ function Empleados() {
                           : (narrow ? "▶" : "▶ Activar")}
                       </button>
 
+                      {/* CAMBIAR CONTRASEÑA */}
+                      <button
+                        onClick={() => setModalPass({ id: e.id, nombre: `${e.nombre} ${e.apellido || ""}`.trim(), email: e.email })}
+                        title="Cambiar contraseña"
+                        style={{
+                          background: "var(--accent-light)", border: "1px solid var(--accent)",
+                          color: "var(--accent-text)", borderRadius: "8px",
+                          padding: "5px 10px", cursor: "pointer", fontSize: "13px"
+                        }}
+                      >🔑</button>
+
                       {/* ELIMINAR */}
                       <button
                         onClick={() => eliminar(e.id, `${e.nombre} ${e.apellido || ""}`)}
@@ -397,6 +404,81 @@ function Empleados() {
           </table>
         </div>
       </div>
+
+      {/* MODAL: CAMBIAR CONTRASEÑA */}
+      {modalPass && (
+        <div style={{
+          position: "fixed", inset: 0, background: "rgba(0,0,0,0.65)",
+          zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center",
+          padding: "1rem", backdropFilter: "blur(4px)"
+        }}>
+          <form
+            onSubmit={(e) => { e.preventDefault(); cambiarPassword(); }}
+            autoComplete="off"
+            style={{
+              background: "var(--bg-surface)", border: "1px solid var(--border)",
+              borderRadius: "16px", width: "min(420px, 100%)", overflow: "hidden"
+            }}>
+            <div style={{ padding: "1.25rem", borderBottom: "1px solid var(--border)" }}>
+              <h5 style={{ margin: 0, fontWeight: 700, color: "var(--text-primary)" }}>
+                🔑 Cambiar contraseña
+              </h5>
+              <p style={{ margin: "4px 0 0", fontSize: "13px", color: "var(--text-secondary)" }}>
+                {modalPass.nombre}
+              </p>
+            </div>
+            <div style={{ padding: "1.25rem" }}>
+              {/* Campo de usuario oculto: sin esto, Chrome no sabe a qué
+                  cuenta pertenece la contraseña y autocompleta el input de
+                  texto visible mas cercano (el buscador de la tabla). */}
+              <input
+                type="text"
+                name="username"
+                autoComplete="username"
+                value={modalPass.email || modalPass.nombre}
+                readOnly
+                style={{ display: "none" }}
+              />
+              <label style={lbl}>Nueva contraseña *</label>
+              <input
+                type="password"
+                name="new-password"
+                autoComplete="new-password"
+                style={inp}
+                placeholder="Mínimo 6 caracteres"
+                value={nuevaPass}
+                onChange={(e) => setNuevaPass(e.target.value)}
+                autoFocus
+              />
+            </div>
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", padding: "0 1.25rem 1.25rem" }}>
+              <button
+                type="button"
+                onClick={() => { setModalPass(null); setNuevaPass(""); }}
+                style={{
+                  background: "var(--bg-surface2)", border: "1px solid var(--border)",
+                  color: "var(--text-secondary)", borderRadius: "10px",
+                  padding: "10px 18px", cursor: "pointer", fontFamily: "inherit"
+                }}
+              >Cancelar</button>
+              <button
+                type="submit"
+                disabled={guardandoPass}
+                style={{
+                  background: guardandoPass ? "var(--accent-light)" : "var(--accent)",
+                  color: guardandoPass ? "var(--accent-text)" : "#fff",
+                  border: "none", borderRadius: "10px",
+                  padding: "10px 18px", fontSize: "14px",
+                  fontWeight: 600, cursor: guardandoPass ? "not-allowed" : "pointer",
+                  fontFamily: "inherit"
+                }}
+              >
+                {guardandoPass ? "Guardando..." : "✅ Actualizar"}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
 
     </AdminLayout>
   );
