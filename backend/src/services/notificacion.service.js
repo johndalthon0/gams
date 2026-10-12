@@ -11,11 +11,20 @@ const push = async (usuarioId, payload) => {
 	}
 };
 
+// yyyy-mm-dd fijo — mantenimiento.fecha_programada llega como objeto Date
+// desde mysql2; sin normalizar a texto antes de comparar, el "ya se mandó"
+// (abajo) nunca coincidía y el recordatorio se repetía cada 60s sin fin.
+const soloFecha = (d) => {
+	const f = new Date(d);
+	return `${f.getFullYear()}-${String(f.getMonth() + 1).padStart(2, '0')}-${String(f.getDate()).padStart(2, '0')}`;
+};
+
 const guardarYEnviar = async (usuarioId, mantenimiento, esAdmin, momento) => {
+	const fechaProgramada = soloFecha(mantenimiento.fecha_programada);
 	const datos = {
 		mantenimiento_id: mantenimiento.id,
 		equipo_id: mantenimiento.equipo_id,
-		fecha_programada: mantenimiento.fecha_programada,
+		fecha_programada: fechaProgramada,
 		momento,
 	};
 	const [result] = await db.query(
@@ -40,7 +49,7 @@ const guardarYEnviar = async (usuarioId, mantenimiento, esAdmin, momento) => {
 			ahoraMySQL(),
 			usuarioId,
 			mantenimiento.id,
-			mantenimiento.fecha_programada,
+			fechaProgramada,
 			momento,
 		]
 	);
