@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import AdminLayout from "../../components/layout/AdminLayout";
 import api from "../../services/api";
 import { useDialog } from "../../context/DialogContext";
-import { useIsNarrow } from "../../hooks/useIsNarrow";
 import TdToggle from "../../components/ui/TdToggle";
 
 const inp = {
@@ -42,7 +41,6 @@ const Overlay = ({ children, onClose }) => (
 function Asignaciones() {
 
   const { avisar } = useDialog();
-  const narrow = useIsNarrow();
 
   const [asignaciones, setAsignaciones] = useState([]);
   const [usuarios,     setUsuarios]     = useState([]);
@@ -398,7 +396,7 @@ function Asignaciones() {
                         fontSize: "13px", fontWeight: 600, fontFamily: "inherit",
                         whiteSpace: "nowrap"
                       }}>
-                        {narrow ? "📦" : "📦 Devolver"}
+                        📦
                       </button>
                     )}
                     {a.estado === 0 && (
@@ -406,7 +404,7 @@ function Asignaciones() {
                         background: "var(--accent-light)", border: "1px solid var(--accent)",
                         color: "var(--accent-text)", borderRadius: "8px",
                         padding: "5px 10px", cursor: "pointer", fontSize: "13px"
-                      }}>{narrow ? "👁" : "👁 Ver"}</button>
+                      }}>👁</button>
                     )}
                   </td>
                   <TdToggle />

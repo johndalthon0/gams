@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import AdminLayout from "../../components/layout/AdminLayout";
 import api from "../../services/api";
 import { useDialog } from "../../context/DialogContext";
-import { useIsNarrow } from "../../hooks/useIsNarrow";
 import TdToggle from "../../components/ui/TdToggle";
 
 const inp = {
@@ -20,7 +19,6 @@ const lbl = {
 function Empleados() {
 
   const { confirmar, avisar } = useDialog();
-  const narrow = useIsNarrow();
 
   const [empleados,  setEmpleados]  = useState([]);
   const [sucursales, setSucursales] = useState([]);
@@ -369,9 +367,7 @@ function Empleados() {
                           cursor: "pointer", fontSize: "13px", fontFamily: "inherit"
                         }}
                       >
-                        {e.emp_estado === 1
-                          ? (narrow ? "⏸" : "⏸ Desactivar")
-                          : (narrow ? "▶" : "▶ Activar")}
+                        {e.emp_estado === 1 ? "⏸" : "▶"}
                       </button>
 
                       {/* CAMBIAR CONTRASEÑA */}

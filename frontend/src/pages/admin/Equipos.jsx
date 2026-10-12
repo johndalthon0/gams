@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import AdminLayout from "../../components/layout/AdminLayout";
 import api from "../../services/api";
 import { useDialog } from "../../context/DialogContext";
-import { useIsNarrow } from "../../hooks/useIsNarrow";
 import TdToggle from "../../components/ui/TdToggle";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -48,7 +47,6 @@ const Overlay = ({ children, onClose }) => (
 function Equipos() {
 
   const { avisar } = useDialog();
-  const narrow = useIsNarrow();
 
   const [equipos,     setEquipos]     = useState([]);
   const [mostrarForm, setMostrarForm] = useState(false);
@@ -421,7 +419,7 @@ function Equipos() {
                           background: "var(--danger-bg)", border: "1px solid var(--danger)",
                           color: "var(--danger)", borderRadius: "8px",
                           padding: "5px 10px", cursor: "pointer", fontSize: "13px"
-                        }}>{narrow ? "🗑" : "🗑 Baja"}</button>
+                        }}>🗑</button>
                       )}
                     </div>
                   </td>
