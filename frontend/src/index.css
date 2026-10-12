@@ -755,13 +755,13 @@ table.rtable td.rtable-toggle-cell { display: none; }
   }
   table.rtable td {
     display: flex !important;
-    justify-content: flex-start;
+    justify-content: space-between;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     padding: 8px 0 !important;
     border: none !important;
     border-top: 1px solid var(--border);
-    text-align: left;
+    text-align: right;
     white-space: normal !important;
   }
   table.rtable td:first-child { border-top: none; }
