@@ -34,11 +34,15 @@ except ImportError:
 
 
 def get_modelos_candidatos() -> dict:
+    # n_jobs=1 a proposito: en un servidor de 1 vCPU (como el plan Basic de
+    # produccion), n_jobs=-1 no acelera nada pero hace que joblib lance
+    # procesos separados que duplican la memoria usada -- eso fue lo que
+    # tumbo el servicio por quedarse sin RAM (512MB) durante el entrenamiento.
     modelos = {
         "RandomForest": RandomForestClassifier(
             n_estimators=100, max_depth=8,
             class_weight="balanced",
-            random_state=RANDOM_STATE, n_jobs=-1
+            random_state=RANDOM_STATE, n_jobs=1
         ),
         "GradientBoosting": GradientBoostingClassifier(
             n_estimators=100, max_depth=5,
@@ -47,7 +51,7 @@ def get_modelos_candidatos() -> dict:
         "ExtraTrees": ExtraTreesClassifier(
             n_estimators=100, max_depth=8,
             class_weight="balanced",
-            random_state=RANDOM_STATE, n_jobs=-1
+            random_state=RANDOM_STATE, n_jobs=1
         ),
     }
     if XGB_OK:
@@ -55,14 +59,14 @@ def get_modelos_candidatos() -> dict:
             n_estimators=100, max_depth=6,
             learning_rate=0.05,
             eval_metric="logloss",
-            random_state=RANDOM_STATE, n_jobs=-1
+            random_state=RANDOM_STATE, n_jobs=1
         )
     if LGB_OK:
         modelos["LightGBM"] = LGBMClassifier(
             n_estimators=100, max_depth=6,
             learning_rate=0.05,
             class_weight="balanced",
-            random_state=RANDOM_STATE, n_jobs=-1, verbose=-1
+            random_state=RANDOM_STATE, n_jobs=1, verbose=-1
         )
     return modelos
 

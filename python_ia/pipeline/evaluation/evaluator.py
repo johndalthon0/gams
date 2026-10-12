@@ -40,10 +40,12 @@ def evaluar_modelo(
     if X_full is not None and y_full is not None and len(y_full) >= CV_FOLDS * 2:
         try:
             cv = StratifiedKFold(n_splits=CV_FOLDS, shuffle=True, random_state=RANDOM_STATE)
+            # n_jobs=1: en 1 vCPU, -1 solo gasta RAM extra lanzando procesos
+            # que no aceleran nada (ver nota en trainer.py).
             cv_res = cross_validate(
                 modelo, X_full, y_full, cv=cv,
                 scoring=["accuracy", "f1", "roc_auc"],
-                n_jobs=-1
+                n_jobs=1
             )
             metricas["cv_accuracy_mean"] = round(float(cv_res["test_accuracy"].mean()), 4)
             metricas["cv_f1_mean"]        = round(float(cv_res["test_f1"].mean()), 4)
