@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import AdminLayout from "../../components/layout/AdminLayout";
 import api from "../../services/api";
 import TdToggle from "../../components/ui/TdToggle";
+import { useTableFit } from "../../hooks/useTableFit";
 
 // ─────────────────────────────────────────────────────────────
 // ESTILOS BASE
@@ -2144,6 +2145,9 @@ function ModalNuevo({
 export default function Reparaciones() {
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
   const rol = currentUser.rol;
+  const { wrapRef: tablaMantRef, forzarTarjeta: forzarMantTarjeta } = useTableFit();
+  const { wrapRef: tablaSolRef, forzarTarjeta: forzarSolTarjeta } = useTableFit();
+  const { wrapRef: tablaRepRef, forzarTarjeta: forzarRepTarjeta } = useTableFit();
 
   const [tab, setTab] = useState("mantenimientos");
   const [solicitudes, setSolicitudes] = useState([]);
@@ -2629,7 +2633,7 @@ export default function Reparaciones() {
                 Cargando mantenimientos…
               </div>
             ) : (
-              <div className="rtable-wrap" style={{ overflowX: "auto" }}>
+              <div ref={tablaMantRef} className={`rtable-wrap${forzarMantTarjeta ? " rtable-tarjeta" : ""}`} style={{ overflowX: forzarMantTarjeta ? "visible" : "auto" }}>
                 <table
                   className="rtable"
                   style={{
@@ -3045,7 +3049,7 @@ export default function Reparaciones() {
                 {solPend} pendiente{solPend !== 1 ? "s" : ""}
               </span>
             </div>
-            <div className="rtable-wrap" style={{ overflowX: "auto" }}>
+            <div ref={tablaSolRef} className={`rtable-wrap${forzarSolTarjeta ? " rtable-tarjeta" : ""}`} style={{ overflowX: forzarSolTarjeta ? "visible" : "auto" }}>
               <table
                 className="rtable"
                 style={{
@@ -3473,7 +3477,7 @@ export default function Reparaciones() {
                 )}
               </h5>
             </div>
-            <div className="rtable-wrap" style={{ overflowX: "auto" }}>
+            <div ref={tablaRepRef} className={`rtable-wrap${forzarRepTarjeta ? " rtable-tarjeta" : ""}`} style={{ overflowX: forzarRepTarjeta ? "visible" : "auto" }}>
               <table
                 className="rtable"
                 style={{

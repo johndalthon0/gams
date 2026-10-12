@@ -3,6 +3,7 @@ import AdminLayout from "../../components/layout/AdminLayout";
 import api from "../../services/api";
 import { useDialog } from "../../context/DialogContext";
 import TdToggle from "../../components/ui/TdToggle";
+import { useTableFit } from "../../hooks/useTableFit";
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 const fmtBs   = (n) => `Bs ${Number(n || 0).toFixed(2)}`;
@@ -476,6 +477,9 @@ function FormCategoria({ inicial, onClose, onSuccess, showMsg }) {
 // ── COMPONENTE PRINCIPAL ───────────────────────────────────────────────────
 export default function Inventario() {
   const { confirmar } = useDialog();
+  const { wrapRef: tablaProductosRef, forzarTarjeta: forzarProductosTarjeta } = useTableFit();
+  const { wrapRef: tablaCategoriasRef, forzarTarjeta: forzarCategoriasTarjeta } = useTableFit();
+  const { wrapRef: tablaMovRef, forzarTarjeta: forzarMovTarjeta } = useTableFit();
   const [tab,           setTab]           = useState("productos");
   const [productos,     setProductos]     = useState([]);
   const [categorias,    setCategorias]    = useState([]);
@@ -685,7 +689,7 @@ export default function Inventario() {
           </div>
 
           <div style={S.surface}>
-            <div className="rtable-wrap" style={{ overflowX: "auto" }}>
+            <div ref={tablaProductosRef} className={`rtable-wrap${forzarProductosTarjeta ? " rtable-tarjeta" : ""}`} style={{ overflowX: forzarProductosTarjeta ? "visible" : "auto" }}>
               <table className="rtable" style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
                 <thead>
                   <tr style={{ background: "var(--bg-surface2)", borderBottom: "2px solid var(--border)" }}>
@@ -799,7 +803,7 @@ export default function Inventario() {
           </div>
 
           <div style={S.surface}>
-            <div className="rtable-wrap" style={{ overflowX: "auto" }}>
+            <div ref={tablaCategoriasRef} className={`rtable-wrap${forzarCategoriasTarjeta ? " rtable-tarjeta" : ""}`} style={{ overflowX: forzarCategoriasTarjeta ? "visible" : "auto" }}>
               <table className="rtable" style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
                 <thead>
                   <tr style={{ background: "var(--bg-surface2)", borderBottom: "2px solid var(--border)" }}>
@@ -862,7 +866,7 @@ export default function Inventario() {
           </div>
 
           <div style={S.surface}>    
-            <div className="rtable-wrap" style={{ overflowX: "auto" }}>
+            <div ref={tablaMovRef} className={`rtable-wrap${forzarMovTarjeta ? " rtable-tarjeta" : ""}`} style={{ overflowX: forzarMovTarjeta ? "visible" : "auto" }}>
               <table className="rtable" style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
                 <thead>
                   <tr style={{ background: "var(--bg-surface2)", borderBottom: "2px solid var(--border)" }}>

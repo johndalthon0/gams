@@ -4,6 +4,7 @@ import api from "../../services/api";
 import { ThemeContext } from "../../context/ThemeContext";
 import { useDialog } from "../../context/DialogContext";
 import TdToggle from "../../components/ui/TdToggle";
+import { useTableFit } from "../../hooks/useTableFit";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { addSistemaLogo, getSistemaConfig } from "../../utils/sistemaConfig";
@@ -33,6 +34,7 @@ const Overlay = ({ children, onClose }) => (
 function Bajas() {
   const { theme } = useContext(ThemeContext);
   const { avisar } = useDialog();
+  const { wrapRef: tablaRef, forzarTarjeta } = useTableFit();
 
   const [bajas,     setBajas]     = useState([]);
   const [stats,     setStats]     = useState({});
@@ -327,7 +329,7 @@ function Bajas() {
             </p>
           </div>
         ) : (
-          <div className="rtable-wrap" style={{ overflowX: "auto" }}>
+          <div ref={tablaRef} className={`rtable-wrap${forzarTarjeta ? " rtable-tarjeta" : ""}`} style={{ overflowX: forzarTarjeta ? "visible" : "auto" }}>
             <table className="table-base rtable">
               <thead>
                 <tr>

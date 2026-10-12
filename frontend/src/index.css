@@ -732,83 +732,81 @@ table {
    columna extra (una celda display:none no participa del layout). */
 table.rtable td.rtable-toggle-cell { display: none; }
 
-/* ── Tablas responsive: la regla no es "movil vs desktop", es "entra
-   completa o se encajona" -- si la ventana no alcanza para mostrar
-   todas las columnas sin scroll, pasa a tarjetas. 1600px cubre
-   ventanas de escritorio achicadas/divididas a la mitad de pantalla,
-   no solo celulares. Cada <td> necesita data-label="Columna" para el
-   rotulo. Solo en monitores grandes con la ventana maximizada se ve
-   la tabla ancha completa. ── */
-@media (max-width: 1600px) {
-  .rtable-wrap { overflow-x: visible !important; }
-  table.rtable thead { display: none; }
-  table.rtable, table.rtable tbody, table.rtable tr, table.rtable td {
-    display: block;
-    width: 100%;
-  }
-  table.rtable tr {
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    margin-bottom: 10px;
-    padding: 4px 12px;
-    background: var(--bg-surface);
-  }
-  table.rtable td {
-    display: flex !important;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    padding: 8px 0 !important;
-    border: none !important;
-    border-top: 1px solid var(--border);
-    text-align: right;
-    white-space: normal !important;
-  }
-  table.rtable td:first-child { border-top: none; }
-  table.rtable td::before {
-    content: attr(data-label);
-    font-weight: 700;
-    color: var(--text-secondary);
-    font-size: 10.5px;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-    text-align: left;
-    flex-shrink: 0;
-  }
-  table.rtable td:empty,
-  table.rtable td[data-label=""] { display: none; }
-  table.rtable td[colspan] {
-    display: block;
-    text-align: center;
-  }
-  table.rtable td[colspan]::before { content: none; }
-
-  /* Solo lo importante a la vista; el resto detrás de "Ver más" ── */
-  table.rtable td.td-sec { display: none !important; }
-  table.rtable tr:has(input.rtable-chk:checked) td.td-sec { display: flex !important; }
-
-  table.rtable input.rtable-chk { display: none; }
-  table.rtable td.rtable-toggle-cell {
-    justify-content: center;
-    padding: 7px 0 3px !important;
-    border-top: 1px dashed var(--border);
-  }
-  table.rtable td.rtable-toggle-cell::before { content: none; }
-  table.rtable label.rtable-toggle {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    cursor: pointer;
-    color: var(--accent-text);
-    font-size: 11px;
-    font-weight: 700;
-  }
-  table.rtable label.rtable-toggle::before { content: "Ver más"; }
-  table.rtable tr:has(input.rtable-chk:checked) label.rtable-toggle::before { content: "Ver menos"; }
-  table.rtable .rtable-toggle-icon {
-    display: inline-block;
-    transition: transform 0.2s;
-    font-size: 10px;
-  }
-  table.rtable tr:has(input.rtable-chk:checked) .rtable-toggle-icon { transform: rotate(180deg); }
+/* ── Tablas responsive: no es un ancho de pantalla adivinado -- el hook
+   useTableFit mide si la tabla realmente entra en su contenedor y agrega
+   la clase "rtable-tarjeta" al .rtable-wrap solo cuando hace falta. Cada
+   <td> necesita data-label="Columna" para el rotulo. ── */
+.rtable-wrap.rtable-tarjeta { overflow-x: visible !important; }
+.rtable-wrap.rtable-tarjeta table.rtable thead { display: none; }
+.rtable-wrap.rtable-tarjeta table.rtable,
+.rtable-wrap.rtable-tarjeta table.rtable tbody,
+.rtable-wrap.rtable-tarjeta table.rtable tr,
+.rtable-wrap.rtable-tarjeta table.rtable td {
+  display: block;
+  width: 100%;
 }
+.rtable-wrap.rtable-tarjeta table.rtable tr {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 10px;
+  padding: 4px 12px;
+  background: var(--bg-surface);
+}
+.rtable-wrap.rtable-tarjeta table.rtable td {
+  display: flex !important;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0 !important;
+  border: none !important;
+  border-top: 1px solid var(--border);
+  text-align: right;
+  white-space: normal !important;
+}
+.rtable-wrap.rtable-tarjeta table.rtable td:first-child { border-top: none; }
+.rtable-wrap.rtable-tarjeta table.rtable td::before {
+  content: attr(data-label);
+  font-weight: 700;
+  color: var(--text-secondary);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  text-align: left;
+  flex-shrink: 0;
+}
+.rtable-wrap.rtable-tarjeta table.rtable td:empty,
+.rtable-wrap.rtable-tarjeta table.rtable td[data-label=""] { display: none; }
+.rtable-wrap.rtable-tarjeta table.rtable td[colspan] {
+  display: block;
+  text-align: center;
+}
+.rtable-wrap.rtable-tarjeta table.rtable td[colspan]::before { content: none; }
+
+/* Solo lo importante a la vista; el resto detrás de "Ver más" ── */
+.rtable-wrap.rtable-tarjeta table.rtable td.td-sec { display: none !important; }
+.rtable-wrap.rtable-tarjeta table.rtable tr:has(input.rtable-chk:checked) td.td-sec { display: flex !important; }
+
+.rtable-wrap.rtable-tarjeta table.rtable input.rtable-chk { display: none; }
+.rtable-wrap.rtable-tarjeta table.rtable td.rtable-toggle-cell {
+  justify-content: center;
+  padding: 7px 0 3px !important;
+  border-top: 1px dashed var(--border);
+}
+.rtable-wrap.rtable-tarjeta table.rtable td.rtable-toggle-cell::before { content: none; }
+.rtable-wrap.rtable-tarjeta table.rtable label.rtable-toggle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  color: var(--accent-text);
+  font-size: 11px;
+  font-weight: 700;
+}
+.rtable-wrap.rtable-tarjeta table.rtable label.rtable-toggle::before { content: "Ver más"; }
+.rtable-wrap.rtable-tarjeta table.rtable tr:has(input.rtable-chk:checked) label.rtable-toggle::before { content: "Ver menos"; }
+.rtable-wrap.rtable-tarjeta table.rtable .rtable-toggle-icon {
+  display: inline-block;
+  transition: transform 0.2s;
+  font-size: 10px;
+}
+.rtable-wrap.rtable-tarjeta table.rtable tr:has(input.rtable-chk:checked) .rtable-toggle-icon { transform: rotate(180deg); }

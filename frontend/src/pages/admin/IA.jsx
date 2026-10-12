@@ -3,6 +3,7 @@ import AdminLayout from "../../components/layout/AdminLayout";
 import api from "../../services/api";
 import { useDialog } from "../../context/DialogContext";
 import TdToggle from "../../components/ui/TdToggle";
+import { useTableFit } from "../../hooks/useTableFit";
 
 // ─────────────────────────────────────────────
 // ESTILOS BASE
@@ -1595,6 +1596,12 @@ function NotificacionCard({ notif, onLeer, onResponder }) {
 function IA() {
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
   const esAdmin = currentUser.rol === "ADMIN";
+  const { wrapRef: tablaProximosRef, forzarTarjeta: forzarProximosTarjeta } = useTableFit();
+  const { wrapRef: tablaPrediccionesRef, forzarTarjeta: forzarPrediccionesTarjeta } = useTableFit();
+  const { wrapRef: tablaEquiposRef, forzarTarjeta: forzarEquiposTarjeta } = useTableFit();
+  const { wrapRef: tablaHistorialRef, forzarTarjeta: forzarHistorialTarjeta } = useTableFit();
+  const { wrapRef: tablaTecnicosRef, forzarTarjeta: forzarTecnicosTarjeta } = useTableFit();
+  const { wrapRef: tablaVersionesRef, forzarTarjeta: forzarVersionesTarjeta } = useTableFit();
 
   // Estado
   const [tab, setTab] = useState("dashboard");
@@ -2435,7 +2442,7 @@ function IA() {
               {/* Próximos mantenimientos */}
               <div style={S.surface}>
                 <SectionHeader title="⏰ Próximos mantenimientos (60 días)" />
-                <div className="rtable-wrap" style={{ overflowX: "auto" }}>
+                <div ref={tablaProximosRef} className={`rtable-wrap${forzarProximosTarjeta ? " rtable-tarjeta" : ""}`} style={{ overflowX: forzarProximosTarjeta ? "visible" : "auto" }}>
                   <table className="table-base rtable">
                     <thead>
                       <tr>
@@ -2549,7 +2556,7 @@ function IA() {
               {/* Predicciones recientes */}
               <div style={S.surface}>
                 <SectionHeader title="🕐 Predicciones recientes" />
-                <div className="rtable-wrap" style={{ overflowX: "auto" }}>
+                <div ref={tablaPrediccionesRef} className={`rtable-wrap${forzarPrediccionesTarjeta ? " rtable-tarjeta" : ""}`} style={{ overflowX: forzarPrediccionesTarjeta ? "visible" : "auto" }}>
                   <table className="table-base rtable">
                     <thead>
                       <tr>
@@ -2694,7 +2701,7 @@ function IA() {
                   </div>
                 }
               />
-              <div className="rtable-wrap" style={{ overflowX: "auto" }}>
+              <div ref={tablaEquiposRef} className={`rtable-wrap${forzarEquiposTarjeta ? " rtable-tarjeta" : ""}`} style={{ overflowX: forzarEquiposTarjeta ? "visible" : "auto" }}>
                 <table className="table-base rtable">
                   <thead>
                     <tr>
@@ -3346,7 +3353,7 @@ function IA() {
                   </span>
                 }
               />
-              <div className="rtable-wrap" style={{ overflowX: "auto" }}>
+              <div ref={tablaHistorialRef} className={`rtable-wrap${forzarHistorialTarjeta ? " rtable-tarjeta" : ""}`} style={{ overflowX: forzarHistorialTarjeta ? "visible" : "auto" }}>
                 <table className="table-base rtable">
                   <thead>
                     <tr>
@@ -3713,7 +3720,7 @@ function IA() {
                 {/* Técnicos */}
                 <div style={S.surface}>
                   <SectionHeader title="👨‍💻 Técnicos" />
-                  <div className="rtable-wrap" style={{ overflowX: "auto" }}>
+                  <div ref={tablaTecnicosRef} className={`rtable-wrap${forzarTecnicosTarjeta ? " rtable-tarjeta" : ""}`} style={{ overflowX: forzarTecnicosTarjeta ? "visible" : "auto" }}>
                     <table className="table-base rtable">
                       <thead>
                         <tr>
@@ -3794,7 +3801,7 @@ function IA() {
                 {/* Versiones */}
                 <div style={S.surface}>
                   <SectionHeader title="📈 Precisión por versión" />
-                  <div className="rtable-wrap" style={{ overflowX: "auto" }}>
+                  <div ref={tablaVersionesRef} className={`rtable-wrap${forzarVersionesTarjeta ? " rtable-tarjeta" : ""}`} style={{ overflowX: forzarVersionesTarjeta ? "visible" : "auto" }}>
                     <table className="table-base rtable">
                       <thead>
                         <tr>

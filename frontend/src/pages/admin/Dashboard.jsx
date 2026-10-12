@@ -2,6 +2,7 @@ import { useEffect, useState, useContext } from "react";
 import AdminLayout from "../../components/layout/AdminLayout";
 import api from "../../services/api";
 import TdToggle from "../../components/ui/TdToggle";
+import { useTableFit } from "../../hooks/useTableFit";
 import {
   ResponsiveContainer, PieChart, Pie, Cell,
   Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid
@@ -11,6 +12,7 @@ import { ThemeContext } from "../../context/ThemeContext";
 function Dashboard() {
 
   const { theme } = useContext(ThemeContext);
+  const { wrapRef: tablaRef, forzarTarjeta } = useTableFit();
   const [equipos, setEquipos] = useState([]);
   const [stats,   setStats]   = useState({
     total: 0, asignados: 0, disponibles: 0, mantenimiento: 0, baja: 0
@@ -179,7 +181,7 @@ function Dashboard() {
             Últimos Equipos Registrados
           </h5>
         </div>
-        <div className="rtable-wrap" style={{ overflowX: "auto" }}>
+        <div ref={tablaRef} className={`rtable-wrap${forzarTarjeta ? " rtable-tarjeta" : ""}`} style={{ overflowX: forzarTarjeta ? "visible" : "auto" }}>
           <table className="table-base rtable">
             <thead>
               <tr>

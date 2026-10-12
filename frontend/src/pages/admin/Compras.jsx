@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import AdminLayout from "../../components/layout/AdminLayout";
 import api from "../../services/api";
 import TdToggle from "../../components/ui/TdToggle";
+import { useTableFit } from "../../hooks/useTableFit";
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 const fmtBs    = (n) => `Bs ${Number(n || 0).toFixed(2)}`;
@@ -527,6 +528,8 @@ function FormProveedor({ inicial, onClose, onSuccess, showMsg }) {
 // ── COMPONENTE PRINCIPAL ───────────────────────────────────────────────────
 export default function Compras() {
   const [tab,          setTab]          = useState("compras");
+  const { wrapRef: tablaComprasRef, forzarTarjeta: forzarComprasTarjeta } = useTableFit();
+  const { wrapRef: tablaProvRef, forzarTarjeta: forzarProvTarjeta } = useTableFit();
   const [compras,      setCompras]      = useState([]);
   const [proveedores,  setProveedores]  = useState([]);
   const [productos,    setProductos]    = useState([]);
@@ -697,7 +700,7 @@ export default function Compras() {
                 Cargando compras...
               </div>
             ) : (
-              <div className="rtable-wrap" style={{ overflowX:"auto" }}>
+              <div ref={tablaComprasRef} className={`rtable-wrap${forzarComprasTarjeta ? " rtable-tarjeta" : ""}`} style={{ overflowX: forzarComprasTarjeta ? "visible" : "auto" }}>
                 <table className="rtable" style={{ width:"100%", borderCollapse:"collapse", fontSize:"13px" }}>
                   <thead>
                     <tr style={{ background:"var(--bg-surface2)", borderBottom:"2px solid var(--border)" }}>
@@ -793,7 +796,7 @@ export default function Compras() {
           </div>
 
           <div style={S.surface}>
-            <div className="rtable-wrap" style={{ overflowX:"auto" }}>
+            <div ref={tablaProvRef} className={`rtable-wrap${forzarProvTarjeta ? " rtable-tarjeta" : ""}`} style={{ overflowX: forzarProvTarjeta ? "visible" : "auto" }}>
               <table className="rtable" style={{ width:"100%", borderCollapse:"collapse", fontSize:"13px" }}>
                 <thead>
                   <tr style={{ background:"var(--bg-surface2)", borderBottom:"2px solid var(--border)" }}>

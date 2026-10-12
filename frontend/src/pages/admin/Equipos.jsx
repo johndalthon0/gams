@@ -3,6 +3,7 @@ import AdminLayout from "../../components/layout/AdminLayout";
 import api from "../../services/api";
 import { useDialog } from "../../context/DialogContext";
 import TdToggle from "../../components/ui/TdToggle";
+import { useTableFit } from "../../hooks/useTableFit";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { addSistemaLogo, getSistemaConfig } from "../../utils/sistemaConfig";
@@ -47,6 +48,7 @@ const Overlay = ({ children, onClose }) => (
 function Equipos() {
 
   const { avisar } = useDialog();
+  const { wrapRef: tablaRef, forzarTarjeta } = useTableFit();
 
   const [equipos,     setEquipos]     = useState([]);
   const [mostrarForm, setMostrarForm] = useState(false);
@@ -361,7 +363,7 @@ function Equipos() {
             Inventario Actual
           </h5>
         </div>
-        <div className="rtable-wrap" style={{ overflowX: "auto" }}>
+        <div ref={tablaRef} className={`rtable-wrap${forzarTarjeta ? " rtable-tarjeta" : ""}`} style={{ overflowX: forzarTarjeta ? "visible" : "auto" }}>
           <table className="table-base rtable">
             <thead>
               <tr>

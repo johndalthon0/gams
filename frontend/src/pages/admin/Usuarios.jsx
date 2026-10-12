@@ -3,6 +3,7 @@ import AdminLayout from "../../components/layout/AdminLayout";
 import api from "../../services/api";
 import { useDialog } from "../../context/DialogContext";
 import TdToggle from "../../components/ui/TdToggle";
+import { useTableFit } from "../../hooks/useTableFit";
 
 const inp = {
   width: "100%", background: "var(--bg-surface2)",
@@ -39,6 +40,7 @@ const Overlay = ({ children, onClose }) => (
 function Usuarios() {
 
   const { confirmar, avisar } = useDialog();
+  const { wrapRef: tablaRef, forzarTarjeta } = useTableFit();
 
   const [usuarios,    setUsuarios]    = useState([]);
   const [buscar,      setBuscar]      = useState("");
@@ -274,7 +276,7 @@ function Usuarios() {
           </span>
         </div>
 
-        <div className="users-table-wrap rtable-wrap" style={{ overflowX: "auto" }}>
+        <div ref={tablaRef} className={`users-table-wrap rtable-wrap${forzarTarjeta ? " rtable-tarjeta" : ""}`} style={{ overflowX: forzarTarjeta ? "visible" : "auto" }}>
           <table className="table-base rtable">
             <thead>
               <tr>
