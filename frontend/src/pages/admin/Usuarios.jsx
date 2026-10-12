@@ -186,6 +186,7 @@ function Usuarios() {
           placeholder="🔍 Buscar por nombre, email, cargo..."
           value={buscar}
           onChange={e => setBuscar(e.target.value)}
+          autoComplete="off"
         />
         <span style={{ color: "var(--text-secondary)", fontSize: "13px" }}>
           {filtrados.length} resultado{filtrados.length !== 1 ? "s" : ""}
@@ -440,7 +441,10 @@ function Usuarios() {
       {/* ══ MODAL CAMBIAR CONTRASEÑA ══ */}
       {modalPass && (
         <Overlay onClose={() => { setModalPass(null); setNuevaPass(""); }}>
-          <div className="users-modal users-password-modal" style={{
+          <form
+            onSubmit={(e) => { e.preventDefault(); cambiarPassword(); }}
+            autoComplete="off"
+            className="users-modal users-password-modal" style={{
             background: "var(--bg-surface)", border: "1px solid var(--border)",
             borderRadius: "16px", width: "440px", maxWidth: "95vw", padding: "1.75rem"
           }}>
@@ -456,10 +460,23 @@ function Usuarios() {
             </p>
 
             <div>
+              {/* Campo de usuario oculto: sin esto, Chrome no sabe a qué
+                  cuenta pertenece la contraseña y autocompleta el input de
+                  texto visible mas cercano (el buscador de la tabla). */}
+              <input
+                type="text"
+                name="username"
+                autoComplete="username"
+                value={modalPass.email || `${modalPass.nombre} ${modalPass.apellido || ""}`}
+                readOnly
+                style={{ display: "none" }}
+              />
               <label style={lbl}>Nueva contraseña *</label>
               <div style={{ position: "relative" }}>
                 <input
                   type={mostrarPass ? "text" : "password"}
+                  name="new-password"
+                  autoComplete="new-password"
                   placeholder="Mínimo 6 caracteres"
                   value={nuevaPass}
                   onChange={e => setNuevaPass(e.target.value)}
@@ -512,11 +529,11 @@ function Usuarios() {
             </div>
 
             <div className="users-form-actions" style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "1.25rem" }}>
-              <button onClick={() => { setModalPass(null); setNuevaPass(""); }} style={btnG()}>
+              <button type="button" onClick={() => { setModalPass(null); setNuevaPass(""); }} style={btnG()}>
                 Cancelar
               </button>
               <button
-                onClick={cambiarPassword}
+                type="submit"
                 disabled={nuevaPass.length < 6}
                 style={{
                   ...btnP,
@@ -528,7 +545,7 @@ function Usuarios() {
                 🔑 Actualizar Contraseña
               </button>
             </div>
-          </div>
+          </form>
         </Overlay>
       )}
 
