@@ -732,12 +732,12 @@ table {
    columna extra (una celda display:none no participa del layout). */
 table.rtable td.rtable-toggle-cell { display: none; }
 
-/* ── Tablas responsive: en celular y en laptops (sidebar incluido) se
-   "encajonan" en tarjetas, sin scroll horizontal. Cada <td> necesita
-   data-label="Columna" para el rotulo. 1450px cubre laptops comunes de
-   13-15" (1366/1440 de ancho) donde tablas con muchas columnas
-   (Asignaciones, Reparaciones, IA) no entran enteras. ── */
-@media (max-width: 1450px) {
+/* ── Tablas responsive: solo en celular se "encajonan" en tarjetas, sin
+   scroll horizontal. Cada <td> necesita data-label="Columna" para el
+   rotulo. En pantallas mas anchas (tablet/laptop/desktop) la tabla usa
+   su propio scroll horizontal interno (ver minWidth:0 en AdminLayout,
+   sin eso el layout entero se empujaba en vez de scrollear la tabla). ── */
+@media (max-width: 768px) {
   .rtable-wrap { overflow-x: visible !important; }
   table.rtable thead { display: none; }
   table.rtable, table.rtable tbody, table.rtable tr, table.rtable td {

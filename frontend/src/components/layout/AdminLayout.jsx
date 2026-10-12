@@ -168,7 +168,7 @@ function AdminLayout({ children }) {
         </div>
 
         {/* CONTENT */}
-        <div className="admin-main" style={{ padding: "1.5rem", flex: 1 }}>
+        <div className="admin-main" style={{ padding: "1.5rem", flex: 1, minWidth: 0 }}>
           {children}
         </div>
 
