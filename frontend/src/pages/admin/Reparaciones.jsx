@@ -2911,10 +2911,9 @@ export default function Reparaciones() {
                                   border: "1px solid var(--accent)",
                                   color: "var(--accent-text)",
                                   borderRadius: "8px",
-                                  padding: "5px 12px",
+                                  padding: "5px 10px",
                                   cursor: "pointer",
-                                  fontSize: "12px",
-                                  fontWeight: 600,
+                                  fontSize: "13px",
                                   fontFamily: "inherit",
                                 }}
                                 onClick={async () => {
@@ -2928,7 +2927,7 @@ export default function Reparaciones() {
                                   }
                                 }}
                               >
-                                Gestionar
+                                🛠
                               </button>
                               {rol === "ADMIN" &&
                                 [
@@ -2943,10 +2942,9 @@ export default function Reparaciones() {
                                       border: "1px solid var(--border)",
                                       color: "var(--text-secondary)",
                                       borderRadius: "8px",
-                                      padding: "5px 12px",
+                                      padding: "5px 10px",
                                       cursor: "pointer",
-                                      fontSize: "12px",
-                                      fontWeight: 600,
+                                      fontSize: "13px",
                                       fontFamily: "inherit",
                                     }}
                                     onClick={() => {
@@ -2958,7 +2956,7 @@ export default function Reparaciones() {
                                       });
                                     }}
                                   >
-                                    Reasignar
+                                    🔄
                                   </button>
                                 )}
                             </div>
