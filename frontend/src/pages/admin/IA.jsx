@@ -2714,7 +2714,7 @@ function IA() {
                         "Anomalía",
                         "Mant.",
                         "Correctivos",
-                        "Costo prom.",
+                        "Costo promedio",
                         "Análisis",
                       ].map((h) => (
                         <th key={h}>{h}</th>
