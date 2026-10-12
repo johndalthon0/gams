@@ -71,20 +71,38 @@ exports.getEquipo = async (req, res) => {
 // =============================================
 // CREAR
 // =============================================
+// Codigo unico autogenerado (EQ-0001, EQ-0002...) para que nadie tenga que
+// inventarlo a mano ni se pueda repetir por error. Reintenta si hay choque
+// (dos registros casi al mismo tiempo, o codigos viejos no numericos).
+const generarCodigoEquipo = async () => {
+  const [[r]] = await db.query(
+    `SELECT COALESCE(MAX(CAST(SUBSTRING(codigo,4) AS UNSIGNED)),0) AS max
+     FROM equipos WHERE codigo REGEXP '^EQ-[0-9]+$'`
+  );
+  let n = r.max + 1;
+  for (let intento = 0; intento < 20; intento++) {
+    const candidato = `EQ-${String(n).padStart(4, '0')}`;
+    const [existe] = await db.query('SELECT id FROM equipos WHERE codigo = ?', [candidato]);
+    if (existe.length === 0) return candidato;
+    n++;
+  }
+  throw new Error('No se pudo generar un código único');
+};
+
 exports.createEquipo = async (req, res) => {
   try {
     let {
       codigo, nombre, tipo_id, sucursal_id,
-      numero_serie, tipo_adquisicion,
+      tipo_adquisicion,
       caracteristicas, proveedor,
       fecha_adquisicion, observaciones
     } = req.body;
 
-    if (!codigo || !nombre || !tipo_id)
+    if (!nombre || !tipo_id)
       return res.status(400).json({ message: 'Completa los campos obligatorios' });
 
-    codigo = codigo.trim();
     nombre = nombre.trim();
+    codigo = codigo ? codigo.trim() : await generarCodigoEquipo();
 
     const [existe] = await db.query(
       'SELECT id FROM equipos WHERE codigo = ?', [codigo]
@@ -94,14 +112,13 @@ exports.createEquipo = async (req, res) => {
 
     await db.query(`
       INSERT INTO equipos
-        (codigo, nombre, tipo_id, sucursal_id, numero_serie,
+        (codigo, nombre, tipo_id, sucursal_id,
          tipo_adquisicion, caracteristicas, proveedor,
          fecha_adquisicion, observaciones, estado)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?)
+      VALUES (?,?,?,?,?,?,?,?,?,?)
     `, [
       codigo, nombre, tipo_id,
       sucursal_id       || null,
-      numero_serie      || null,
       tipo_adquisicion  || 'Propio',
       caracteristicas   || null,
       proveedor         || null,
@@ -125,7 +142,7 @@ exports.updateEquipo = async (req, res) => {
     const { id } = req.params;
     const {
       codigo, nombre, tipo_id, sucursal_id,
-      numero_serie, tipo_adquisicion,
+      tipo_adquisicion,
       caracteristicas, proveedor,
       fecha_adquisicion, observaciones
     } = req.body;
@@ -133,13 +150,12 @@ exports.updateEquipo = async (req, res) => {
     await db.query(`
       UPDATE equipos
       SET codigo=?, nombre=?, tipo_id=?, sucursal_id=?,
-          numero_serie=?, tipo_adquisicion=?, caracteristicas=?,
+          tipo_adquisicion=?, caracteristicas=?,
           proveedor=?, fecha_adquisicion=?, observaciones=?
       WHERE id=?
     `, [
       codigo, nombre, tipo_id,
       sucursal_id       || null,
-      numero_serie      || null,
       tipo_adquisicion  || null,
       caracteristicas   || null,
       proveedor         || null,

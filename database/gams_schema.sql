@@ -162,7 +162,6 @@ CREATE TABLE `equipos` (
   `estado` varchar(50) DEFAULT 'DISPONIBLE',
   `dispositivo_id` varchar(100) DEFAULT NULL,
   `sucursal_id` int(11) DEFAULT NULL,
-  `numero_serie` varchar(100) DEFAULT NULL,
   `tipo_adquisicion` varchar(50) DEFAULT NULL,
   `caracteristicas` text DEFAULT NULL,
   `proveedor` varchar(150) DEFAULT NULL,
