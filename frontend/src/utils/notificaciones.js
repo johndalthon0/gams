@@ -9,6 +9,7 @@ export const TIPO_CONFIG = {
   MANT_RECORDATORIO: { icon: "📅", color: "#f59e0b",           bg: "rgba(245,158,11,0.1)",  label: "Recordatorio" },
   REPROGRAMAR:       { icon: "📅", color: "#f59e0b",           bg: "rgba(245,158,11,0.1)",  label: "Reprogramación" },
   ASIGNACION:        { icon: "👤", color: "#8b5cf6",           bg: "rgba(139,92,246,0.1)",  label: "Asignación" },
+  REASIGNAR:         { icon: "🔧", color: "#8b5cf6",           bg: "rgba(139,92,246,0.1)",  label: "Mantenimiento asignado" },
   ORDEN_TRABAJO:     { icon: "🤖", color: "#ec4899",           bg: "rgba(236,72,153,0.1)",  label: "IA" },
   IA_RIESGO:         { icon: "🤖", color: "#ec4899",           bg: "rgba(236,72,153,0.1)",  label: "IA" },
   ALERTA:            { icon: "⚠️", color: "#ef4444",           bg: "rgba(239,68,68,0.1)",   label: "Alerta" },

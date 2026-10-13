@@ -2349,7 +2349,9 @@ export default function Reparaciones() {
     { key: "reportes", label: "Reportes", badge: 0 },
   ];
   const tabsVis =
-    rol === "EMPLEADO" ? TABS.filter((t) => t.key === "mantenimientos") : TABS;
+    rol === "EMPLEADO"
+      ? TABS.filter((t) => t.key === "mantenimientos" || t.key === "solicitudes")
+      : TABS;
 
   return (
     <AdminLayout>

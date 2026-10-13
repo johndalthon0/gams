@@ -434,6 +434,21 @@ exports.createMantenimiento = async (req, res) => {
 
     await registrarHistorial(mantId, req.user?.id, 'CREAR', null, estadoFinal, 'Creación');
 
+    // Notificar al técnico si fue asignado directamente por otra persona (ej. admin)
+    if (tecnico_usuario_id && Number(tecnico_usuario_id) !== Number(req.user?.id)) {
+      const [[eqT]] = await db.query('SELECT codigo FROM equipos WHERE id=?', [equipo_id]);
+      await notificar(tecnico_usuario_id, 'REASIGNAR',
+        `🔧 Mantenimiento asignado — ${eqT?.codigo || ''}`,
+        `Se te asignó el mantenimiento del equipo ${eqT?.codigo || ''}.`,
+        { mantenimiento_id: mantId }
+      );
+      await push(tecnico_usuario_id, {
+        titulo: `🔧 Mantenimiento asignado — ${eqT?.codigo || ''}`,
+        cuerpo: `Se te asignó el equipo ${eqT?.codigo || ''}. Revisa Mis Reparaciones.`,
+        icono:  '/icon-192.png', url: '/empleado/reparaciones', tag: `asig-${mantId}`,
+      });
+    }
+
     // Notificar si PENDIENTE_CONFIRMACION
     if (estadoFinal === 'PENDIENTE_CONFIRMACION' && fecha_programada) {
       const [[resp]] = await db.query(
@@ -583,6 +598,13 @@ exports.iniciarMantenimiento = async (req, res) => {
     await db.query("UPDATE equipos SET estado='MANTENIMIENTO' WHERE id=?", [m.equipo_id]);
     await registrarHistorial(id, req.user?.id, 'INICIAR', m.estado, 'EN_PROCESO');
 
+    // Si nadie estaba asignado, quien lo inicia (técnico o admin) queda como responsable
+    if (!m.tecnico_usuario_id && req.user?.id) {
+      const nombreQuienInicia = seg(req.user.nombre, req.user.apellido);
+      await db.query('UPDATE mantenimientos SET tecnico=?, tecnico_usuario_id=? WHERE id=?',
+        [nombreQuienInicia, req.user.id, id]);
+    }
+
     const [[resp]] = await db.query(
       `SELECT u.id FROM asignaciones a JOIN usuarios u ON u.id=a.usuario_id
        WHERE a.equipo_id=? AND a.estado=1 LIMIT 1`, [m.equipo_id]
@@ -663,6 +685,13 @@ exports.finalizarMantenimiento = async (req, res) => {
       [ahora, descripcion_solucion || null, costo || m.costo || 0, id]
     );
 
+    // Si nadie estaba asignado, quien lo finaliza (técnico o admin) queda como responsable
+    if (!m.tecnico_usuario_id && req.user?.id) {
+      const nombreQuienFinaliza = seg(req.user.nombre, req.user.apellido);
+      await db.query('UPDATE mantenimientos SET tecnico=?, tecnico_usuario_id=? WHERE id=?',
+        [nombreQuienFinaliza, req.user.id, id]);
+    }
+
     if (m.solicitud_id) {
       await db.query("UPDATE solicitudes_mantenimiento SET estado='FINALIZADO' WHERE id=?", [m.solicitud_id]);
     }
@@ -703,8 +732,31 @@ exports.reasignarTecnico = async (req, res) => {
   try {
     const { id } = req.params;
     const { tecnico, tecnico_usuario_id } = req.body;
+
+    const [[m]] = await db.query(
+      `SELECT m.tecnico_usuario_id AS anterior, e.codigo
+       FROM mantenimientos m JOIN equipos e ON e.id=m.equipo_id WHERE m.id=?`, [id]
+    );
+
     await db.query('UPDATE mantenimientos SET tecnico=?, tecnico_usuario_id=? WHERE id=?',
       [tecnico || null, tecnico_usuario_id || null, id]);
+    await registrarHistorial(id, req.user?.id, 'REASIGNAR', String(m?.anterior || ''), String(tecnico_usuario_id || ''),
+      `Técnico reasignado a ${tecnico || '—'}`
+    );
+
+    if (tecnico_usuario_id) {
+      await notificar(tecnico_usuario_id, 'REASIGNAR',
+        `🔧 Mantenimiento asignado — ${m?.codigo || ''}`,
+        `Se te asignó el mantenimiento del equipo ${m?.codigo || ''}.`,
+        { mantenimiento_id: parseInt(id) }
+      );
+      await push(tecnico_usuario_id, {
+        titulo: `🔧 Mantenimiento asignado — ${m?.codigo || ''}`,
+        cuerpo: `Se te asignó el equipo ${m?.codigo || ''}. Revisa Mis Reparaciones.`,
+        icono:  '/icon-192.png', url: '/empleado/reparaciones', tag: `reasig-${id}`,
+      });
+    }
+
     res.json({ message: 'Técnico reasignado' });
   } catch (err) { res.status(500).json({ message: err.message }); }
 };
