@@ -74,12 +74,23 @@ exports.suscribir = async (req, res) => {
 };
 
 // ── Eliminar suscripción ──────────────────────────────────────
+// Solo desactiva el dispositivo/navegador actual (endpoint), no todos los
+// del usuario — si no, desactivar push en un dispositivo apagaba push en
+// los demás (celular, otra PC, etc.) sin que esos se enteraran.
 exports.desuscribir = async (req, res) => {
   try {
-    await db.query(
-      'UPDATE push_suscripciones SET activa=0 WHERE usuario_id=?',
-      [req.user.id]
-    );
+    const { endpoint } = req.body || {};
+    if (endpoint) {
+      await db.query(
+        'UPDATE push_suscripciones SET activa=0 WHERE usuario_id=? AND endpoint=?',
+        [req.user.id, endpoint]
+      );
+    } else {
+      await db.query(
+        'UPDATE push_suscripciones SET activa=0 WHERE usuario_id=?',
+        [req.user.id]
+      );
+    }
     res.json({ message: 'Desuscrito' });
   } catch (err) {
     res.status(500).json({ message: err.message });

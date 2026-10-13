@@ -8,6 +8,34 @@ function urlBase64ToUint8Array(base64) {
   return Uint8Array.from([...raw].map((c) => c.charCodeAt(0)));
 }
 
+// El Service Worker no tiene acceso a localStorage, pero necesita la clave
+// VAPID + token para poder re-suscribirse solo cuando el navegador invalida
+// la suscripción en segundo plano (evento pushsubscriptionchange, puede
+// dispararse sin ninguna pestaña abierta). Por eso guardamos esos datos en
+// IndexedDB, que sí es accesible desde el SW.
+function guardarConfigSW(vapidPublicKey) {
+  const token = localStorage.getItem("token");
+  if (!token || !vapidPublicKey || !("indexedDB" in window)) return;
+  try {
+    const req = indexedDB.open("gams-push", 1);
+    req.onupgradeneeded = () => {
+      if (!req.result.objectStoreNames.contains("config")) {
+        req.result.createObjectStore("config");
+      }
+    };
+    req.onsuccess = () => {
+      const db = req.result;
+      const tx = db.transaction("config", "readwrite");
+      tx.objectStore("config").put(
+        { vapidPublicKey, apiBaseUrl: api.defaults.baseURL, token },
+        "main"
+      );
+      tx.oncomplete = () => db.close();
+      tx.onerror = () => db.close();
+    };
+  } catch {}
+}
+
 // estado: cargando | no-soportado | denegado | activo | inactivo
 export function usePush() {
   const [estado, setEstado] = useState("cargando");
@@ -16,7 +44,11 @@ export function usePush() {
 
   useEffect(() => {
     api.get("/push/clave-publica")
-      .then((r) => setClavePub(r.data.publicKey || null))
+      .then((r) => {
+        const pub = r.data.publicKey || null;
+        setClavePub(pub);
+        if (pub) guardarConfigSW(pub);
+      })
       .catch(() => {});
   }, []);
 
@@ -40,6 +72,19 @@ export function usePush() {
 
   useEffect(() => { detectar(); }, [detectar]);
 
+  // La suscripción puede morir del lado del navegador/push service en
+  // segundo plano sin avisar a la app. Revalidamos al volver a la pestaña
+  // (no es 100% infalible, pero junto al listener del SW cubre la mayoría
+  // de los casos sin esperar a que el usuario note que no le llegó nada).
+  useEffect(() => {
+    const onFocus = () => detectar();
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") detectar();
+    });
+    return () => window.removeEventListener("focus", onFocus);
+  }, [detectar]);
+
   const activar = useCallback(async () => {
     if (!clavePub) return false;
     setOcupado(true);
@@ -56,6 +101,7 @@ export function usePush() {
         });
       }
       await api.post("/push/suscribir", sub.toJSON());
+      guardarConfigSW(clavePub);
       setEstado("activo");
       return true;
     } catch (err) {
@@ -72,8 +118,9 @@ export function usePush() {
     try {
       const reg = await navigator.serviceWorker.ready;
       const sub = await reg.pushManager.getSubscription();
+      const endpoint = sub?.endpoint;
       if (sub) await sub.unsubscribe();
-      await api.delete("/push/desuscribir");
+      await api.delete("/push/desuscribir", { data: { endpoint } });
       setEstado("inactivo");
     } catch (err) {
       console.error("Push desactivar:", err);

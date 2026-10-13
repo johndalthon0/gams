@@ -131,6 +131,80 @@ self.addEventListener("push", (event) => {
 });
 
 // ================================
+// RE-SUSCRIPCIÓN AUTOMÁTICA
+// ================================
+// El navegador puede invalidar/rotar una suscripción push en segundo plano
+// (expiración del token del push service, limpieza parcial de datos, etc.)
+// y dispara este evento para que la app se vuelva a suscribir. Puede pasar
+// sin ninguna pestaña abierta, así que el SW tiene que poder hacerlo solo:
+// lee la clave VAPID + token guardados en IndexedDB (ver usePush.js) y
+// manda la nueva suscripción al backend sin depender de la página.
+
+function urlBase64ToUint8Array(base64) {
+  const pad = "=".repeat((4 - (base64.length % 4)) % 4);
+  const b64 = (base64 + pad).replace(/-/g, "+").replace(/_/g, "/");
+  const raw = atob(b64);
+  return Uint8Array.from([...raw].map((c) => c.charCodeAt(0)));
+}
+
+function leerConfigPush() {
+  return new Promise((resolve) => {
+    try {
+      const req = indexedDB.open("gams-push", 1);
+      req.onupgradeneeded = () => {
+        if (!req.result.objectStoreNames.contains("config")) {
+          req.result.createObjectStore("config");
+        }
+      };
+      req.onsuccess = () => {
+        const db = req.result;
+        try {
+          const tx = db.transaction("config", "readonly");
+          const get = tx.objectStore("config").get("main");
+          get.onsuccess = () => { resolve(get.result || null); db.close(); };
+          get.onerror = () => { resolve(null); db.close(); };
+        } catch {
+          resolve(null);
+          db.close();
+        }
+      };
+      req.onerror = () => resolve(null);
+    } catch {
+      resolve(null);
+    }
+  });
+}
+
+self.addEventListener("pushsubscriptionchange", (event) => {
+  event.waitUntil(
+    (async () => {
+      const cfg = await leerConfigPush();
+      if (!cfg?.vapidPublicKey || !cfg?.apiBaseUrl || !cfg?.token) return;
+
+      try {
+        const nuevaSub = await self.registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(cfg.vapidPublicKey),
+        });
+
+        await fetch(`${cfg.apiBaseUrl}/push/suscribir`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${cfg.token}`,
+          },
+          body: JSON.stringify(nuevaSub.toJSON()),
+        });
+      } catch (e) {
+        // Sin acceso a la pestaña no hay mucho más que hacer (ej. token
+        // vencido); el usuario tendrá que reactivar manualmente la próxima
+        // vez que abra la app.
+      }
+    })()
+  );
+});
+
+// ================================
 // CLICK EN NOTIFICACIÓN
 // ================================
 self.addEventListener("notificationclick", (event) => {
