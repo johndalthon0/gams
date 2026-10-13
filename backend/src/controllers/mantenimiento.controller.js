@@ -58,6 +58,19 @@ const notificarConRespuesta = async (uid, tipo, titulo, mensaje, datos = {}) => 
   await correoPorNotif(uid, titulo, mensaje);
 };
 
+// Igual que notificar(), pero solo in-app + push, sin correo — para avisos
+// masivos a varios técnicos donde el correo debe quedar reservado al admin.
+const notificarSinCorreo = async (uid, tipo, titulo, mensaje, datos = {}) => {
+  try {
+    await db.query(
+      `INSERT INTO notificaciones
+         (usuario_id, tipo, titulo, mensaje, leida, datos_json, respondida, respuesta, fecha)
+       VALUES (?,?,?,?,0,?,1,'PENDIENTE',?)`,
+      [uid, tipo, titulo.substring(0,255), mensaje.substring(0,2000), JSON.stringify(datos), ahoraMySQL()]
+    );
+  } catch (e) { console.error('notif:', e.message); }
+};
+
 const getAdmins = async () => {
   try {
     const [r] = await db.query(
@@ -65,6 +78,18 @@ const getAdmins = async () => {
        JOIN usuario_roles ur ON ur.usuario_id = u.id
        JOIN roles r ON r.id = ur.rol_id
        WHERE r.nombre = 'ADMIN' AND u.estado = 1`
+    );
+    return r.map(x => x.id);
+  } catch { return []; }
+};
+
+const getTecnicos = async () => {
+  try {
+    const [r] = await db.query(
+      `SELECT DISTINCT u.id FROM usuarios u
+       JOIN usuario_roles ur ON ur.usuario_id = u.id
+       JOIN roles r ON r.id = ur.rol_id
+       WHERE r.nombre = 'EMPLEADO' AND u.estado = 1`
     );
     return r.map(x => x.id);
   } catch { return []; }
@@ -215,6 +240,22 @@ exports.createSolicitud = async (req, res) => {
       icono:  '/icon-192.png', url: '/admin/reparaciones', tag: `sol-${equipo_id}`,
     });
 
+    // Técnicos también se enteran (in-app + push), pero sin correo —
+    // el correo queda reservado solo para el admin.
+    const tecnicos = await getTecnicos();
+    for (const uid of tecnicos) {
+      await notificarSinCorreo(uid, 'SOLICITUD',
+        `📋 Nueva solicitud — ${eq?.codigo || ''}`,
+        `${nombreSolicitante}${zona} reportó: "${descripcion}" — Equipo ${eq?.codigo} (${eq?.nombre}). Prioridad: ${prioridad || 'MEDIA'}.`,
+        { equipo_id: parseInt(equipo_id) }
+      );
+    }
+    await pushMany(tecnicos, {
+      titulo: `📋 Nueva solicitud — ${eq?.codigo || ''}`,
+      cuerpo: `${nombreSolicitante}${zona}: ${descripcion}`,
+      icono:  '/icon-192.png', url: '/empleado/reparaciones', tag: `sol-${equipo_id}`,
+    });
+
     res.json({ message: 'Solicitud enviada correctamente' });
   } catch (err) { res.status(500).json({ message: err.message }); }
 };
@@ -265,6 +306,18 @@ exports.reenviarSolicitud = async (req, res) => {
       cuerpo: `Solicitud reenviada para ${eq?.codigo} — ${eq?.nombre}.`,
       icono: '/icon-192.png', url: '/admin/reparaciones', tag: `sol-reenvio-${id}`,
     });
+
+    const tecnicos = await getTecnicos();
+    for (const uid of tecnicos) {
+      await notificarSinCorreo(uid, 'SOLICITUD', `🔁 Solicitud reenviada — ${eq?.codigo || ''}`,
+        `${nombreSolicitante}${zona} reenvió: "${sol.descripcion}" — Equipo ${eq?.codigo} (${eq?.nombre}).`, { equipo_id: sol.equipo_id });
+    }
+    await pushMany(tecnicos, {
+      titulo: `🔁 Solicitud reenviada — ${eq?.codigo || ''}`,
+      cuerpo: `Solicitud reenviada para ${eq?.codigo} — ${eq?.nombre}.`,
+      icono: '/icon-192.png', url: '/empleado/reparaciones', tag: `sol-reenvio-${id}`,
+    });
+
     res.json({ message: 'Solicitud reenviada' });
   } catch (err) { res.status(500).json({ message: err.message }); }
 };
