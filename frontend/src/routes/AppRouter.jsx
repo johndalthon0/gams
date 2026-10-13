@@ -20,7 +20,6 @@ import Compras        from "../pages/admin/Compras";
 import NotificacionesAdmin from "../pages/admin/Notificaciones";
 
 // ── Empleado / Técnico ────────────────────────────────────────
-import EmpleadoDashboard from "../pages/empleado/Dashboard";
 
 // ── Personal ──────────────────────────────────────────────────
 import PersonalDashboard   from "../pages/personal/Dashboard";
@@ -78,8 +77,8 @@ function AppRouter() {
         ═══════════════════════════════════════ */}
         <Route element={<PrivateRoute role="EMPLEADO" />}>
 
-          <Route path="/empleado" element={<Navigate to="/empleado/dashboard" replace />} />
-          <Route path="/empleado/dashboard" element={<EmpleadoDashboard />} />
+          <Route path="/empleado" element={<Navigate to="/empleado/reparaciones" replace />} />
+          <Route path="/empleado/dashboard" element={<Navigate to="/empleado/reparaciones" replace />} />
           <Route path="/empleado/reparaciones" element={<Reparaciones />} />
           <Route path="/admin/reparaciones" element={<Reparaciones />} />
 
