@@ -80,6 +80,7 @@ function AppRouter() {
           <Route path="/empleado" element={<Navigate to="/empleado/reparaciones" replace />} />
           <Route path="/empleado/dashboard" element={<Navigate to="/empleado/reparaciones" replace />} />
           <Route path="/empleado/reparaciones" element={<Reparaciones />} />
+          <Route path="/empleado/notificaciones" element={<NotificacionesAdmin />} />
           <Route path="/admin/reparaciones" element={<Reparaciones />} />
 
         </Route>

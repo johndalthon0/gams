@@ -34,6 +34,7 @@ const adminSysLinks = [
 
 const empleadoLinks = [
   { to: "/empleado/reparaciones", icon: FiTool, label: "Mis Reparaciones" },
+  { to: "/empleado/notificaciones", icon: FiBell, label: "Notificaciones" },
 ];
 
 const personalLinks = [

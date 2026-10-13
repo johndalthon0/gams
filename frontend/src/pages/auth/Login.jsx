@@ -26,7 +26,7 @@ function Login() {
       localStorage.setItem("user", JSON.stringify(res.data.user));
       const rol = res.data.user.rol;
       if (rol === "ADMIN") navigate("/admin/dashboard");
-      if (rol === "EMPLEADO") navigate("/empleado/dashboard");
+      if (rol === "EMPLEADO") navigate("/empleado/reparaciones");
       if (rol === "PERSONAL") navigate("/personal/dashboard");
     } catch (err) {
       setError(err.response?.data?.message || (err.response
