@@ -175,25 +175,19 @@ def generar_explicacion_texto(
             return nombres[0]
         return ", ".join(nombres[:-1]) + " y " + nombres[-1]
 
-    principales = (altos or medios)[:3]
+    conclusion = f"Riesgo {nivel_riesgo} ({round(probabilidad, 1)}%)"
 
-    if principales:
-        conclusion = (
-            f"El riesgo lo explican principalmente: {_listar(principales)}. "
-        )
-    else:
-        conclusion = "No se identificaron factores de riesgo claros en el historial del equipo. "
-
-    if altos and medios:
-        conclusion += f"También influyen, con menor peso: {_listar(medios[:3])}. "
+    if altos:
+        conclusion += f" — principal: {_listar(altos[:3])}"
+    if medios:
+        conclusion += f"; también: {_listar(medios[:3])}"
+    if not altos and not medios:
+        conclusion += " — sin factores claros en el historial"
 
     if anomalia:
-        conclusion += "Además, su historial de mantenimiento muestra un patrón distinto al resto de equipos similares, lo que refuerza la alerta. "
+        conclusion += "; patrón de mantenimiento inusual detectado"
 
-    conclusion += (
-        f"La IA estima {round(probabilidad, 1)}% de probabilidad de falla "
-        f"(riesgo {nivel_riesgo}) y recomienda intervenir en los próximos {dias} días."
-    )
+    conclusion += f". Intervenir en los próximos {dias} días."
 
     return {
         "factores":   factores,

@@ -254,7 +254,9 @@ def accionar_orden(data: PropuestaAccion):
             estado_mantenimiento,
         ))
 
-        # Crear orden de trabajo
+        # Crear orden de trabajo — su propio estado (PROGRAMADO/EN_PROCESO/
+        # PAUSADO/FINALIZADO) es independiente del estado del mantenimiento
+        # (PENDIENTE_CONFIRMACION no es válido acá, por eso el "Data truncated").
         ot_id = execute_insert("""
             INSERT INTO ia_ordenes_trabajo
                 (orden_ia_id, mantenimiento_id, equipo_id,
@@ -263,7 +265,7 @@ def accionar_orden(data: PropuestaAccion):
         """, (
             data.orden_id, mant_id, equipo_id,
             tecnico_id, data.usuario_id, fecha_programada,
-            estado_mantenimiento,
+            'PROGRAMADO',
         ))
 
          # Actualizar estado del equipo

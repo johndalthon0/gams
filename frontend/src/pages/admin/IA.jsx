@@ -1616,6 +1616,7 @@ function IA() {
   const [repuestosCat, setRepuestosCat] = useState([]);
   const [loading, setLoading] = useState(true);
   const [entrenando, setEntrenando] = useState(false);
+  const [ultimoRefrescoAuto, setUltimoRefrescoAuto] = useState(null);
   const [error, setError] = useState("");
   const [buscar, setBuscar] = useState("");
   const [modalAnalisis, setModalAnalisis] = useState(null);
@@ -1694,6 +1695,7 @@ function IA() {
       api.get("/ia/notificaciones"),
       api.get("/ia/mis-ordenes"),
       api.get("/catalogos/repuestos"),
+      api.get("/ia/estado-entrenamiento"),
     ];
     if (esAdmin) extra.push(api.get("/ia/panel-admin"));
     const r2 = await Promise.allSettled(extra);
@@ -1701,7 +1703,8 @@ function IA() {
     if (ok(r2[1])) setNotificaciones(val(r2[1])?.notificaciones || []);
     if (ok(r2[2])) setMisOrdenes(val(r2[2])?.ordenes || []);
     if (ok(r2[3])) setRepuestosCat(val(r2[3]) || []);
-    if (esAdmin && r2[4] && ok(r2[4])) setPanelAdmin(val(r2[4]) || {});
+    if (ok(r2[4])) setUltimoRefrescoAuto(val(r2[4])?.ultimo_refresco_auto || null);
+    if (esAdmin && r2[5] && ok(r2[5])) setPanelAdmin(val(r2[5]) || {});
   }, [esAdmin]);
 
   useEffect(() => {
@@ -1890,6 +1893,15 @@ function IA() {
                 {resumen.version} · {resumen.modelo}
               </span>
             )}
+          </p>
+          <p
+            style={{
+              color: "var(--text-muted)",
+              margin: "4px 0 0",
+              fontSize: "12px",
+            }}
+          >
+            🕑 Última actualización automática: {fmtFull(ultimoRefrescoAuto)}
           </p>
         </div>
         <div style={{ display: "flex", gap: "10px", alignItems: "flex-start" }}>

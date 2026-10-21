@@ -10,7 +10,7 @@ from pipeline.features.engineer    import construir_features_desde_resumen, FEAT
 from pipeline.explainability.explainer import calcular_shap_equipo, generar_explicacion_texto
 from pipeline.registry.model_registry import cargar_modelo, modelo_existe, get_version_activa
 from api.routes.entrenamiento      import _pipeline_completo
-from database import execute_insert, execute_query, execute_update
+from database import execute_insert, execute_query, execute_update, ahora_bolivia_sql
 from config import (
     UMBRAL_RIESGO_ALTO, UMBRAL_RIESGO_MEDIO,
     UMBRAL_ORDEN_AUTO,  UMBRAL_NOTIFICACION
@@ -37,12 +37,13 @@ def _insertar_prediccion(
     try:
         return execute_insert("""
             INSERT INTO ia_predicciones
-                (equipo_id, probabilidad_falla, nivel_riesgo,
+                (equipo_id, fecha_prediccion, probabilidad_falla, nivel_riesgo,
                  dias_estimados, anomalia_detectada,
                  modelo_version, features_json, explicacion_json)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         """, (
             equipo_id,
+            ahora_bolivia_sql(),
             round(probabilidad_falla, 2),
             nivel_riesgo,
             dias_estimados,
@@ -71,11 +72,11 @@ def _crear_orden(
     fecha_sugerida = (date.today() + timedelta(days=max(dias_estimados, 3))).isoformat()
     orden_id = execute_insert("""
         INSERT INTO ia_ordenes
-            (equipo_id, prediccion_id, fecha_sugerida,
+            (equipo_id, prediccion_id, fecha_generada, fecha_sugerida,
              nivel_riesgo, probabilidad, motivo)
-        VALUES (%s, %s, %s, %s, %s, %s)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
     """, (
-        equipo_id, prediccion_id, fecha_sugerida,
+        equipo_id, prediccion_id, ahora_bolivia_sql(), fecha_sugerida,
         nivel_riesgo, round(probabilidad * 100, 2), motivo[:1000]
     ))
     return orden_id, True
@@ -113,15 +114,23 @@ def _serializar_fechas(rows: list) -> list:
 
 # ── endpoints ───────────────────────────────────────────────────────────────
 
-_riesgo_cache = {"ts": 0.0, "data": None}
+_riesgo_cache = {"ts": 0.0, "data": None, "guardado": False}
 _RIESGO_TTL = 600  # seg — evita recalcular en cada carga del dashboard
 
 
 @router.get("/equipos-riesgo")
 def get_equipos_riesgo(guardar: bool = True, refrescar: bool = False):
     ahora = time.time()
-    if (not refrescar and _riesgo_cache["data"] is not None
-            and ahora - _riesgo_cache["ts"] < _RIESGO_TTL):
+    # Si piden guardar=True pero lo único que hay en cache vino de un cálculo
+    # que NO se persistió (guardar=False), no alcanza con devolver la cache:
+    # el caller espera que esto haya quedado guardado en la BD.
+    cache_sirve = (
+        not refrescar
+        and _riesgo_cache["data"] is not None
+        and ahora - _riesgo_cache["ts"] < _RIESGO_TTL
+        and (not guardar or _riesgo_cache["guardado"])
+    )
+    if cache_sirve:
         return _riesgo_cache["data"]
     data = _calcular_equipos_riesgo(guardar)
     # Solo cacheamos resultados válidos: un total 0 casi siempre es un fallo
@@ -129,6 +138,7 @@ def get_equipos_riesgo(guardar: bool = True, refrescar: bool = False):
     if data.get("total", 0) > 0:
         _riesgo_cache["ts"] = time.time()
         _riesgo_cache["data"] = data
+        _riesgo_cache["guardado"] = guardar
     return data
 
 

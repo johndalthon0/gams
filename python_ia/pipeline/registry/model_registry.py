@@ -5,7 +5,7 @@ import joblib
 import logging
 from datetime import datetime
 from config import MODELS_DIR
-from database import execute_query, execute_insert, execute_update
+from database import execute_query, execute_insert, execute_update, ahora_bolivia_sql
 
 logger = logging.getLogger(__name__)
 
@@ -112,14 +112,15 @@ def guardar_modelo(
         execute_update("UPDATE ia_modelo_versiones SET activa = 0")
         execute_insert("""
             INSERT INTO ia_modelo_versiones
-                (version, modelo_ganador, equipos_usados, filas_dataset,
+                (version, modelo_ganador, fecha, equipos_usados, filas_dataset,
                  accuracy, precision_score, recall, f1, roc_auc,
                  metricas_json, features_json, comparacion_json,
                  modelo_blob, scaler_blob, activa, notas)
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,1,%s)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,1,%s)
         """, (
             version,
             nombre_modelo,
+            ahora_bolivia_sql(),
             n_equipos,
             n_filas,
             float(metricas.get("accuracy",  0)),

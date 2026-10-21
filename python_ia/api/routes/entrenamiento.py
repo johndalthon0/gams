@@ -16,7 +16,7 @@ from config import TEST_SIZE, RANDOM_STATE, MIN_FILAS_TRAIN
 
 logger  = logging.getLogger(__name__)
 router  = APIRouter()
-_estado = {"entrenando": False}
+_estado = {"entrenando": False, "ultimo_refresco_auto": None}
 
 
 def _pipeline_completo(forzar: bool = False) -> dict:
@@ -169,5 +169,6 @@ def get_versiones(limit: int = 10):
 def estado_entrenamiento():
     return {
         "entrenando": _estado["entrenando"],
-        "version_activa": get_version_activa()
+        "version_activa": get_version_activa(),
+        "ultimo_refresco_auto": _estado["ultimo_refresco_auto"],
     }

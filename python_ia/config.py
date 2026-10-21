@@ -39,3 +39,10 @@ CV_FOLDS         = 5
 TEST_SIZE        = 0.25
 RANDOM_STATE     = 42
 MIN_FILAS_TRAIN  = 10   # mínimo de filas para entrenar
+
+# Refresco automático de predicciones de riesgo (no reentrena el modelo,
+# solo vuelve a correrlo contra los datos actuales de cada equipo). Antes
+# solo pasaba si alguien tenía la pantalla de IA abierta y el cache de 10
+# min ya había vencido; con esto corre solo una vez al día, de madrugada,
+# haya alguien mirando o no. Hora en formato 24h, zona America/La_Paz.
+IA_REFRESCO_HORA = int(os.getenv("IA_REFRESCO_HORA", 6))
