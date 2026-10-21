@@ -1,6 +1,14 @@
 const db = require('../config/database');
 const { ahoraMySQL } = require('../utils/fecha');
 
+// La columna es DATE, pero el frontend a veces manda el valor tal cual lo
+// devolvió el GET anterior (mysql2 entrega las columnas DATE como objeto
+// Date, y JSON.stringify lo serializa como ISO completo con hora y "Z"),
+// o el propio <input type="date"> ya manda "YYYY-MM-DD" limpio. En modo
+// estricto MySQL rechaza la hora/"Z" con "Incorrect date value" — nos
+// quedamos solo con los primeros 10 caracteres para cubrir ambos casos.
+const soloFecha = (v) => (v ? String(v).slice(0, 10) : null);
+
 // =============================================
 // LISTAR TODOS (Admin)
 // =============================================
@@ -74,17 +82,38 @@ exports.getEquipo = async (req, res) => {
 // Codigo unico autogenerado (EQ-0001, EQ-0002...) para que nadie tenga que
 // inventarlo a mano ni se pueda repetir por error. Reintenta si hay choque
 // (dos registros casi al mismo tiempo, o codigos viejos no numericos).
+// EQ-0001..EQ-9999 (4 dígitos); al llenarse esos 9999 códigos, sigue con
+// GA-00001..GA-99999 (5 dígitos), y así con un dígito más por cada prefijo
+// nuevo que haga falta. El MAX() solo mira códigos que ya calzan EXACTO con
+// el patrón del prefijo actual (ni más corto ni más largo) — así un código
+// viejo mal formado (ej. "EQ-11111" de antes de este fix, o "1234" sin
+// prefijo) no contamina el siguiente número generado.
+const PREFIJOS_CODIGO_EQUIPO = [
+  { prefijo: 'EQ-', digitos: 4 },
+  { prefijo: 'GA-', digitos: 5 },
+  { prefijo: 'GA-', digitos: 6 },
+  { prefijo: 'GA-', digitos: 7 },
+];
+
 const generarCodigoEquipo = async () => {
-  const [[r]] = await db.query(
-    `SELECT COALESCE(MAX(CAST(SUBSTRING(codigo,4) AS UNSIGNED)),0) AS max
-     FROM equipos WHERE codigo REGEXP '^EQ-[0-9]+$'`
-  );
-  let n = r.max + 1;
-  for (let intento = 0; intento < 20; intento++) {
-    const candidato = `EQ-${String(n).padStart(4, '0')}`;
-    const [existe] = await db.query('SELECT id FROM equipos WHERE codigo = ?', [candidato]);
-    if (existe.length === 0) return candidato;
-    n++;
+  for (const { prefijo, digitos } of PREFIJOS_CODIGO_EQUIPO) {
+    const [[r]] = await db.query(
+      `SELECT COUNT(*) AS usados,
+              COALESCE(MAX(CAST(SUBSTRING(codigo, ?) AS UNSIGNED)), 0) AS max
+       FROM equipos WHERE codigo REGEXP ?`,
+      [prefijo.length + 1, `^${prefijo}[0-9]{${digitos}}$`]
+    );
+    const tope = Math.pow(10, digitos) - 1;
+    if (r.usados >= tope) continue; // este rango ya está lleno, pasa al siguiente prefijo
+
+    // mysql2 devuelve el MAX(CAST(...AS UNSIGNED)) como string, no número —
+    // sin el Number(), "1111" + 1 concatena ("11111") en vez de sumar (1112).
+    let n = Number(r.max) + 1;
+    for (let intento = 0; intento < 20 && n <= tope; intento++, n++) {
+      const candidato = `${prefijo}${String(n).padStart(digitos, '0')}`;
+      const [existe] = await db.query('SELECT id FROM equipos WHERE codigo = ?', [candidato]);
+      if (existe.length === 0) return candidato;
+    }
   }
   throw new Error('No se pudo generar un código único');
 };
@@ -100,6 +129,10 @@ exports.createEquipo = async (req, res) => {
 
     if (!nombre || !tipo_id)
       return res.status(400).json({ message: 'Completa los campos obligatorios' });
+
+    const [[tipoExiste]] = await db.query('SELECT id FROM tipos_equipo WHERE id=?', [tipo_id]);
+    if (!tipoExiste)
+      return res.status(400).json({ message: 'El tipo de equipo seleccionado ya no existe. Elige otro.' });
 
     nombre = nombre.trim();
     codigo = codigo ? codigo.trim() : await generarCodigoEquipo();
@@ -122,7 +155,7 @@ exports.createEquipo = async (req, res) => {
       tipo_adquisicion  || 'Propio',
       caracteristicas   || null,
       proveedor         || null,
-      fecha_adquisicion || null,
+      soloFecha(fecha_adquisicion),
       observaciones     || null,
       'DISPONIBLE'
     ]);
@@ -147,6 +180,13 @@ exports.updateEquipo = async (req, res) => {
       fecha_adquisicion, observaciones
     } = req.body;
 
+    if (!tipo_id)
+      return res.status(400).json({ message: 'Selecciona un tipo de equipo válido' });
+
+    const [[tipoExiste]] = await db.query('SELECT id FROM tipos_equipo WHERE id=?', [tipo_id]);
+    if (!tipoExiste)
+      return res.status(400).json({ message: 'El tipo de equipo seleccionado ya no existe. Elige otro.' });
+
     await db.query(`
       UPDATE equipos
       SET codigo=?, nombre=?, tipo_id=?, sucursal_id=?,
@@ -159,7 +199,7 @@ exports.updateEquipo = async (req, res) => {
       tipo_adquisicion  || null,
       caracteristicas   || null,
       proveedor         || null,
-      fecha_adquisicion || null,
+      soloFecha(fecha_adquisicion),
       observaciones     || null,
       id
     ]);

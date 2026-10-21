@@ -13,6 +13,12 @@ const fmtFecha = (d) =>
     timeZone: "America/La_Paz", day: "2-digit", month: "short", year: "numeric",
   }) : "—";
 
+// El GET de equipos devuelve la columna DATE como ISO completo con hora
+// ("2026-05-17T04:00:00.000Z"), pero <input type="date"> solo acepta
+// "YYYY-MM-DD" — si le pasamos el ISO completo lo muestra vacío aunque el
+// equipo sí tenga fecha guardada.
+const soloFecha = (d) => (d ? String(d).slice(0, 10) : "");
+
 const inputStyle = {
   width: "100%",
   background: "var(--bg-surface2)",
@@ -103,8 +109,16 @@ function Equipos() {
 
   const save = async () => {
     try {
-      if (!form.nombre || !form.tipo_id) {
-        await avisar("Completa los campos obligatorios.");
+      // Al registrar un equipo nuevo se piden todos los datos completos.
+      // Al editar uno existente se mantiene solo nombre+tipo obligatorios,
+      // para no bloquear la edición de equipos viejos que quedaron
+      // incompletos antes de este cambio.
+      const camposObligatorios = editando
+        ? ["nombre", "tipo_id"]
+        : ["nombre", "tipo_id", "sucursal_id", "tipo_adquisicion",
+           "caracteristicas", "proveedor", "fecha_adquisicion", "observaciones"];
+      if (camposObligatorios.some((c) => !form[c])) {
+        await avisar("Completa todos los campos para registrar el equipo.");
         return;
       }
       if (editando) {
@@ -293,9 +307,9 @@ function Equipos() {
             }}>
               {[
                 { label: "Equipo / Modelo *", name: "nombre",            type: "text" },
-                { label: "Proveedor",         name: "proveedor",         type: "text" },
-                { label: "Fecha Adquisición", name: "fecha_adquisicion", type: "date" },
-                { label: "Características",   name: "caracteristicas",   type: "text" },
+                { label: "Proveedor *",       name: "proveedor",         type: "text" },
+                { label: "Fecha Adquisición *", name: "fecha_adquisicion", type: "date" },
+                { label: "Características *", name: "caracteristicas",   type: "text" },
               ].map(f => (
                 <div key={f.name}>
                   <label style={labelStyle}>{f.label}</label>
@@ -316,7 +330,7 @@ function Equipos() {
               </div>
 
               <div>
-                <label style={labelStyle}>Sucursal</label>
+                <label style={labelStyle}>Sucursal *</label>
                 <select name="sucursal_id" value={form.sucursal_id} onChange={handleChange} style={inputStyle}>
                   <option value="">Seleccione...</option>
                   {sucursales.map(s => <option key={s.id} value={s.id}>{s.nombre}</option>)}
@@ -324,7 +338,7 @@ function Equipos() {
               </div>
 
               <div>
-                <label style={labelStyle}>Tipo Adquisición</label>
+                <label style={labelStyle}>Tipo Adquisición *</label>
                 <select name="tipo_adquisicion" value={form.tipo_adquisicion} onChange={handleChange} style={inputStyle}>
                   <option>Propio</option>
                   <option>Compra</option>
@@ -333,7 +347,7 @@ function Equipos() {
               </div>
 
               <div style={{ gridColumn: "1 / -1" }}>
-                <label style={labelStyle}>Observaciones</label>
+                <label style={labelStyle}>Observaciones *</label>
                 <textarea
                   name="observaciones" rows={3}
                   value={form.observaciones} onChange={handleChange}
@@ -403,12 +417,17 @@ function Equipos() {
                       {e.estado !== "BAJA" && (
                         <button onClick={() => {
                           setMostrarForm(true); setEditando(true);
+                          // Si el tipo guardado ya no existe en el catálogo (fue borrado/
+                          // fusionado), lo dejamos vacío en vez de mandar un ID huérfano
+                          // que la BD va a rechazar — así el selector se ve realmente
+                          // vacío y la validación obliga a elegir uno válido.
+                          const tipoValido = tipos.some((t) => t.id === e.tipo_id);
                           setForm({
                             id: e.id, codigo: e.codigo || "", nombre: e.nombre || "",
-                            tipo_id: e.tipo_id || "", sucursal_id: e.sucursal_id || "",
+                            tipo_id: tipoValido ? e.tipo_id : "", sucursal_id: e.sucursal_id || "",
                             tipo_adquisicion: e.tipo_adquisicion || "",
                             caracteristicas: e.caracteristicas || "", proveedor: e.proveedor || "",
-                            fecha_adquisicion: e.fecha_adquisicion || "", observaciones: e.observaciones || ""
+                            fecha_adquisicion: soloFecha(e.fecha_adquisicion), observaciones: e.observaciones || ""
                           });
                         }} style={{
                           background: "var(--warning-bg)", border: "1px solid var(--warning)",

@@ -107,17 +107,31 @@ exports.getProducto = async (req, res) => {
 
 // Codigo unico autogenerado (REP-0001, REP-0002...) para que nadie tenga
 // que inventarlo a mano ni se pueda repetir por error.
+// REP-0001..REP-9999 (4 dígitos); al llenarse, sigue con un dígito más
+// (REP-00001, REP-000001...). El MAX() solo mira códigos que calzan EXACTO
+// con el patrón del ancho actual — así un código viejo mal formado no
+// contamina el siguiente número generado (mismo fix que equipo.controller.js).
+const ANCHOS_CODIGO_PRODUCTO = [4, 5, 6, 7];
+
 const generarCodigoProducto = async () => {
-  const [[r]] = await db.query(
-    `SELECT COALESCE(MAX(CAST(SUBSTRING(codigo,5) AS UNSIGNED)),0) AS max
-     FROM repuestos WHERE codigo REGEXP '^REP-[0-9]+$'`
-  );
-  let n = r.max + 1;
-  for (let intento = 0; intento < 20; intento++) {
-    const candidato = `REP-${String(n).padStart(4, '0')}`;
-    const [existe] = await db.query('SELECT id FROM repuestos WHERE codigo = ?', [candidato]);
-    if (existe.length === 0) return candidato;
-    n++;
+  for (const digitos of ANCHOS_CODIGO_PRODUCTO) {
+    const [[r]] = await db.query(
+      `SELECT COUNT(*) AS usados,
+              COALESCE(MAX(CAST(SUBSTRING(codigo, 5) AS UNSIGNED)), 0) AS max
+       FROM repuestos WHERE codigo REGEXP ?`,
+      [`^REP-[0-9]{${digitos}}$`]
+    );
+    const tope = Math.pow(10, digitos) - 1;
+    if (r.usados >= tope) continue;
+
+    // mysql2 devuelve el MAX(CAST(...AS UNSIGNED)) como string, no número —
+    // sin el Number(), "1111" + 1 concatena ("11111") en vez de sumar (1112).
+    let n = Number(r.max) + 1;
+    for (let intento = 0; intento < 20 && n <= tope; intento++, n++) {
+      const candidato = `REP-${String(n).padStart(digitos, '0')}`;
+      const [existe] = await db.query('SELECT id FROM repuestos WHERE codigo = ?', [candidato]);
+      if (existe.length === 0) return candidato;
+    }
   }
   throw new Error('No se pudo generar un código único');
 };
