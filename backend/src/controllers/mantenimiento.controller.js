@@ -7,6 +7,56 @@ let _push;
 const push     = async (uid, p) => { try { if (!_push) _push = require('./push.controller'); await _push.enviarPushUsuario(uid, p); } catch {} };
 const pushMany = async (uids, p) => { for (const uid of uids) await push(uid, p); };
 
+// Si el mantenimiento que se está finalizando vino de una orden de la IA
+// (tiene una ia_ordenes_trabajo ligada), registra el resultado real en
+// ia_feedback para que "Precisión histórica" deje de mostrar 0/0 — antes
+// esto solo pasaba si se finalizaba desde el flujo de "Órdenes IA" en vez
+// del botón normal de Finalizar que usa todo el mundo.
+const registrarFeedbackIA = async (mantenimientoId, equipoId, tipoMant, costoReal, fechaInicio, fechaFin) => {
+  try {
+    const [[ot]] = await db.query(
+      'SELECT id FROM ia_ordenes_trabajo WHERE mantenimiento_id=? LIMIT 1', [mantenimientoId]
+    );
+    if (!ot) return;
+
+    const ahora = ahoraMySQL();
+    await db.query(
+      `UPDATE ia_ordenes_trabajo SET estado='FINALIZADO', fecha_fin=?, costo_final=? WHERE id=?`,
+      [ahora, costoReal || 0, ot.id]
+    );
+
+    const [[pred]] = await db.query(
+      `SELECT id, probabilidad_falla, nivel_riesgo FROM ia_predicciones
+       WHERE equipo_id=? ORDER BY id DESC LIMIT 1`, [equipoId]
+    );
+
+    const fallo_real     = tipoMant === 'CORRECTIVO';
+    const pred_alta       = pred ? ['ALTO', 'CRÍTICO'].includes(pred.nivel_riesgo) : false;
+    const pred_correcta   = pred ? (pred_alta === fallo_real) : null;
+    const duracion_dias   = (fechaInicio && fechaFin)
+      ? Math.round((new Date(fechaFin) - new Date(fechaInicio)) / 86400000)
+      : 0;
+
+    const [[repSum]] = await db.query(
+      'SELECT COALESCE(SUM(cantidad),0) AS total FROM mantenimiento_repuestos WHERE mantenimiento_id=?',
+      [mantenimientoId]
+    );
+
+    await db.query(
+      `INSERT INTO ia_feedback
+         (orden_trabajo_id, equipo_id, prediccion_id, prediccion_correcta,
+          fallo_real, probabilidad_pred, costo_real, duracion_dias,
+          repuestos_qty, observaciones, fecha_registro)
+       VALUES (?,?,?,?,?,?,?,?,?,?,?)`,
+      [
+        ot.id, equipoId, pred?.id || null, pred_correcta,
+        fallo_real, pred?.probabilidad_falla || null, costoReal || 0, duracion_dias,
+        repSum.total, 'Finalizado desde Reparaciones', ahora,
+      ]
+    );
+  } catch (e) { console.error('registrarFeedbackIA:', e.message); }
+};
+
 // Correo al email registrado del usuario, además de la notificación
 // in-app y el push. Si no tiene email o falla el envío, no afecta nada más.
 const correoPorNotif = async (uid, titulo, mensaje) => {
@@ -737,6 +787,8 @@ exports.finalizarMantenimiento = async (req, res) => {
       `UPDATE mantenimientos SET estado='FINALIZADO', fecha_fin=?, descripcion_solucion=?, costo=? WHERE id=?`,
       [ahora, descripcion_solucion || null, costo || m.costo || 0, id]
     );
+
+    await registrarFeedbackIA(id, m.equipo_id, m.tipo, costo || m.costo || 0, m.fecha_inicio, ahora);
 
     // Si nadie estaba asignado, quien lo finaliza (técnico o admin) queda como responsable
     if (!m.tecnico_usuario_id && req.user?.id) {
