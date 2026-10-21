@@ -341,7 +341,7 @@ def get_estadisticas():
                 e.nombre AS equipo_nombre
             FROM ia_predicciones p
             JOIN equipos e ON e.id = p.equipo_id
-            ORDER BY p.fecha_prediccion DESC
+            ORDER BY p.id DESC
             LIMIT 10
         """)
 
@@ -398,7 +398,7 @@ def get_historial(equipo_id: int = None, limit: int = 50):
                 FROM ia_predicciones p
                 JOIN equipos e ON e.id = p.equipo_id
                 WHERE p.equipo_id = %s
-                ORDER BY p.fecha_prediccion DESC
+                ORDER BY p.id DESC
                 LIMIT %s
             """, (equipo_id, limit))
         else:
@@ -415,7 +415,7 @@ def get_historial(equipo_id: int = None, limit: int = 50):
                     e.nombre AS equipo_nombre
                 FROM ia_predicciones p
                 JOIN equipos e ON e.id = p.equipo_id
-                ORDER BY p.fecha_prediccion DESC
+                ORDER BY p.id DESC
                 LIMIT %s
             """, (limit,))
 
