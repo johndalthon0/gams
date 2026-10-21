@@ -224,7 +224,7 @@ def accionar_orden(data: PropuestaAccion):
         tecnico = _seleccionar_tecnico(equipo_id)
         tecnico_id = tecnico["id"] if tecnico else None
         tecnico_nombre = (
-            f"{tecnico['nombre']} {tecnico.get('apellido','')}"
+            f"{tecnico['nombre']} {tecnico.get('apellido') or ''}".strip()
             if tecnico else "Sin asignar"
         )
 
@@ -555,12 +555,14 @@ def _registrar_feedback(orden: dict, costo_real: float, observaciones: str):
     try:
         equipo_id = int(orden["equipo_id"])
 
-        # Obtener predicción más reciente del equipo
+        # Obtener predicción más reciente del equipo (por id, no por fecha
+        # guardada -- filas viejas con fecha mal calculada podian "ganar"
+        # aunque fueran mas antiguas)
         pred = execute_query("""
             SELECT id, probabilidad_falla, nivel_riesgo
             FROM ia_predicciones
             WHERE equipo_id = %s
-            ORDER BY fecha_prediccion DESC LIMIT 1
+            ORDER BY id DESC LIMIT 1
         """, (equipo_id,))
 
         prediccion_id = pred[0]["id"]          if pred else None
