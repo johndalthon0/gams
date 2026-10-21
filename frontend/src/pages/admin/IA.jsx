@@ -3651,7 +3651,9 @@ function IA() {
                           margin: 0,
                         }}
                       >
-                        {panelAdmin.precision_ia?.precision_pct || 0}%
+                        {panelAdmin.precision_ia?.total
+                          ? `${panelAdmin.precision_ia.precision_pct || 0}%`
+                          : "—"}
                       </p>
                       <p
                         style={{
@@ -3660,10 +3662,21 @@ function IA() {
                           margin: "4px 0 0",
                         }}
                       >
-                        {panelAdmin.precision_ia?.correctas || 0} de{" "}
-                        {panelAdmin.precision_ia?.total || 0}
+                        {panelAdmin.precision_ia?.total
+                          ? `${panelAdmin.precision_ia.correctas || 0} de ${panelAdmin.precision_ia.total} mantenimientos finalizados`
+                          : "Sin mantenimientos finalizados todavía"}
                       </p>
                     </div>
+                    <p
+                      style={{
+                        color: "var(--text-muted)",
+                        fontSize: "11px",
+                        margin: "0 0 10px",
+                        textAlign: "center",
+                      }}
+                    >
+                      Abajo: cuántas sugerencias de la IA aceptaste o rechazaste (no mide si acertó)
+                    </p>
                     <div style={{ display: "flex", gap: "12px" }}>
                       <div
                         style={{
