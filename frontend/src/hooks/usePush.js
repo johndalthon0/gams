@@ -78,11 +78,15 @@ export function usePush() {
   // de los casos sin esperar a que el usuario note que no le llegó nada).
   useEffect(() => {
     const onFocus = () => detectar();
-    window.addEventListener("focus", onFocus);
-    document.addEventListener("visibilitychange", () => {
+    const onVisible = () => {
       if (document.visibilityState === "visible") detectar();
-    });
-    return () => window.removeEventListener("focus", onFocus);
+    };
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
   }, [detectar]);
 
   const activar = useCallback(async () => {
