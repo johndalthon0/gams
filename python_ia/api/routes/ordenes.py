@@ -130,13 +130,19 @@ def _seleccionar_tecnico(equipo_id: int) -> dict | None:
     return todos[0] if todos else None
 
 
-def _ya_tiene_orden_activa(equipo_id: int) -> bool:
+def _mantenimiento_activo(equipo_id: int):
+    # Mira la tabla mantenimientos directamente (la fuente real de verdad),
+    # no ia_ordenes_trabajo: si esa fila nunca llegó a crearse (como pasaba
+    # con el bug de "Data truncated", que creaba el mantenimiento pero
+    # fallaba justo despues), el chequeo viejo no detectaba nada y cada
+    # reintento de "Aprobar" generaba un mantenimiento duplicado mas.
     rows = execute_query("""
-        SELECT COUNT(*) AS total FROM ia_ordenes_trabajo
+        SELECT id FROM mantenimientos
         WHERE equipo_id = %s
-          AND estado IN ('PROGRAMADO','EN_PROCESO')
+          AND estado IN ('PENDIENTE','PENDIENTE_CONFIRMACION','PROGRAMADO','EN_PROCESO','PAUSADO','REPROGRAMAR')
+        ORDER BY id DESC LIMIT 1
     """, (equipo_id,))
-    return rows[0]["total"] > 0 if rows else False
+    return rows[0]["id"] if rows else None
 
 
 # ── Endpoints órdenes IA ──────────────────────────────────────────────────────
@@ -203,11 +209,28 @@ def accionar_orden(data: PropuestaAccion):
 
         equipo_id = int(orden["equipo_id"])
 
-                # Evitar duplicados
-        if _ya_tiene_orden_activa(equipo_id):
+        # Si el equipo ya tiene un mantenimiento activo (de esta misma orden
+        # o de otra), no se crea uno nuevo -- solo se deja constancia en el
+        # historial de que esta orden de la IA se aprobó sobre el que ya
+        # existía, sin duplicar nada.
+        mant_existente = _mantenimiento_activo(equipo_id)
+        if mant_existente:
+            try:
+                execute_insert("""
+                    INSERT INTO mantenimiento_historial
+                        (mantenimiento_id, usuario_id, accion, observacion, fecha)
+                    VALUES (%s, %s, 'IA_APROBAR', %s, %s)
+                """, (
+                    mant_existente, data.usuario_id,
+                    f"Orden IA #{data.orden_id} aprobada — ya había un mantenimiento activo (#{mant_existente}) para este equipo, no se duplicó.",
+                    ahora_bolivia_sql(),
+                ))
+            except Exception as e:
+                logger.warning(f"No se pudo registrar historial de orden duplicada: {e}")
             return {
-                "message": "Ya existe una orden activa para este equipo",
-                "duplicado": True
+                "message": f"Ya había un mantenimiento activo (#{mant_existente}) para este equipo — se dejó registrado en su historial, no se duplicó.",
+                "mantenimiento_id": mant_existente,
+                "duplicado": True,
             }
 
         fecha_programada = orden.get("fecha_sugerida")
